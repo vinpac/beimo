@@ -1,4 +1,4 @@
 import React from 'react'
 export default [
-  () => <h1>Home View</h1>
+  () => <h1>Home 121321231</h1>
 ]

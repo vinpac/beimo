@@ -1,7 +1,6 @@
 import express from 'express'
 import path from 'path'
 import bodyParser from 'body-parser'
-import prepare from '../lib/configureServer'
 import beimo from './instance'
 
 const app = express()
@@ -25,7 +24,7 @@ app.get('*', async (req, res, next) => {
   }
 })
 
-export default prepare(app, () =>
+export default beimo.prepare(app, () =>
   app.listen(process.env.PORT, () => {
     console.info(`The server is running at http://localhost:${process.env.PORT}/`)
   }))

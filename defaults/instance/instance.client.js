@@ -11,4 +11,12 @@ if (configureApp) {
   configureApp(instance)
 }
 
+if (module.hot) {
+  module.hot.accept('<pages-path>', () => {
+    // eslint-disable-next-line import/no-unresolved
+    instance.configure({ pages: require('<pages-path>').default })
+    instance.hydrate(document.getElementById('root'))
+  })
+}
+
 export default instance

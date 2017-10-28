@@ -1,11 +1,12 @@
 const webpack = require('webpack')
 const path = require('path')
 const nodeExternals = require('webpack-node-externals')
+const utils = require('./utils')
 
 const isDev = !process.argv.includes('--release')
 const isVerbose = process.argv.includes('--verbose')
 
-webpack({
+const compiler = webpack({
   name: 'cli',
   target: 'node',
 
@@ -75,21 +76,31 @@ webpack({
     __filename: false,
     __dirname: false,
   },
-}).run((error, stats) => {
+})
+
+const timeStart = new Date()
+compiler.run((error, stats) => {
   if (error) {
+    utils.logEvent('Transpile', false)
     throw error
   }
 
-  console.info(stats.toString({
-    cached: isVerbose,
-    cachedAssets: isVerbose,
-    chunks: isVerbose,
-    chunkModules: isVerbose,
-    colors: true,
-    hash: isVerbose,
-    modules: isVerbose,
-    reasons: isDev,
-    timings: true,
-    version: isVerbose,
-  }))
+  const timeEnd = new Date()
+
+  // eslint-disable-next-line
+  utils.logEvent('Transpile', true, 'Transpiled successfully in ' + (timeEnd - timeStart) + 'ms')
+  if (!process.argv.includes('--supress-stats')) {
+    console.info(stats.toString({
+      cached: isVerbose,
+      cachedAssets: isVerbose,
+      chunks: isVerbose,
+      chunkModules: isVerbose,
+      colors: true,
+      hash: isVerbose,
+      modules: isVerbose,
+      reasons: isDev,
+      timings: true,
+      version: isVerbose,
+    }))
+  }
 })

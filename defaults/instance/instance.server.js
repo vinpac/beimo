@@ -26,7 +26,7 @@ instance.prepare = (server, handle) => {
   if (!module.hot) {
     handle(server)
   } else {
-    server.hot = module.hotx
+    server.hot = module.hot
     module.hot.accept('<pages-path>')
 
     if (process.env.HAS.ROUTES) {
