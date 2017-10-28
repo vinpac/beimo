@@ -20,7 +20,9 @@ webpack({
     libraryTarget: 'commonjs2',
   },
 
-  externals: [nodeExternals()],
+  externals: [
+    nodeExternals(),
+  ],
 
   module: {
     // Make missing exports an error instead of warning
@@ -61,6 +63,7 @@ webpack({
       },
     ],
   },
+
 
   // Do not replace node globals with polyfills
   // https://webpack.js.org/configuration/node/
