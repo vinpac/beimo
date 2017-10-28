@@ -1,4 +1,7 @@
 import React from 'react'
+import HomeView from './home'
+
 export default [
-  () => <h1>Home 121321231</h1>
+  HomeView,
+  () => <h1>Home</h1>
 ]

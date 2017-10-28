@@ -1,3 +1,4 @@
+import React from 'react'
 import App from '../../lib/App'
 /* eslint-disable */
 // Replaced by parse-defaults
@@ -12,10 +13,11 @@ if (configureApp) {
 }
 
 if (module.hot) {
+  const deepForceUpdate = require('react-deep-force-update')
   module.hot.accept('<pages-path>', () => {
     // eslint-disable-next-line import/no-unresolved
     instance.configure({ pages: require('<pages-path>').default })
-    instance.hydrate(document.getElementById('root'))
+    deepForceUpdate(React)(instance.appInstance)
   })
 }
 

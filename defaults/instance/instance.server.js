@@ -27,10 +27,16 @@ instance.prepare = (server, handle) => {
     handle(server)
   } else {
     server.hot = module.hot
-    module.hot.accept('<pages-path>')
+    module.hot.accept('<pages-path>', () => {
+      // eslint-disable-next-line
+      instance.configure({ pages: require('<pages-path>').default })
+    })
 
     if (process.env.HAS.ROUTES) {
-      module.hot.accept('<routes-path>')
+      module.hot.accept('<routes-path>', () => {
+        // eslint-disable-next-line
+        instance.configure({ routes: require('<routes-path>').default })
+      })
     }
   }
 
