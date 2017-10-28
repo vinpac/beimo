@@ -1,0 +1,6 @@
+{
+  "name": "Page",
+  "main": "Page.server.js",
+  "browser": "Page.client.js",
+  "private": true
+}
