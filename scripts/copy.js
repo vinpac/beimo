@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import pkg from '../package.json'
-import { copyDir, copyFile, makeDir, writeFile } from './fs'
+import { copyDir, copyFile, makeDir, writeFile } from './lib/fs'
 
 async function copy({ distPath, basePath, files, staticDir, appPackage = {}, has }) {
   await makeDir(distPath)

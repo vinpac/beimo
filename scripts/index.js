@@ -3,8 +3,8 @@ import path from 'path'
 import chalk from 'chalk'
 import commander from 'commander'
 import pkg from '../package.json'
-import start from '../lib/start'
-import build from '../lib/build'
+import start from './start'
+import build from './build'
 
 let action = ''
 const program = new commander.Command(pkg.name)

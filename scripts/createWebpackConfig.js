@@ -4,7 +4,7 @@ import webpack from 'webpack'
 import nodeExternals from 'webpack-node-externals'
 import AssetsPlugin from 'assets-webpack-plugin'
 import StringReplacePlugin from 'string-replace-webpack-plugin'
-import overrideRules from './overrideRules'
+import overrideRules from './lib/overrideRules'
 
 const appModulesMap = [
   {
