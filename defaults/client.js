@@ -1,11 +1,5 @@
-import beimo from './instance'
+import beimo from './app'
 
 window.APP_STATE = window.APP_STATE || {}
 
-if (!process.env.HAS.CLIENT) {
-  beimo.hydrate(document.getElementById('root'))
-}
-
-export default () => {
-  beimo.hydrate(document.getElementById('root'))
-}
+beimo.hydrate(document.getElementById('root'))

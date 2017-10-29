@@ -1,5 +1,5 @@
 module.exports = {
   files: [
-    'LICENSE.txt'
+    'LICENSE.txt',
   ],
 }

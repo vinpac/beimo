@@ -1,7 +1,7 @@
-import React from 'react'
-import HomeView from './home'
+import home from './home'
+import notFound from './notFound'
 
 export default [
-  HomeView,
-  () => <h1>Home</h1>
+  home,
+  notFound,
 ]

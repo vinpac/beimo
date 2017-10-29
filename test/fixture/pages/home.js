@@ -1,32 +1,46 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import Link from 'beimo/link' // eslint-disable-line
 
 class HomeView extends React.Component {
-  static propTypes = {
-    className: PropTypes.string,
-  };
+  static propTypes = { color: PropTypes.string.isRequired };
+  static path = '/home'
 
-  static defaultProps = {
-    className: '',
-  };
+  static getInitialProps = async ({ store, yieldProps }) => {
+    yieldProps({ color: store.getState().color })
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    return { color: 'red' }
+  }
 
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.state = {
-      count: 5,
+    this.state = { count: 5 }
+  }
+
+  renderList = () => {
+    const r = []
+    let i
+    for (; i < 10000; i += 1) {
+      r.push(<li key={i}>This is row { i + 1 }</li>)
     }
   }
 
   render() {
-    const { className } = this.props
+    const { color } = this.props
 
     return (
-      <div className={['HomeView', className].join(' ').trim()}>
+      <div className="home">
+        <h4>Color: {color}</h4>
         <button onClick={() => this.setState({ count: this.state.count + 1 })}>
-          { this.state.count }
+          Count: { this.state.count }
         </button>
-        asd12321321qweqweqw6as4d5as64d
+        <ul>
+          {this.renderList()}
+        </ul>
+        {color}
+        <Link to="/adfsdf"> asdasd</Link>
       </div>
     )
   }

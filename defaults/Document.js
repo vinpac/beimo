@@ -3,9 +3,7 @@ import PropTypes from 'prop-types'
 import serialize from 'serialize-javascript'
 
 /* eslint-disable react/no-danger */
-const Document = ({
-  title, children, scripts, appState,
-}) => (
+const Document = ({ title, children, scripts, appState }) => (
   <html className="no-js" lang="en">
     <head>
       <meta charSet="utf-8" />
@@ -32,9 +30,7 @@ Document.propTypes = {
   title: PropTypes.string,
   scripts: PropTypes.arrayOf(PropTypes.string.isRequired),
   children: PropTypes.string.isRequired,
-  appState: PropTypes.shape({
-    pageProps: PropTypes.object,
-  }).isRequired,
+  appState: PropTypes.shape({ pageProps: PropTypes.object }).isRequired,
 }
 
 Document.defaultProps = {

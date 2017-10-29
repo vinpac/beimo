@@ -1,6 +1,0 @@
-{
-  "name": "instance",
-  "main": "instance.server.js",
-  "browser": "instance.client.js",
-  "private": true
-}
