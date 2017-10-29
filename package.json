@@ -1,13 +1,14 @@
 {
   "name": "beimo",
-  "version": "0.0.1-beta.4",
+  "version": "0.0.1-beta.5",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
   "files": [
     "dist",
     "link.js",
-    "bin"
+    "bin",
+    "defaults"
   ],
   "bin": {
     "beimo": "./bin/beimo"
@@ -40,6 +41,9 @@
     "clear": "^0.0.1",
     "commander": "^2.11.0",
     "express": "^4.16.2",
+    "glob": "^7.1.2",
+    "glob-promise": "^3.2.0",
+    "mkdirp": "^0.5.1",
     "query-string": "^5.0.1",
     "react": "^16.0.0",
     "react-deep-force-update": "^1.1.1",
@@ -47,6 +51,7 @@
     "react-dom": "^16.0.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
+    "rimraf": "^2.6.2",
     "serialize-javascript": "^1.4.0",
     "source-map-support": "^0.5.0",
     "string-hash": "^1.1.3",
