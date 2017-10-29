@@ -1,12 +1,13 @@
 {
   "name": "beimo",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1-beta.4",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
   "files": [
     "dist",
-    "link.js"
+    "link.js",
+    "bin"
   ],
   "bin": {
     "beimo": "./bin/beimo"
