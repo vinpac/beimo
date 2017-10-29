@@ -4,12 +4,9 @@ import Link from 'beimo/link' // eslint-disable-line
 
 class HomeView extends React.Component {
   static propTypes = { color: PropTypes.string.isRequired };
-  static path = '/home'
+  static path = '/raio'
 
   static getInitialProps = async ({ store, yieldProps }) => {
-    yieldProps({ color: store.getState().color })
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
     return { color: 'red' }
   }
 
@@ -40,7 +37,7 @@ class HomeView extends React.Component {
           {this.renderList()}
         </ul>
         {color}
-        <Link to="/adfsdf"> asdasd</Link>
+        <Link to="/adfsdf">as4d65as4d65asd asdasd</Link>
       </div>
     )
   }

@@ -6,7 +6,7 @@ node_modules/
 # Compiled output
 dist
 .beimo
-test/fixture/dist
+examples/basics/dist
 
 # Test coverage
 coverage
