@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
@@ -8,6 +8,9 @@
     "dist",
     "link.js"
   ],
+  "bin": {
+    "beimo": "./dist/cli"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:vinpac/beimo.git"
