@@ -5,8 +5,10 @@ const NotFound = () => (
 )
 
 NotFound.displayName = 'NotFound'
-NotFound.getInitialProps = ({ context }) => {
-  context.status = 404
+NotFound.getInitialProps = ({ error, response }) => {
+  response.status = 404
+
+  return { a: 3, error }
 }
 
 export default NotFound

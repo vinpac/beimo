@@ -1,15 +1,16 @@
 import Beimo from '../../lib/Beimo'
 import Document from '../Document'
+import { parsePagesConfig } from '../../lib/utils'
 import assets from './assets.json' // eslint-disable-line import/no-unresolved
 /* eslint-disable */
 // Replaced by parse-defaults
-import pages from '<beimo:pages-path>'
+import pagesConfig from '<beimo:pages-path>';
 import routes from '<beimo:routes-path>'
 import configureApp from '<beimo:configureApp-path>'
 /* eslint-enable */
 
 const app = new Beimo({
-  pages,
+  ...parsePagesConfig(pagesConfig),
   routes,
   documentComponent: Document,
   scripts: [
@@ -28,13 +29,13 @@ app.prepare = (server, handle) => {
   } else {
     server.hot = module.hot
     module.hot.accept('<beimo:pages-path>', () => {
-      // eslint-disable-next-line
-      app.configure({ pages: require('<beimo:pages-path>').default })
+      // eslint-disable-next-line import/no-unresolved
+      app.configure(parsePagesConfig(require('<beimo:pages-path>').default))
     })
 
     if (process.env.HAS.ROUTES) {
       module.hot.accept('<beimo:routes-path>', () => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line import/no-unresolved
         app.configure({ routes: require('<beimo:routes-path>').default })
       })
     }

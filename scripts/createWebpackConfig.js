@@ -128,6 +128,7 @@ export default ({
                   ['module-resolver', {
                     alias: {
                       'beimo/link': 'react-router-dom/Link',
+                      'beimo/router': path.resolve(__dirname, '..', 'lib', 'router'),
                       beimo: path.resolve(__dirname, '..', 'defaults', 'app'),
                     },
                   }],
