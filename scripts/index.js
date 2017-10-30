@@ -11,8 +11,8 @@ const program = new commander.Command(pkg.name)
   .version(pkg.version)
   .arguments('<source-directory>')
   .action(name => { action = name })
-  .option('--release', 'release')
   .option('--verbose', 'verbose')
+  .option('--release', 'indicates if build for production')
   .option('--port <port-number>', 'server port [3000]', 3000)
   .option('--base <base-directory>', 'base directory [.]', '')
   .option('--source <source-directory>', 'source directory [.]', '')
@@ -80,17 +80,22 @@ const params = {
 }
 
 
-if (params.isRelease) {
+if (params.isRelease || action === 'build') {
   process.env.NODE_ENV = 'production'
 }
 
 switch (action) {
   case 'build':
+    params.isRelease = true
     build(params)
     break
-  default:
+  case '':
     start(params).catch(error => {
       console.error(error)
       process.exit(1, error)
     })
+    break
+  default:
+    console.error('Unknown action. Try beimo --help')
+    process.exit(1)
 }

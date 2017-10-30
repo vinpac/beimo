@@ -131,9 +131,6 @@ export default ({
                       beimo: path.resolve(__dirname, '..', 'defaults', 'app'),
                     },
                   }],
-                  // Treat React JSX elements as value types and hoist them to the highest scope
-                  // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-constant-elements
-                  ...(isDev ? [] : ['transform-react-constant-elements']),
                   // Replaces the React.createElement function with one that is more optimized for
                   // production
                   // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-inline-elements
