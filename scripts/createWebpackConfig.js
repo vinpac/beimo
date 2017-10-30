@@ -49,7 +49,7 @@ export default ({
   const isDev = !isRelease
 
   const reScript = /\.jsx?$/
-  const reStyle = /\.(css|less|scss|sss)$/
+  const reStyle = /\.(css|less|scss|sss|styl)$/
   const reImage = /\.(bmp|gif|jpe?g|png|svg)$/
   const staticAssetName = isDev ? '[path][name].[ext]?[hash:8]' : '[hash:8].[ext]'
 
@@ -222,6 +222,7 @@ export default ({
     cache: isDev,
 
     plugins: [
+      // Required for string-replace-plugin loader
       new StringReplacePlugin(),
     ],
 
