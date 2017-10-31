@@ -4,9 +4,9 @@ import { parsePagesConfig } from '../../lib/utils'
 import assets from './assets.json' // eslint-disable-line import/no-unresolved
 /* eslint-disable */
 // Replaced by parse-defaults
-import pagesConfig from '<beimo:pages-path>';
-import routes from '<beimo:routes-path>'
 import configureApp from '<beimo:configureApp-path>'
+import pagesConfig from '<beimo:pages-path>'
+import routes from '<beimo:routes-path>'
 /* eslint-enable */
 
 const app = new Beimo({
