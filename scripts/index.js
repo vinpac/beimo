@@ -6,6 +6,18 @@ import pkg from '../package.json'
 import start from './start'
 import build from './build'
 
+// Install source map
+// eslint-disable-next-line
+__non_webpack_require__('source-map-support').install()
+
+// Makes the script crash on unhandled rejections instead of silently
+// ignoring them. In the future, promise rejections that are not handled will
+// terminate the Node.js process with a non-zero exit code.
+process.on('unhandledRejection', err => {
+  throw err
+})
+
+
 let action = ''
 const program = new commander.Command(pkg.name)
   .version(pkg.version)

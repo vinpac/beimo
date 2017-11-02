@@ -17,6 +17,7 @@ const app = new Beimo({
     assets.vendor.js,
     assets.client.js,
   ],
+  styles: assets.client.css ? [{ url: assets.client.css }] : [],
 })
 
 if (configureApp) {

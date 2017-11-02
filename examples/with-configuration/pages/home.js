@@ -6,9 +6,7 @@ class HomeView extends React.Component {
   static propTypes = { color: PropTypes.string.isRequired };
   static path = '/raio'
 
-  static getInitialProps = async ({ store, yieldProps }) => {
-    return { color: 'red' }
-  }
+  static getInitialProps = async () => ({ color: 'red' })
 
   constructor(props) {
     super(props)

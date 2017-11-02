@@ -1,9 +1,10 @@
 import React from 'react'
 import Link from 'beimo/link'
+import '../about.css'
 
 const About = () => (
-  <div>
-    <h1>About</h1>
+  <div className="page">
+    <h1 className="title">About</h1>
     <Link to="/">Home</Link>
   </div>
 )

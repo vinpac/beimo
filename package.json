@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "assets-webpack-plugin": "^3.5.1",
-    "babel-cli": "^6.26.0",
+    "babel-cli": "^7.0.0-beta.3",
     "babel-core": "7.0.0-beta.3",
     "babel-eslint": "^8.0.1",
     "babel-loader": "^7.1.2",
@@ -40,10 +40,13 @@
     "chalk": "^2.3.0",
     "clear": "^0.0.1",
     "commander": "^2.11.0",
+    "css-modular-loader": "^0.0.4",
     "express": "^4.16.2",
+    "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",
     "glob": "^7.1.2",
     "glob-promise": "^3.2.0",
+    "loader-utils": "^1.1.0",
     "mkdirp": "^0.5.1",
     "postcss-loader": "^2.0.8",
     "query-string": "^5.0.1",
@@ -87,19 +90,14 @@
       ],
       "stage-2",
       "react"
-    ],
-    "env": {
-      "test": {
-        "plugins": [
-          "rewire"
-        ]
-      }
-    }
+    ]
   },
   "scripts": {
     "lint": "$(npm bin)/eslint --fix lib defaults",
-    "test": "yarn transpile --supress-stats && bin/beimo --base=examples/basics",
-    "transpile": "node transpile",
+    "test": "yarn transpile && bin/beimo --base=examples/basics",
+    "transpile": "node transpile --supress-stats",
+    "transpile:all": "npm run transpile && npm run transpile:style-loader",
+    "transpile:style-loader": "rimraf lib/style-loader/dist && babel lib/style-loader -d lib/style-loader/dist",
     "prepublish": "npm run transpile",
     "postpublish": "rm -rf dist"
   },

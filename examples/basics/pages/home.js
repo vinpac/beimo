@@ -1,10 +1,11 @@
 import React from 'react'
 import Link from 'beimo/link'
 import { NotFoundPage } from 'beimo/router'
+import s from '../home.css'
 
 const Home = () => (
-  <div>
-    <h1>Home</h1>
+  <div className={`page ${s.component}`}>
+    <h1 className="title">Home</h1>
     <Link to="/about">About</Link>
     <br />
     <Link to="/?error=1">Throw error on getInitialProps</Link>

@@ -4,6 +4,7 @@ import webpack from 'webpack'
 import nodeExternals from 'webpack-node-externals'
 import AssetsPlugin from 'assets-webpack-plugin'
 import StringReplacePlugin from 'string-replace-webpack-plugin'
+import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import overrideRules from './lib/overrideRules'
 
 const appModulesMap = [
@@ -21,17 +22,24 @@ const appModulesMap = [
   },
 ]
 
-export default ({
-  basePath,
-  sourcePath,
-  isRelease,
-  isVerbose,
-  distPath,
-  port,
-  staticDir,
-  has,
-  parseWebpackConfig,
-}) => {
+const extractTextPlugin = new ExtractTextPlugin({
+  filename: '[chunkhash:8].css',
+  allChunks: true,
+})
+
+export default params => {
+  const {
+    basePath,
+    sourcePath,
+    isRelease,
+    isVerbose,
+    distPath,
+    port,
+    staticDir,
+    has,
+    parseWebpackConfig,
+  } = params
+
   const pkg = {
     engines: {
       node: '>=6.5',
@@ -274,8 +282,27 @@ export default ({
     module: {
       ...baseConfig.module,
       rules: [
+        // Rule for styles
+        {
+          test: reStyle,
+          rules: [
+            {
+              loader: path.resolve(__dirname, '..', 'lib', 'style-loader', 'dist'),
+              options: { add: isDev, store: true },
+            },
+            {
+              loader: 'css-modular-loader',
+              options: {
+                sourceMap: isDev,
+                // CSS Nano http://cssnano.co/options/
+                minimize: false,
+              },
+            },
+          ],
+        },
         ...overrideRules(baseConfig.module.rules, rule => {
           // Override babel-preset-env configuration for Node.js
+
           if (rule.loader === 'babel-loader') {
             return {
               ...rule,
@@ -350,6 +377,52 @@ export default ({
       ],
     },
 
+    module: {
+      ...baseConfig.module,
+      rules: [
+        ...baseConfig.module.rules,
+
+        // Rules for styles
+        {
+          test: reStyle,
+          ...isDev ? {
+            // Development configuration
+            rules: [
+              {
+                loader: path.resolve(__dirname, '..', 'lib', 'style-loader', 'dist'),
+                options: { add: true },
+              },
+              {
+                loader: 'css-modular-loader',
+                options: {
+                  sourceMap: true,
+                  // CSS Nano http://cssnano.co/options/
+                  minimize: false,
+                },
+              },
+            ],
+          } : {
+            // Release configuration
+            loader: extractTextPlugin.extract({
+              fallback: {
+                loader: path.resolve(__dirname, '..', 'lib', 'style-loader', 'dist'),
+                options: { add: false },
+              },
+              use: [
+                {
+                  loader: 'css-modular-loader',
+                  options: {
+                    // CSS Nano http://cssnano.co/options/
+                    minimize: true,
+                  },
+                },
+              ],
+            }),
+          },
+        },
+      ],
+    },
+
     plugins: [
       ...baseConfig.plugins,
       new webpack.DefinePlugin({
@@ -375,6 +448,8 @@ export default ({
       // If release
       ...(!isDev
         ? [
+          // Required plugin to extract css
+          extractTextPlugin,
           // Decrease script evaluation time
           // https://github.com/webpack/webpack/blob/master/examples/scope-hoisting/README.md
           new webpack.optimize.ModuleConcatenationPlugin(),
@@ -411,7 +486,7 @@ export default ({
   }
 
   if (parseWebpackConfig) {
-    return parseWebpackConfig(clientConfig, serverConfig)
+    return parseWebpackConfig(clientConfig, serverConfig, params)
   }
 
   return {

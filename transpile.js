@@ -68,6 +68,7 @@ const compiler = webpack({
     ],
   },
 
+  devtool: 'cheap-module-inline-source-map',
 
   // Do not replace node globals with polyfills
   // https://webpack.js.org/configuration/node/
