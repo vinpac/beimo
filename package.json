@@ -54,6 +54,7 @@
     "react-deep-force-update": "^1.1.1",
     "react-dev-utils": "^4.1.0",
     "react-dom": "^16.0.0",
+    "react-helmet": "^5.2.0",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "rimraf": "^2.6.2",
@@ -98,7 +99,7 @@
   },
   "scripts": {
     "lint": "$(npm bin)/eslint --fix lib defaults",
-    "test": "yarn transpile && bin/beimo --base=examples/with-sass-n-koa",
+    "test": "yarn transpile && bin/beimo --base=examples/basics",
     "transpile": "node transpile --supress-stats",
     "transpile:all": "npm run transpile && npm run transpile:style-loader",
     "transpile:style-loader": "rimraf lib/style-loader/dist && babel lib/style-loader -d lib/style-loader/dist",

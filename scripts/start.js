@@ -121,8 +121,15 @@ export default async params => {
   })
 
   server.use((req, res, next) => {
-    const handle = app.handle ? app.handle : app.callback()
-    appPromise.then(() => handle(req, res, next)).catch(error => console.error(error))
+    appPromise
+      .then(() => {
+        if (app.handle) {
+          app.handle(req, res, next)
+        } else {
+          app.callback()(req, res, next)
+        }
+      })
+      .catch(error => console.error(error))
   })
 
   function checkForUpdate(fromUpdate) {

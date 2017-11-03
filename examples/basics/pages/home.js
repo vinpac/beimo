@@ -1,10 +1,15 @@
 import React from 'react'
 import Link from 'beimo/link'
 import { NotFoundPage } from 'beimo/router'
+import Head from 'beimo/head'
 import s from '../home.css'
 
 const Home = () => (
   <div className={`page ${s.component}`}>
+    <Head>
+      <title>Basic example</title>
+      <meta name="description" content="Home page" />
+    </Head>
     <h1 className="title">Home</h1>
     <Link to="/about">About</Link>
     <br />
