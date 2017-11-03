@@ -121,11 +121,12 @@ export default async params => {
   })
 
   server.use((req, res, next) => {
-    appPromise.then(() => app.handle(req, res, next)).catch(error => console.error(error))
+    const handle = app.handle ? app.handle : app.callback()
+    appPromise.then(() => handle(req, res, next)).catch(error => console.error(error))
   })
 
   function checkForUpdate(fromUpdate) {
-    const hmrPrefix = `${chalk.bold.yellow('HMR ➜  ')}`
+    const hmrPrefix = `${chalk.bold.yellow('HMR ➜ ')}`
     if (!app.hot) {
       throw new Error(`${hmrPrefix}Hot Module Replacement is disabled.`)
     }

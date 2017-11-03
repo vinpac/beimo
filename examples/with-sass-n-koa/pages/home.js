@@ -35,7 +35,6 @@ class HomeView extends React.Component {
         <ul>
           {this.renderList()}
         </ul>
-        {color}
         <Link to="/adfsdf">Not found page</Link>
       </div>
     )
