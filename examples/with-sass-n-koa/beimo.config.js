@@ -1,11 +1,9 @@
-const path = require('path')
-
 module.exports = {
   webpack: ({ client, server }, { isRelease }, { extractTextPlugin, reStyle }) => {
 
     const extractOptions = {
       fallback: {
-        loader: path.resolve(__dirname, '..', '..', 'lib', 'style-loader', 'dist'),
+        loader: 'modular-style-loader',
         options: { add: false },
       },
       use: [

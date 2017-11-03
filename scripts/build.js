@@ -6,7 +6,7 @@ import utils from '../utils'
 
 export default async params => {
   await clean(params)
-  utils.logEvent('Build', params.isRelease ? ' RELEASE ' : ' DEVELOPMENT ', 'yellow')
+  utils.logEvent('Build', params.isRelease ? 'RELEASE' : 'DEVELOPMENT', 'yellow')
 
   const { client: clientConfig, server: serverConfig } = createWebpackConfig(params)
 

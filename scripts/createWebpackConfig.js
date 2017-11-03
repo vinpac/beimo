@@ -287,12 +287,14 @@ export default params => {
         {
           test: reStyle,
           rules: [
+            ...(isDev ? [
+              {
+                loader: 'modular-style-loader',
+                options: { add: true, server: true },
+              },
+            ] : []),
             {
-              loader: path.resolve(__dirname, '..', 'lib', 'style-loader', 'dist'),
-              options: { add: isDev, store: true },
-            },
-            {
-              loader: 'css-modular-loader',
+              loader: isRelease ? 'modular-css-loader/locals' : 'modular-css-loader',
               options: {
                 sourceMap: isDev,
                 // CSS Nano http://cssnano.co/options/
@@ -390,11 +392,11 @@ export default params => {
             // Development configuration
             rules: [
               {
-                loader: path.resolve(__dirname, '..', 'lib', 'style-loader', 'dist'),
+                loader: 'modular-style-loader',
                 options: { add: true },
               },
               {
-                loader: 'css-modular-loader',
+                loader: 'modular-css-loader',
                 options: {
                   sourceMap: true,
                   // CSS Nano http://cssnano.co/options/
@@ -406,12 +408,12 @@ export default params => {
             // Release configuration
             loader: extractTextPlugin.extract({
               fallback: {
-                loader: path.resolve(__dirname, '..', 'lib', 'style-loader', 'dist'),
+                loader: 'modular-style-loader',
                 options: { add: false },
               },
               use: [
                 {
-                  loader: 'css-modular-loader',
+                  loader: 'modular-css-loader',
                   options: {
                     // CSS Nano http://cssnano.co/options/
                     minimize: true,
