@@ -1,3 +1,5 @@
+/* eslint-disable prefer-template */
+
 const webpack = require('webpack')
 const path = require('path')
 const nodeExternals = require('webpack-node-externals')
@@ -84,15 +86,16 @@ const compiler = webpack({
 
 const timeStart = new Date()
 compiler.run((error, stats) => {
+  const elapsedTime = (new Date() - timeStart) + 'ms'
+
   if (error) {
-    utils.logEvent('Transpile', false)
+    utils.logEvent('Transpile', 'Failed in ' + elapsedTime, 'red')
+
     throw error
   }
 
-  const timeEnd = new Date()
+  utils.logEvent('Transpile', 'Transpiled successfully ' + elapsedTime)
 
-  // eslint-disable-next-line
-  utils.logEvent('Transpile', true, 'Transpiled successfully in ' + (timeEnd - timeStart) + 'ms')
   if (!process.argv.includes('--supress-stats')) {
     console.info(stats.toString({
       cached: isVerbose,

@@ -76,7 +76,9 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.4.0",
-    "prettier": "^1.7.4"
+    "node-sass": "^4.5.3",
+    "prettier": "^1.7.4",
+    "sass-loader": "^6.0.6"
   },
   "babel": {
     "presets": [
@@ -94,7 +96,7 @@
   },
   "scripts": {
     "lint": "$(npm bin)/eslint --fix lib defaults",
-    "test": "yarn transpile && bin/beimo --base=examples/basics",
+    "test": "yarn transpile && bin/beimo --base=examples/with-configuration",
     "transpile": "node transpile --supress-stats",
     "transpile:all": "npm run transpile && npm run transpile:style-loader",
     "transpile:style-loader": "rimraf lib/style-loader/dist && babel lib/style-loader -d lib/style-loader/dist",

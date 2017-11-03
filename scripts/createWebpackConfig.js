@@ -57,7 +57,7 @@ export default params => {
   const isDev = !isRelease
 
   const reScript = /\.jsx?$/
-  const reStyle = /\.(css|less|scss|sss|styl)$/
+  const reStyle = /\.(css|less|scss|sss|styl|sass)$/
   const reImage = /\.(bmp|gif|jpe?g|png|svg)$/
   const staticAssetName = isDev ? '[path][name].[ext]?[hash:8]' : '[hash:8].[ext]'
 
@@ -486,7 +486,10 @@ export default params => {
   }
 
   if (parseWebpackConfig) {
-    return parseWebpackConfig(clientConfig, serverConfig, params)
+    return parseWebpackConfig({
+      client: clientConfig,
+      server: serverConfig,
+    }, params, { extractTextPlugin, reStyle, reScript, reImage })
   }
 
   return {

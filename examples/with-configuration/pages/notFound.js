@@ -4,14 +4,14 @@ import Link from 'beimo/link'
 const NotFound = () => (
   <div>
     <h1>Not found</h1>
-    <Link to="/home">Home 87 65465</Link>
-    <Link to="/about">About 2</Link>
+    <Link to="/">Home</Link>
+    <Link to="/about">About</Link>
   </div>
 )
 
 NotFound.displayName = 'NotFound'
-NotFound.getInitialProps = ({ context }) => {
-  context.status = 404
+NotFound.getInitialProps = ({ response }) => {
+  response.status = 404
 }
 
 export default NotFound

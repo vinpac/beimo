@@ -2,25 +2,13 @@
 const chalk = require('chalk');
 
 module.exports = {
-  logEvent: function(eventName, success = true, message, styleMessage = true) {
-    let statusMessage = success ? ' DONE ' : ' FAILED ';
-    let chalkMessage = success ? chalk.white.bgGreen : chalk.white.bgRed;
-
-    if (typeof success === 'string') {
-      statusMessage = success
-      chalkMessage = chalk.white.bgYellow
+  logEvent: function(eventName, message, color) {
+    const prefix = chalk.bold.magenta(eventName.toUpperCase())
+    if (!message) {
+      console.log(prefix + ' ➜ ' + chalk[color || 'yellow']('Start'));
     }
 
-    console.info(
-      chalk.white.bgMagenta(' ' + eventName.toUpperCase() + ' ') + '' +
-      (success
-        ? chalkMessage(statusMessage)
-        : chalk.white.bgRed(statusMessage)
-      ),
-      arguments.length < 3
-        ? ''
-        : (styleMessage ? (success ? chalk.green(message) : chalk.red(message) ) : message)
-    );
+    console.log(prefix + ' ➜ ' + (color === false ? message : chalk[color || 'green'](message)))
   },
 
   clearConsole: function() {

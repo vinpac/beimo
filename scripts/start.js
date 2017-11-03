@@ -13,9 +13,7 @@ let compiledTimes = 0
 let clearConsole
 function createCompilationPromise(name, compiler, config) {
   return new Promise((resolve, reject) => {
-    console.info(
-      `${chalk.bgMagenta(` ${name.toUpperCase()} `)}${chalk.bgMagentaBright(' Compiling... ')}\n`,
-    )
+    utils.logEvent(name, 'Compiling...', false)
 
     compiler.plugin('done', stats => {
       if (compiledTimes === 0) {
@@ -25,9 +23,9 @@ function createCompilationPromise(name, compiler, config) {
 
       const compilationTime = `${chalk.bold(stats.endTime - stats.startTime)}ms`
       if (stats.hasErrors()) {
-        utils.logEvent(stats.compilation.name, false, `Failed in ${compilationTime}`)
+        utils.logEvent(stats.compilation.name, `Failed in ${compilationTime}`, 'red')
       } else {
-        utils.logEvent(stats.compilation.name, true, `Compiled successfully in ${compilationTime}`)
+        utils.logEvent(stats.compilation.name, `Compiled successfully in ${compilationTime}`)
       }
 
       console.info(stats.toString({ ...config.stats, timings: false }))
@@ -52,7 +50,7 @@ export default async params => {
   await clean(params)
   clearConsole = () => {
     utils.clearConsole()
-    console.info(`${chalk.white.bgCyan(params.isRelease ? ' RELEASE ' : ' DEVELOPMENT ')}\n`)
+    console.info(`${chalk.bold.cyan(params.isRelease ? 'RELEASE' : 'DEVELOPMENT')}\n`)
   }
 
   const { client: clientConfig, server: serverConfig } = createWebpackConfig(params)
@@ -127,7 +125,7 @@ export default async params => {
   })
 
   function checkForUpdate(fromUpdate) {
-    const hmrPrefix = `${chalk.bgYellow(' HMR ')}`
+    const hmrPrefix = `${chalk.bold.yellow('HMR ➜  ')}`
     if (!app.hot) {
       throw new Error(`${hmrPrefix}Hot Module Replacement is disabled.`)
     }

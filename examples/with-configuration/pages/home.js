@@ -1,12 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Link from 'beimo/link' // eslint-disable-line
+import s from './home.sass'
 
 class HomeView extends React.Component {
   static propTypes = { color: PropTypes.string.isRequired };
-  static path = '/raio'
+  static path = '/'
 
-  static getInitialProps = async () => ({ color: 'red' })
+  static getInitialProps = () => ({ color: 'red' })
 
   constructor(props) {
     super(props)
@@ -26,8 +27,8 @@ class HomeView extends React.Component {
     const { color } = this.props
 
     return (
-      <div className="home">
-        <h4>Color: {color}</h4>
+      <div className={s.component}>
+        <h4>Color from store.getState: {color}</h4>
         <button onClick={() => this.setState({ count: this.state.count + 1 })}>
           Count: { this.state.count }
         </button>
@@ -35,7 +36,7 @@ class HomeView extends React.Component {
           {this.renderList()}
         </ul>
         {color}
-        <Link to="/adfsdf">as4d65as4d65asd asdasd</Link>
+        <Link to="/adfsdf">Not found page</Link>
       </div>
     )
   }
