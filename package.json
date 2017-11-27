@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.2-beta.1",
+  "version": "0.0.2-beta.4",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
@@ -9,8 +9,9 @@
     "link.js",
     "head.js",
     "bin",
-    "defaults",
-    "lib"
+    "src/entry",
+    "src/modules",
+    "src/loaders"
   ],
   "bin": {
     "beimo": "./bin/beimo"

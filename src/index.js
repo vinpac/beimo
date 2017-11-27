@@ -80,7 +80,7 @@ const params = {
   has: {
     server: fs.existsSync(path.resolve(sourcePath, 'server.js')),
     client: fs.existsSync(path.resolve(sourcePath, 'client.js')),
-    pages: fs.existsSync(path.resolve(basePath, 'pages', 'index.js')),
+    pages: fs.existsSync(path.resolve(sourcePath, 'pages', 'index.js')),
     configureApp: fs.existsSync(path.resolve(basePath, 'beimo.app.js')),
   },
 
