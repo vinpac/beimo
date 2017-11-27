@@ -1,23 +1,24 @@
-import Beimo from '../../lib/Beimo'
-import Document from '../Document'
-import { parsePagesConfig } from '../../lib/utils'
+import App from '../../modules/App'
+import Document from '../_document'
 import assets from './assets.json' // eslint-disable-line import/no-unresolved
+import ErrorPage from '../_error'
 /* eslint-disable */
 // Replaced by parse-defaults
+import pages from '<beimo:pages-path>'
 import configureApp from '<beimo:configureApp-path>'
-import pagesConfig from '<beimo:pages-path>'
-import routes from '<beimo:routes-path>'
+import { createErrorPageResolver } from '../../modules/Router'
 /* eslint-enable */
 
-const app = new Beimo({
-  ...parsePagesConfig(pagesConfig),
-  routes,
+
+const app = new App({
+  pages,
   documentComponent: Document,
-  scripts: [
-    assets.vendor.js,
-    assets.client.js,
-  ],
+  assets,
   styles: assets.client.css ? [{ url: assets.client.css }] : [],
+  resolveErrorPage: createErrorPageResolver(
+    pages.find(p => p.miss),
+    () => ErrorPage,
+  ),
 })
 
 if (configureApp) {
@@ -29,17 +30,11 @@ app.prepare = (server, handle) => {
     handle(server)
   } else {
     server.hot = module.hot
+
     module.hot.accept('<beimo:pages-path>', () => {
       // eslint-disable-next-line import/no-unresolved
-      app.configure(parsePagesConfig(require('<beimo:pages-path>').default))
+      app.configure({ pages: require('<beimo:pages-path>').default })
     })
-
-    if (process.env.HAS.ROUTES) {
-      module.hot.accept('<beimo:routes-path>', () => {
-        // eslint-disable-next-line import/no-unresolved
-        app.configure({ routes: require('<beimo:routes-path>').default })
-      })
-    }
 
     if (process.env.HAS.APP_CONFIGURATION) {
       module.hot.accept('<beimo:configureApp-path>', () => {

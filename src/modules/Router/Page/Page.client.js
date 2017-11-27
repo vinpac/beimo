@@ -2,39 +2,61 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
 import { Route } from 'react-router-dom'
-import { Wrap } from '../utils'
+import { isPage } from '../index'
 
-const initialAppPageMap = window.APP_STATE.pagesProps || {}
+const { APP_STATE } = window
 class Page extends React.Component {
   static propTypes = {
-    component: PropTypes.func.isRequired,
+    component: PropTypes.func,
+    dynamicLoad: PropTypes.func.isRequired,
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    load: PropTypes.func.isRequired,
     location: Route.propTypes.location.isRequired,
     resolveErrorPage: PropTypes.func,
   }
 
-  static defaultProps = { resolveErrorPage: undefined }
+  static defaultProps = {
+    resolveErrorPage: undefined,
+    component: null,
+  }
 
   constructor(props) {
     super(props)
 
-    const pageError = initialAppPageMap[props.component.id] !== undefined
-      ? window.APP_STATE.pageError
-      : undefined
+    const isRenderedPage = APP_STATE.page.id === props.id
+    let errorComponent
+
+    if (isRenderedPage && APP_STATE.page.error && props.resolveErrorPage) {
+      errorComponent = props.resolveErrorPage(APP_STATE.page.error)
+
+      if (isPage(errorComponent)) {
+        errorComponent = errorComponent.component
+      }
+    }
 
     this.state = {
-      initialProps: initialAppPageMap[props.component.id],
-      error: pageError,
-      errorComponent: pageError && props.resolveErrorPage && props.resolveErrorPage(pageError),
+      initialProps: isRenderedPage ? APP_STATE.page.props : undefined,
+      error: isRenderedPage ? APP_STATE.page.error : undefined,
+      component: props.component,
+      errorComponent,
     }
   }
 
   componentWillMount() {
-    if (initialAppPageMap[this.props.component.id]) {
-      initialAppPageMap[this.props.component.id] = null
+    const { dynamicLoad, load } = this.props
+
+    if (!APP_STATE.page.rendered) {
+      APP_STATE.page.rendered = true
       return
     }
 
-    this.loadInitialProps()
+    if (!this.state.component) {
+      dynamicLoad(this.props.name, load).then(({ default: component }) => {
+        this.setState({ component })
+        this.loadInitialProps(component)
+      })
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -42,15 +64,21 @@ class Page extends React.Component {
       this.props.location.search !== nextProps.location.search ||
       this.props.location.pathname !== nextProps.location.pathname
     ) {
-      this.loadInitialProps(nextProps)
+      this.loadInitialProps(this.state.component, nextProps)
     }
   }
 
-  handleError = (error, resolveErrorPage = this.props.resolveErrorPage) => {
+  handleError = async (error, resolveErrorPage = this.props.resolveErrorPage) => {
     const errorPage = resolveErrorPage(error)
+    let errorComponent = errorPage
+
     if (!errorPage) {
       this.setState({ error })
       return
+    }
+
+    if (isPage(errorPage)) {
+      errorComponent = await errorPage.load().then(({ default: component }) => component)
     }
 
     const yieldProps = props => this.setState({ initialProps: props })
@@ -75,13 +103,12 @@ class Page extends React.Component {
       initialProps.error = error
     }
 
-    this.setState({ error, initialProps, errorComponent: errorPage })
+    this.setState({ error, initialProps, errorComponent })
   }
 
-  async loadInitialProps({
+  async loadInitialProps(component, {
     resolveArgs,
     location,
-    component,
     match,
     resolveErrorPage,
   } = this.props) {
@@ -116,8 +143,7 @@ class Page extends React.Component {
   }
 
   render() {
-    const { component: Component } = this.props
-    const { initialProps, error, errorComponent: ErrorComponent } = this.state
+    const { component: Component, initialProps, error, errorComponent: ErrorComponent } = this.state
 
     if (error) {
       if (ErrorComponent) {
@@ -129,11 +155,11 @@ class Page extends React.Component {
       throw error
     }
 
-    return (
-      <Wrap>
-        <Component {...initialProps} />
-      </Wrap>
-    )
+    if (!Component) {
+      return null
+    }
+
+    return <Component {...initialProps} />
   }
 }
 

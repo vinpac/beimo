@@ -1,20 +1,15 @@
 import path from 'path'
-import chalk from 'chalk'
 import webpack from 'webpack'
 import nodeExternals from 'webpack-node-externals'
 import AssetsPlugin from 'assets-webpack-plugin'
 import StringReplacePlugin from 'string-replace-webpack-plugin'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
-import overrideRules from './lib/overrideRules'
+import overrideRules from '../lib/overrideRules'
 
 const appModulesMap = [
   {
     name: 'pages',
     path: 'pages/index.js',
-  },
-  {
-    name: 'routes',
-    path: 'routes/index.js',
   },
   {
     name: 'configureApp',
@@ -42,16 +37,10 @@ export default params => {
 
   const pkg = {
     engines: {
-      node: '>=6.5',
+      node: 'current',
       npm: '>=3.10',
     },
     browserslist: ['>1%', 'last 4 versions', 'Firefox ESR', 'not ie < 9'],
-  }
-
-  if ((!has.server || !has.client) && !has.pages) {
-    throw new Error(
-      `You must create a ${chalk.green('pages/index.js')} file if no server or client is provided`,
-    )
   }
 
   const isDev = !isRelease
@@ -66,7 +55,6 @@ export default params => {
     'process.env.HAS': {
       CLIENT: has.client,
       SERVER: has.server,
-      ROUTES: has.routes,
       APP_CONFIGURATION: has.configureApp,
     },
     __DEV__: isDev,
@@ -94,8 +82,8 @@ export default params => {
           test: reScript,
           include: [
             sourcePath,
-            path.resolve(__dirname, '..', 'defaults'),
-            path.resolve(__dirname, '..', 'lib'),
+            path.resolve(__dirname, '..', 'src', 'entry'),
+            path.resolve(__dirname, '..', 'src', 'modules'),
           ],
           rules: [
             {
@@ -137,8 +125,8 @@ export default params => {
                     alias: {
                       'beimo/link': 'react-router-dom/Link',
                       'beimo/head': 'react-helmet',
-                      'beimo/router': path.resolve(__dirname, '..', 'lib', 'router'),
-                      beimo: path.resolve(__dirname, '..', 'defaults', 'app'),
+                      'beimo/router': path.resolve(__dirname, '..', 'src', 'modules', 'Router'),
+                      beimo: path.resolve(__dirname, '..', 'src', 'entry', 'app'),
                     },
                   }],
                   // Replaces the React.createElement function with one that is more optimized for
@@ -153,7 +141,7 @@ export default params => {
             },
             {
               include: [
-                path.resolve(__dirname, '..', 'defaults'),
+                path.resolve(__dirname, '..', 'src', 'entry'),
               ],
               use: StringReplacePlugin.replace({
                 replacements: appModulesMap.map(module => ({
@@ -164,7 +152,7 @@ export default params => {
                   replacement: function replaceAppModule() {
                     let modulePath = path.join(sourcePath, module.path)
                     if (has[module.name] === false) {
-                      modulePath = path.join(__dirname, '..', 'defaults', 'null')
+                      modulePath = path.join(__dirname, '..', 'src', 'entry', 'null')
                     }
 
                     return `'${path.relative(
@@ -174,6 +162,11 @@ export default params => {
                   },
                 })),
               }),
+            },
+
+            {
+              include: [path.resolve(sourcePath, 'pages', 'index.js')],
+              use: path.resolve(__dirname, '..', 'src', 'loaders', 'PagesLoader'),
             },
           ],
         },
@@ -259,16 +252,16 @@ export default params => {
   const serverConfig = {
     ...baseConfig,
 
+    name: 'server',
+    target: 'node',
+
     entry: {
       server: [
         has.server
           ? path.join(sourcePath, 'server.js')
-          : path.resolve(__dirname, '..', 'defaults', 'server.js'),
+          : path.resolve(__dirname, '..', 'src', 'entry', 'server.js'),
       ],
     },
-
-    name: 'server',
-    target: 'node',
 
     output: {
       ...baseConfig.output,
@@ -317,7 +310,7 @@ export default params => {
                     : [
                       'env',
                       {
-                        targets: { node: pkg.engines.node.match(/(\d+\.?)+/)[0] },
+                        targets: { node: pkg.engines.node },
                         modules: false,
                         useBuiltIns: false,
                         debug: false,
@@ -338,6 +331,7 @@ export default params => {
       new webpack.DefinePlugin({
         ...appGlobals,
         'process.env.PORT': port,
+        'process.env.DIST_PATH': `'${distPath}'`,
         'process.env.STATIC_DIR': `'${staticDir}'`,
         'process.env.BROWSER': false,
         __DEV__: isDev,
@@ -375,8 +369,8 @@ export default params => {
       client: [
         'babel-polyfill',
         has.client
-          ? path.join(sourcePath, 'client.js')
-          : path.resolve(__dirname, '..', 'defaults', 'client.js'),
+          ? path.join(sourcePath, 'client')
+          : path.resolve(__dirname, '..', 'src', 'entry', 'client.js'),
       ],
     },
 

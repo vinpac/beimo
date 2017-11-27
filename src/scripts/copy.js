@@ -1,14 +1,16 @@
 import fs from 'fs'
 import path from 'path'
-import pkg from '../package.json'
-import { copyDir, copyFile, makeDir, writeFile } from './lib/fs'
+import pkg from '../../package.json'
+import { copyDir, copyFile, makeDir, writeFile } from '../lib/fs'
 
 async function copy({ distPath, basePath, files, staticDir, appPackage = {}, has }) {
   await makeDir(distPath)
 
   const baseDependencies = {
+    react: pkg.dependencies.react,
     'string-hash': pkg.dependencies['string-hash'],
     'source-map-support': pkg.dependencies['source-map-support'],
+    'react-dom': pkg.dependencies['react-dom'],
     'react-router': pkg.dependencies['react-router'],
     'react-router-dom': pkg.dependencies['react-router-dom'],
     'serialize-javascript': pkg.dependencies['serialize-javascript'],

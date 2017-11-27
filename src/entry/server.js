@@ -12,13 +12,10 @@ app.use(express.static(path.resolve(__dirname, process.env.STATIC_DIR)))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-// Routes
-// app.use((req, res, next) => Router.handle(req, res, next))
-
 // Pages
 app.get('*', async (req, res, next) => {
   try {
-    await beimo.render(req, res, next)
+    await beimo.render(req, res, req.query)
   } catch (error) {
     next(error)
   }

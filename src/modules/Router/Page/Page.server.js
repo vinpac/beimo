@@ -9,16 +9,21 @@ const Page = ({ initialProps, errorComponent: ErrorComponent, error, component: 
     )
   }
 
+  if (!Component) {
+    return null
+  }
+
   return <Component {...initialProps} />
 }
 
 Page.propTypes = {
-  component: PropTypes.func.isRequired,
+  component: PropTypes.func,
   errorComponent: PropTypes.func,
   error: PropTypes.object, //eslint-disable-line
   initialProps: PropTypes.object, //eslint-disable-line
 }
 Page.defaultProps = {
+  component: null,
   errorComponent: undefined,
   error: undefined,
 }
@@ -45,4 +50,3 @@ PageConnect.propTypes = {
 PageConnect.defaultProps = { exact: true, path: undefined }
 
 export default PageConnect
-

@@ -12,7 +12,7 @@ const compiler = webpack({
   name: 'cli',
   target: 'node',
 
-  entry: { cli: './scripts/index.js' },
+  entry: { cli: './src/index.js' },
 
   output: {
     pathinfo: isVerbose,
@@ -35,7 +35,7 @@ const compiler = webpack({
       {
         test: /\.js$/,
         include: [
-          path.resolve(__dirname, 'scripts'),
+          path.resolve(__dirname, 'src'),
           path.resolve(__dirname, 'lib'),
         ],
         loader: 'babel-loader',

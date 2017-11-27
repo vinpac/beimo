@@ -17,10 +17,12 @@ class HomeView extends React.Component {
 
   renderList = () => {
     const r = []
-    let i
+    let i = 0
     for (; i < 10000; i += 1) {
       r.push(<li key={i}>This is row { i + 1 }</li>)
     }
+
+    return r
   }
 
   render() {

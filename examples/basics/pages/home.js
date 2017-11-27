@@ -22,7 +22,6 @@ const Home = () => (
 )
 
 Home.displayName = 'Home'
-Home.path = '/'
 Home.getInitialProps = ({ query }) => {
   if (query.error) {
     throw new Error('Some error')

@@ -1,4 +1,4 @@
-import { cleanDir } from './lib/fs'
+import { cleanDir } from '../lib/fs'
 
 /**
  * Cleans up the output directory.

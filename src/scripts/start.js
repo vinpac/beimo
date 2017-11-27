@@ -5,9 +5,9 @@ import express from 'express'
 import webpackDevMiddleware from 'webpack-dev-middleware'
 import webpackHotMiddleware from 'webpack-hot-middleware'
 import errorOverlayMiddleware from 'react-dev-utils/errorOverlayMiddleware'
-import createWebpackConfig from './createWebpackConfig'
+import createWebpackConfig from '../lib/createWebpackConfig'
 import clean from './clean'
-import utils from '../utils'
+import utils from '../../utils'
 
 let compiledTimes = 0
 let clearConsole
@@ -46,21 +46,22 @@ function createCompilationPromise(name, compiler, config) {
 }
 
 export default async params => {
-  // await parseDefaults(params)
   await clean(params)
   clearConsole = () => {
     utils.clearConsole()
     console.info(`${chalk.bold.cyan(params.isRelease ? 'RELEASE' : 'DEVELOPMENT')}\n`)
   }
 
-  const { client: clientConfig, server: serverConfig } = createWebpackConfig(params)
+  const { client: clientConfig, server: serverConfig } = await createWebpackConfig(params)
 
   const server = express()
   server.use(errorOverlayMiddleware())
   server.use(express.static(params.staticPath))
 
   // Configure client-side hot module replacement
-  clientConfig.entry.client = [path.resolve(__dirname, '../lib', 'webpackHotDevClient')]
+  clientConfig.entry.client = [
+    path.resolve(__dirname, '..', 'src', 'modules', 'webpackHotDevClient'),
+  ]
     .concat(clientConfig.entry.client)
     .sort((a, b) => b.includes('polyfill') - a.includes('polyfill'))
   clientConfig.output.filename = clientConfig.output.filename.replace('chunkhash', 'hash')
@@ -112,8 +113,7 @@ export default async params => {
     appPromiseIsResolved = false
 
     appPromise = new Promise(resolve => {
-      appPromiseResolve = newApp => {
-        app = newApp
+      appPromiseResolve = () => {
         appPromiseIsResolved = true
         resolve()
       }
@@ -162,6 +162,9 @@ export default async params => {
       .catch(error => {
         if (['abort', 'fail'].includes(app.hot.status())) {
           console.warn(hmrPrefix, 'Cannot apply update.')
+
+          // eslint-disable-next-line
+          delete __non_webpack_require__.cache[path.join(params.distPath, 'server.js')]
           // eslint-disable-next-line
           app = __non_webpack_require__(path.join(params.distPath, 'server.js')).default
           console.warn(hmrPrefix, 'App has been reloaded.')
@@ -175,7 +178,7 @@ export default async params => {
     if (app && !error && !stats.hasErrors()) {
       checkForUpdate().then(() => {
         appPromiseIsResolved = true
-        appPromiseResolve(app)
+        appPromiseResolve()
       })
     }
   })
@@ -185,7 +188,7 @@ export default async params => {
 
   // eslint-disable-next-line
   app = __non_webpack_require__(path.join(params.distPath, 'server.js')).default
-  appPromiseResolve(app)
+  appPromiseResolve()
 
   server.listen(params.port)
 }

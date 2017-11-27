@@ -3,8 +3,8 @@ import path from 'path'
 import chalk from 'chalk'
 import commander from 'commander'
 import pkg from '../package.json'
-import start from './start'
-import build from './build'
+import start from './scripts/start'
+import build from './scripts/build'
 
 // Install source map
 // eslint-disable-next-line
@@ -71,6 +71,7 @@ const params = {
   appPackage,
   isRelease: !!program.release,
   isVerbose: !!program.verbose,
+  pagesPath: path.join(sourcePath, 'pages'),
   distDir: program.output,
   distPath: path.resolve(sourcePath, program.output),
   staticDir: program.staticDir,
@@ -79,11 +80,9 @@ const params = {
   has: {
     server: fs.existsSync(path.resolve(sourcePath, 'server.js')),
     client: fs.existsSync(path.resolve(sourcePath, 'client.js')),
-    pages: fs.existsSync(path.resolve(sourcePath, 'pages', 'index.js')),
-    routes: fs.existsSync(path.resolve(sourcePath, 'routes', 'index.js')),
+    pages: fs.existsSync(path.resolve(basePath, 'pages', 'index.js')),
     configureApp: fs.existsSync(path.resolve(basePath, 'beimo.app.js')),
   },
-  hot: true,
 
   // App Configuration
   parseWebpackConfig: appConfiguration.webpack,
@@ -96,11 +95,23 @@ if (params.isRelease || action === 'build') {
   process.env.NODE_ENV = 'production'
 }
 
+if (!params.has.pages) {
+  console.error(`You must provide a ${chalk.green('pages/index')}.`)
+  process.exit(1)
+}
+
 switch (action) {
   case 'build':
     params.isRelease = true
     build(params)
     break
+  case 'build-dev':
+    params.isRelease = false
+    build(params)
+    break
+  case 'test':
+    break
+  case 'dev':
   case '':
     start(params).catch(error => {
       console.error(error)

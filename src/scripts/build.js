@@ -1,14 +1,14 @@
 import webpack from 'webpack'
 import chalk from 'chalk'
 import clean from './clean'
-import createWebpackConfig from './createWebpackConfig'
-import utils from '../utils'
+import createWebpackConfig from '../lib/createWebpackConfig'
+import utils from '../../utils'
 
 export default async params => {
   await clean(params)
   utils.logEvent('Build', params.isRelease ? 'RELEASE' : 'DEVELOPMENT', 'yellow')
 
-  const { client: clientConfig, server: serverConfig } = createWebpackConfig(params)
+  const { client: clientConfig, server: serverConfig } = await createWebpackConfig(params)
 
   const startDate = new Date()
   webpack([clientConfig, serverConfig]).run((error, stats) => {

@@ -1,12 +1,13 @@
 {
   "name": "beimo",
-  "version": "0.0.1-beta.11",
+  "version": "0.0.2-beta.1",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
   "files": [
     "dist",
     "link.js",
+    "head.js",
     "bin",
     "defaults",
     "lib"
@@ -20,10 +21,10 @@
   },
   "dependencies": {
     "assets-webpack-plugin": "^3.5.1",
-    "babel-cli": "^7.0.0-beta.3",
     "babel-core": "7.0.0-beta.3",
     "babel-eslint": "^8.0.1",
     "babel-loader": "^7.1.2",
+    "babel-node": "^7.0.0-beta.3",
     "babel-plugin-module-resolver": "3.0.0-beta.5",
     "babel-plugin-rewire": "^1.1.0",
     "babel-plugin-transform-react-inline-elements": "7.0.0-beta.3",
@@ -49,6 +50,7 @@
     "mkdirp": "^0.5.1",
     "modular-css-loader": "^0.0.0-beta.1",
     "modular-style-loader": "^0.0.1-beta.4",
+    "path-to-regexp": "^2.1.0",
     "postcss-loader": "^2.0.8",
     "query-string": "^5.0.1",
     "raw-loader": "^0.5.1",
@@ -61,6 +63,7 @@
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "rimraf": "^2.6.2",
+    "send": "^0.16.1",
     "serialize-javascript": "^1.4.0",
     "source-map-support": "^0.5.0",
     "string-hash": "^1.1.3",
@@ -85,23 +88,10 @@
     "prettier": "^1.7.4",
     "sass-loader": "^6.0.6"
   },
-  "babel": {
-    "presets": [
-      [
-        "env",
-        {
-          "targets": {
-            "node": "current"
-          }
-        }
-      ],
-      "stage-2",
-      "react"
-    ]
-  },
   "scripts": {
     "lint": "$(npm bin)/eslint --fix lib defaults",
-    "test": "yarn transpile && bin/beimo --base=examples/basics",
+    "cli": "yarn transpile && bin/beimo",
+    "example": "bin/example",
     "transpile": "node transpile --supress-stats",
     "prepublish": "npm run transpile",
     "postpublish": "rm -rf dist"

@@ -1,6 +1,0 @@
-{
-  "name": "Beimo",
-  "main": "Beimo.server.js",
-  "browser": "Beimo.client.js",
-  "private": true
-}

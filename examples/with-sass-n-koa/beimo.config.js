@@ -8,7 +8,7 @@ module.exports = {
       },
       use: [
         {
-          loader: 'css-modular-loader',
+          loader: 'modular-css-loader',
           options: {
             // CSS Nano http://cssnano.co/options/
             minimize: true,
