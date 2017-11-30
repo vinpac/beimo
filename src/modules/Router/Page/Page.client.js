@@ -60,6 +60,10 @@ class Page extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.component !== this.state.component && module.hot) {
+      this.setState({ component: nextProps.component })
+    }
+
     if (
       this.props.location.search !== nextProps.location.search ||
       this.props.location.pathname !== nextProps.location.pathname
