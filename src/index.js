@@ -73,7 +73,7 @@ const params = {
   isVerbose: !!program.verbose,
   pagesPath: path.join(sourcePath, 'pages'),
   distDir: program.output,
-  distPath: path.resolve(sourcePath, program.output),
+  distPath: path.resolve(basePath, program.output),
   staticDir: program.staticDir,
   staticPath: path.resolve(basePath, program.staticDir),
   port: program.port,
