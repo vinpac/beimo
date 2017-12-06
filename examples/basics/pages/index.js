@@ -1,7 +1,12 @@
+import React from 'react'
+import page from 'beimo/page'
+import about from './about'
 import '../basics.css'
 
-export default [
-  { path: '/', page: 'home' },
-  { path: '/about', page: 'about' },
-  { miss: true, page: '_miss' },
+const pages = [
+  page('./home', { path: '/', loading: () => <h1>Loading</h1> }),
+  about,
+  page('./_miss'),
 ]
+
+export default pages

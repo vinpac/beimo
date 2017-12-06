@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.2-beta.7",
+  "version": "0.0.2-beta.8",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
@@ -8,10 +8,12 @@
     "dist",
     "link.js",
     "head.js",
+    "page.js",
     "bin",
     "src/entry",
     "src/modules",
-    "src/loaders"
+    "src/loaders",
+    ".babelrc.js"
   ],
   "bin": {
     "beimo": "./bin/beimo"
@@ -77,12 +79,15 @@
     "webpack-node-externals": "^1.6.0"
   },
   "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-jest": "^21.2.0",
     "eslint": "^4.10.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-import-resolver-node": "^0.3.1",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.4.0",
+    "jest": "^21.2.1",
     "koa": "^2.3.0",
     "koa-router": "^7.2.1",
     "node-sass": "^4.5.3",
@@ -95,7 +100,9 @@
     "example": "bin/example",
     "transpile": "node transpile --supress-stats",
     "prepublish": "npm run transpile",
-    "postpublish": "rm -rf dist"
+    "postpublish": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "require": "babel-core/register"
 }

@@ -126,6 +126,7 @@ export default params => {
                       'beimo/link': 'react-router-dom/Link',
                       'beimo/head': 'react-helmet',
                       'beimo/router': path.resolve(__dirname, '..', 'src', 'modules', 'Router'),
+                      'beimo/page': path.resolve(__dirname, '..', 'src', 'modules', 'Router', 'buildPage'),
                       beimo: path.resolve(__dirname, '..', 'src', 'entry', 'app'),
                     },
                   }],
@@ -163,10 +164,12 @@ export default params => {
                 })),
               }),
             },
-
             {
-              include: [path.resolve(sourcePath, 'pages', 'index.js')],
-              use: path.resolve(__dirname, '..', 'src', 'loaders', 'PagesLoader'),
+              include: [sourcePath],
+              loader: path.resolve(__dirname, '..', 'src', 'loaders', 'PagesLoader'),
+              options: {
+                pagesPath: path.join(sourcePath, 'pages'),
+              },
             },
           ],
         },

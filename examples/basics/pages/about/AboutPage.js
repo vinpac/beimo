@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'beimo/link'
 import Head from 'beimo/head'
-import s from '../about.css'
+import s from '../../about.css'
 
 const About = () => (
   <div className="page">

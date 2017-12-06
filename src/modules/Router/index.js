@@ -36,8 +36,8 @@ export class NotFoundPage extends PageError {
 }
 
 export function isPage(potentialPage) {
-  return typeof potentialPage.page === 'string' && typeof potentialPage === 'object'
-    && typeof potentialPage.load === 'function'
+  // eslint-disable-next-line
+  return potentialPage.__BEIMO_PAGE__ && typeof potentialPage.load === 'function'
 }
 
 export function createErrorPageResolver(missPage, fn) {
@@ -67,28 +67,6 @@ export function parsePagesConfig(pagesConfig) {
       ? createErrorPageResolver(missPage, resolveErrorPage)
       : resolveErrorPage,
   }
-}
-
-export function mapPages(pages) {
-  const usedCount = {}
-  return pages.map(page => {
-    page.id = hash(`${page.displayName}${page.path}`)
-    if (usedCount[page.id] > 0) {
-      page.id += `-${usedCount[page.id]}`
-      usedCount[page.id] += 1
-    } else {
-      usedCount[page.id] = 1
-    }
-
-    page.name = page.page
-    page.exact = page.path && page.exact !== false
-
-    if (page.miss) {
-      page.path = undefined
-    }
-
-    return page
-  })
 }
 
 export const Wrap = ({ children }) => children

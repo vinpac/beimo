@@ -2,11 +2,11 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter, Switch } from 'react-router-dom'
 import Page from '../Router/Page'
-import { mapPages, isPage } from '../Router'
+import { isPage } from '../Router'
 
 export default class App {
   constructor({ pages = [], resolveErrorPage, component, resolvePageArgs }) {
-    this.pages = mapPages(pages)
+    this.pages = pages
     this.component = component
     this.resolvePageArgs = resolvePageArgs || (args => args)
     this.resolveErrorPage = resolveErrorPage
@@ -14,7 +14,7 @@ export default class App {
   }
 
   configure({ pages, component, resolvePageArgs, resolveErrorPage }) {
-    if (pages !== undefined) this.pages = mapPages(pages)
+    if (pages !== undefined) this.pages = pages
     if (resolvePageArgs !== undefined) this.resolvePageArgs = resolvePageArgs
     if (component !== undefined) this.component = component
     if (resolveErrorPage !== undefined) this.resolveErrorPage = resolveErrorPage

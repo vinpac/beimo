@@ -8,15 +8,17 @@ const { APP_STATE } = window
 class Page extends React.Component {
   static propTypes = {
     component: PropTypes.func,
+    loading: PropTypes.func,
     dynamicLoad: PropTypes.func.isRequired,
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
+    chunkName: PropTypes.string.isRequired,
     load: PropTypes.func.isRequired,
     location: Route.propTypes.location.isRequired,
     resolveErrorPage: PropTypes.func,
   }
 
   static defaultProps = {
+    loading: undefined,
     resolveErrorPage: undefined,
     component: null,
   }
@@ -24,7 +26,7 @@ class Page extends React.Component {
   constructor(props) {
     super(props)
 
-    const isRenderedPage = APP_STATE.page.id === props.id
+    const isRenderedPage = APP_STATE.page.id === props.id && !APP_STATE.page.rendered
     let errorComponent
 
     if (isRenderedPage && APP_STATE.page.error && props.resolveErrorPage) {
@@ -52,7 +54,7 @@ class Page extends React.Component {
     }
 
     if (!this.state.component) {
-      dynamicLoad(this.props.name, load).then(({ default: component }) => {
+      dynamicLoad(this.props.chunkName, load).then(({ default: component }) => {
         this.setState({ component })
         this.loadInitialProps(component)
       })
@@ -68,7 +70,16 @@ class Page extends React.Component {
       this.props.location.search !== nextProps.location.search ||
       this.props.location.pathname !== nextProps.location.pathname
     ) {
-      this.loadInitialProps(this.state.component, nextProps)
+      if (!this.state.component) {
+        nextProps
+          .dynamicLoad(this.props.chunkName, nextProps.load)
+          .then(({ default: component }) => {
+            this.setState({ component })
+            this.loadInitialProps(component)
+          })
+      } else {
+        this.loadInitialProps(this.state.component, nextProps)
+      }
     }
   }
 
@@ -110,18 +121,17 @@ class Page extends React.Component {
     this.setState({ error, initialProps, errorComponent })
   }
 
-  async loadInitialProps(component, {
-    resolveArgs,
-    location,
-    match,
-    resolveErrorPage,
-  } = this.props) {
+  async loadInitialProps(
+    component,
+    { resolveArgs, location, match, resolveErrorPage } = this.props,
+  ) {
     if (component.getInitialProps) {
-      const yieldProps = props => this.setState({
-        error: null,
-        errorComponent: null,
-        initialProps: props,
-      })
+      const yieldProps = props =>
+        this.setState({
+          error: null,
+          errorComponent: null,
+          initialProps: props,
+        })
       const response = {}
       try {
         const newProps = component.getInitialProps(
@@ -134,9 +144,7 @@ class Page extends React.Component {
         )
 
         if (newProps instanceof Promise) {
-          newProps
-            .then(yieldProps)
-            .catch(error => this.handleError(error, resolveErrorPage))
+          newProps.then(yieldProps).catch(error => this.handleError(error, resolveErrorPage))
         } else {
           yieldProps(newProps)
         }
@@ -147,19 +155,22 @@ class Page extends React.Component {
   }
 
   render() {
+    const { loading: Loading } = this.props
     const { component: Component, initialProps, error, errorComponent: ErrorComponent } = this.state
 
     if (error) {
       if (ErrorComponent) {
-        return (
-          <ErrorComponent error={error} {...initialProps} />
-        )
+        return <ErrorComponent error={error} {...initialProps} />
       }
 
       throw error
     }
 
     if (!Component) {
+      if (Loading) {
+        return <Loading />
+      }
+
       return null
     }
 

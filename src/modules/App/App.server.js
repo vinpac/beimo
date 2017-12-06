@@ -6,7 +6,7 @@ import { StaticRouter } from 'react-router'
 import Helmet from 'react-helmet'
 import { Switch, matchPath } from 'react-router-dom'
 import Page from '../Router/Page'
-import { NotFoundPage, mapPages } from '../Router'
+import { NotFoundPage, isPage } from '../Router'
 
 // eslint-disable-next-line
 import { getStyles } from '!modular-style-loader/dist/store'
@@ -22,7 +22,7 @@ export default class App {
     resolveAppState,
     resolveErrorPage,
   }) {
-    this.pages = mapPages(pages)
+    this.pages = pages
     this.assets = assets
     this.styles = styles || []
     this.component = component
@@ -43,7 +43,7 @@ export default class App {
   }) {
     if (resolveAppState !== undefined) this.resolveAppState = resolveAppState
     if (documentComponent !== undefined) this.documentComponent = documentComponent
-    if (pages !== undefined) this.pages = mapPages(pages)
+    if (pages !== undefined) this.pages = pages
     if (resolvePageArgs !== undefined) this.resolvePageArgs = resolvePageArgs
     if (resolveErrorPage !== undefined) this.resolveErrorPage = resolveErrorPage
     if (component !== undefined) this.component = component
@@ -74,10 +74,10 @@ export default class App {
       return { props: pageProps, component }
     }
 
-    if (page.load && typeof page === 'object' && typeof page.page === 'string') {
+    if (isPage(page)) {
       return page.load()
         .then(fn)
-        .then(res => ({ ...res, script: this.assets[`pages/${page.page}`].js }))
+        .then(res => ({ ...res, script: this.assets[page.chunkName].js }))
     }
 
     return fn({ default: page })
