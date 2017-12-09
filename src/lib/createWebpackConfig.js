@@ -82,6 +82,7 @@ export default params => {
           test: reScript,
           include: [
             sourcePath,
+            path.resolve(basePath, 'beimo.app.js'),
             path.resolve(__dirname, '..', 'src', 'entry'),
             path.resolve(__dirname, '..', 'src', 'modules'),
           ],
