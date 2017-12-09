@@ -10,6 +10,7 @@ const appModulesMap = [
   {
     name: 'pages',
     path: 'pages/index.js',
+    source: true,
   },
   {
     name: 'configureApp',
@@ -152,7 +153,7 @@ export default params => {
                     'g',
                   ),
                   replacement: function replaceAppModule() {
-                    let modulePath = path.join(sourcePath, module.path)
+                    let modulePath = path.join(module.source ? sourcePath : basePath, module.path)
                     if (has[module.name] === false) {
                       modulePath = path.join(__dirname, '..', 'src', 'entry', 'null')
                     }
