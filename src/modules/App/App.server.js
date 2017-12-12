@@ -104,7 +104,7 @@ export default class App {
           miss = false
           matchedPage = { page }
 
-          if (page.miss) {
+          if (page.use === 'miss') {
             miss = true
             throw new NotFoundPage()
           }
