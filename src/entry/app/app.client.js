@@ -1,19 +1,21 @@
 import App from '../../modules/App'
-import ErrorPage from '../_error'
-import { createErrorPageResolver } from '../../modules/Router'
+import { parsePages } from '../../modules/Router'
 /* eslint-disable */
 // Replaced by parse-defaults
 import pages from '<beimo:pages-path>'
 import configureApp from '<beimo:configureApp-path>'
 /* eslint-enable */
 
-const app = new App({
-  pages,
-  resolveErrorPage: createErrorPageResolver(
-    pages.find(p => p.miss),
-    () => ErrorPage,
-  ),
-})
+const errorPage = {
+  use: 'error',
+  load: () => import(/* webpackChunkName: 'pages/_error' */'../_error'),
+}
+
+if (!pages.some(page => page.use !== 'error')) {
+  pages.push(errorPage)
+}
+
+const app = new App(parsePages(pages))
 
 if (configureApp) {
   configureApp(app)
@@ -22,14 +24,7 @@ if (configureApp) {
 if (module.hot) {
   module.hot.accept('<beimo:pages-path>', () => {
     // eslint-disable-next-line import/no-unresolved
-    const newPages = require('<beimo:pages-path>').default
-    app.configure({
-      pages: newPages,
-      resolveErrorPage: createErrorPageResolver(
-        newPages.find(p => p.miss),
-        () => ErrorPage,
-      ),
-    })
+    app.configure(parsePages(require('<beimo:pages-path>').default))
     app.hydrate(document.getElementById('root'))
   })
 }

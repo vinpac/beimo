@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 const ErrorPage = ({ error }) => (
   __DEV__ ? (
     <div className="page">
+      Basic example custom error
       <h1 className="title">{error.message}</h1>
       <pre className="text-left">{error.stack}</pre>
     </div>

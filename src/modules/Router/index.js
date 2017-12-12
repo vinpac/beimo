@@ -50,22 +50,26 @@ export function createErrorPageResolver(missPage, fn) {
   }
 }
 
-export function parsePagesConfig(pagesConfig) {
-  if (Array.isArray(pagesConfig)) {
-    return { pages: pagesConfig }
-  }
+export function parsePages(pages) {
+  let missPage
+  let errorPage
 
-  const { pages, missPage, resolveErrorPage } = pagesConfig
+  pages.some(page => {
+    if (page.use === 'error') {
+      errorPage = page
+    }
 
-  if (missPage) {
-    missPage.path = undefined
-  }
+    missPage = errorPage
+
+    return missPage && errorPage
+  })
 
   return {
-    pages: missPage ? pages.concat([missPage]) : pages,
-    resolveErrorPage: missPage
-      ? createErrorPageResolver(missPage, resolveErrorPage)
-      : resolveErrorPage,
+    pages: pages.filter(page => page.use !== 'error'),
+    resolveErrorPage: createErrorPageResolver(
+      pages.find(page => page.use === 'miss'),
+      () => errorPage,
+    ),
   }
 }
 
