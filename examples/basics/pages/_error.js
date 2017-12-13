@@ -22,5 +22,8 @@ ErrorPage.propTypes = {
     stack: PropTypes.string,
   }).isRequired,
 }
+ErrorPage.getInitialProps = ({ response }) => {
+  response.status = 500
+}
 
 export default ErrorPage

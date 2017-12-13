@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.2-beta.13",
+  "version": "0.0.2-beta.14",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
@@ -81,6 +81,7 @@
   "devDependencies": {
     "babel": "^6.23.0",
     "babel-jest": "^21.2.0",
+    "blacklist": "^1.1.4",
     "eslint": "^4.10.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-import-resolver-node": "^0.3.1",

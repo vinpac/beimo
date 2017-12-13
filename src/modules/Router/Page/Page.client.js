@@ -62,7 +62,7 @@ class Page extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.component !== this.state.component && module.hot) {
+    if (nextProps.component !== this.props.component && module.hot) {
       this.setState({ component: nextProps.component })
     }
 
