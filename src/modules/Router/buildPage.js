@@ -9,5 +9,9 @@ module.exports = (chunkName, props) => {
   // eslint-disable-next-line
   props.__BEIMO_PAGE__ = true
 
+  if (props.component) {
+    delete props.component
+  }
+
   return props
 }

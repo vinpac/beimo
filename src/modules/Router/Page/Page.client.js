@@ -9,7 +9,7 @@ class Page extends React.Component {
   static propTypes = {
     component: PropTypes.func,
     loading: PropTypes.func,
-    dynamicLoad: PropTypes.func.isRequired,
+    loadChunk: PropTypes.func.isRequired,
     id: PropTypes.string.isRequired,
     chunkName: PropTypes.string.isRequired,
     load: PropTypes.func.isRequired,
@@ -40,30 +40,26 @@ class Page extends React.Component {
     this.state = {
       initialProps: isRenderedPage ? APP_STATE.page.props : undefined,
       error: isRenderedPage ? APP_STATE.page.error : undefined,
-      component: props.component,
       errorComponent,
     }
   }
 
   componentWillMount() {
-    const { dynamicLoad, load } = this.props
+    const { loadChunk, load, component, chunkName } = this.props
 
     if (!APP_STATE.page.rendered) {
       APP_STATE.page.rendered = true
       return
     }
 
-    if (!this.state.component) {
-      dynamicLoad(this.props.chunkName, load).then(({ default: component }) => {
-        this.setState({ component })
-        this.loadInitialProps(component)
-      })
+    if (!component) {
+      loadChunk(chunkName, load)
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.component !== this.props.component && module.hot) {
-      this.setState({ component: nextProps.component })
+    if (nextProps.component !== this.props.component) {
+      this.loadInitialProps(nextProps.component)
     }
 
     if (
@@ -72,7 +68,7 @@ class Page extends React.Component {
     ) {
       if (!this.state.component) {
         nextProps
-          .dynamicLoad(this.props.chunkName, nextProps.load)
+          .loadChunk(this.props.chunkName, nextProps.load)
           .then(({ default: component }) => {
             this.setState({ component })
             this.loadInitialProps(component)
@@ -155,8 +151,8 @@ class Page extends React.Component {
   }
 
   render() {
-    const { loading: Loading } = this.props
-    const { component: Component, initialProps, error, errorComponent: ErrorComponent } = this.state
+    const { loading: Loading, component: Component } = this.props
+    const { initialProps, error, errorComponent: ErrorComponent } = this.state
 
     if (error) {
       if (ErrorComponent) {

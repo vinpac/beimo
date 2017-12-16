@@ -10,6 +10,9 @@ const Home = () => (
       <title>Basic example</title>
       <meta name="description" content="Home page" />
     </Head>
+    <Link to="/">Home 1</Link>
+    <Link to="/news">Home 2</Link>
+    <Link to="/news/categories">Home 3</Link>
     <h1 className="title">Home</h1>
     <Link to="/about">About</Link>
     <br />
