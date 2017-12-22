@@ -25,7 +25,6 @@ class AppComponent extends React.Component {
   }
 
   loadChunk = (chunkName, loadFn) => {
-    console.log('load Chunk')
     if (!this.chunksPromisesMap[chunkName]) {
       this.chunksPromisesMap[chunkName] = loadFn().then(chunk => {
         this.setState({
@@ -62,7 +61,7 @@ class AppComponent extends React.Component {
     )
 
     return (
-      <BrowserRouter>{this.component ? <Component>{children}</Component> : children}</BrowserRouter>
+      <BrowserRouter>{Component ? <Component>{children}</Component> : children}</BrowserRouter>
     )
   }
 }
