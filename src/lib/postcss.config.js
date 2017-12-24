@@ -6,6 +6,7 @@ import notSelector from 'postcss-selector-not'
 import autoprefixer from 'autoprefixer'
 
 export default {
+  sourceMap: true,
   plugins: [
     nesting(),
     nested(),
