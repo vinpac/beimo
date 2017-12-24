@@ -5,6 +5,7 @@ import AssetsPlugin from 'assets-webpack-plugin'
 import StringReplacePlugin from 'string-replace-webpack-plugin'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import overrideRules from '../lib/overrideRules'
+import postCSSConfig from './postcss.config'
 
 const appModulesMap = [
   {
@@ -169,9 +170,7 @@ export default params => {
             {
               include: [sourcePath],
               loader: path.resolve(__dirname, '..', 'src', 'loaders', 'PagesLoader'),
-              options: {
-                pagesPath: path.join(sourcePath, 'pages'),
-              },
+              options: { pagesPath: path.join(sourcePath, 'pages') },
             },
           ],
         },
@@ -299,6 +298,11 @@ export default params => {
                 minimize: false,
               },
             },
+            // Apply PostCSS plugins including autoprefixer
+            {
+              loader: 'postcss-loader',
+              options: postCSSConfig,
+            },
           ],
         },
         ...overrideRules(baseConfig.module.rules, rule => {
@@ -402,6 +406,11 @@ export default params => {
                   minimize: false,
                 },
               },
+              // Apply PostCSS plugins including autoprefixer
+              {
+                loader: 'postcss-loader',
+                options: postCSSConfig,
+              },
             ],
           } : {
             // Release configuration
@@ -417,6 +426,11 @@ export default params => {
                     // CSS Nano http://cssnano.co/options/
                     minimize: true,
                   },
+                },
+                // Apply PostCSS plugins including autoprefixer
+                {
+                  loader: 'postcss-loader',
+                  options: postCSSConfig,
                 },
               ],
             }),

@@ -1,3 +1,5 @@
 .component {
-  background: #f6f6f6;
+  /* test autoprefixer */
+  appearance: none;
+  background: #fff url('./assets/image.gif') left no-repeat;
 }
