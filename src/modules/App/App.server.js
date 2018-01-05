@@ -207,9 +207,14 @@ export default class App {
     }`
 
     if (response.url) {
-      res.statusCode = response.status || 302
-      res.writeHead(res.statusCode, { Location: response.url })
-      res.end()
+      // Express.js
+      if (res.redirect) {
+        res.redirect(response.url)
+      } else {
+        res.statusCode = response.status || 302
+        res.writeHead(res.statusCode, { Location: response.url })
+        res.end()
+      }
       return
     }
 
