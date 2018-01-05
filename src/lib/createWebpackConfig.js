@@ -126,7 +126,6 @@ export default params => {
                 plugins: [
                   ['module-resolver', {
                     alias: {
-                      'beimo/link': 'react-router-dom/Link',
                       'beimo/head': 'react-helmet',
                       'beimo/router': path.resolve(__dirname, '..', 'src', 'modules', 'Router'),
                       'beimo/page': path.resolve(__dirname, '..', 'src', 'modules', 'Router', 'buildPage'),

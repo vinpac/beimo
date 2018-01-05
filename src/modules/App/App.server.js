@@ -34,6 +34,7 @@ export default class App {
   }
 
   configure({
+    assets,
     pages,
     component,
     resolvePageArgs,
@@ -41,6 +42,7 @@ export default class App {
     resolveAppState,
     resolveErrorPage,
   }) {
+    if (assets !== undefined) this.assets = assets
     if (resolveAppState !== undefined) this.resolveAppState = resolveAppState
     if (documentComponent !== undefined) this.documentComponent = documentComponent
     if (pages !== undefined) this.pages = pages
@@ -90,6 +92,8 @@ export default class App {
     let response = {}
     let pageError
     let pageErrorComponent
+    const redirectFn = url => { response.url = url }
+    response.redirect = redirectFn
     const scripts = [
       this.assets.vendor.js,
       this.assets.client.js,
@@ -125,7 +129,7 @@ export default class App {
         scripts.push(script)
       })
     } catch (error) {
-      response = { status: error.status || 500 }
+      response = { status: error.status || 500, redirect: redirectFn }
       matchedPage = { page: matchedPage && matchedPage.page, props: {} }
       pageError = error
       const errorPage = resolveErrorPage && resolveErrorPage(error)
@@ -201,6 +205,13 @@ export default class App {
         </Document>,
       )
     }`
+
+    if (response.url) {
+      res.statusCode = response.status || 302
+      res.writeHead(res.statusCode, { Location: response.url })
+      res.end()
+      return
+    }
 
     res.statusCode = response.status || 200
     res.setHeader('Cache-Control', 'no-store, must-revalidate')

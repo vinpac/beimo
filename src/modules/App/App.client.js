@@ -73,12 +73,10 @@ export default class App {
     this.resolvePageArgs = resolvePageArgs || (args => args)
     this.resolveErrorPage = resolveErrorPage
     this.chunks = {}
-
-    this.state = { pages }
   }
 
   configure({ pages, component, resolvePageArgs, resolveErrorPage }) {
-    if (pages !== undefined) this.pages = this.pages
+    if (pages !== undefined) this.pages = pages
     if (resolvePageArgs !== undefined) this.resolvePageArgs = resolvePageArgs
     if (component !== undefined) this.component = component
     if (resolveErrorPage !== undefined) this.resolveErrorPage = resolveErrorPage
@@ -90,7 +88,7 @@ export default class App {
   }
 
   async hydrate(element) {
-    this.hydrateKey = Date.now()
+    this.hydrateKey = Date.now() || this.hydrateKey + 1
 
     const { page: { error } } = window.APP_STATE
 
@@ -101,7 +99,7 @@ export default class App {
         errorPage.component = await errorPage.load().then(({ default: component }) => component)
       }
     } else {
-      const renderedPage = this.state.pages.find(p => p.id === window.APP_STATE.page.id)
+      const renderedPage = this.pages.find(p => p.id === window.APP_STATE.page.id)
 
       if (renderedPage) {
         // Load rendered page chunk and set it to every page that uses this chunk
@@ -118,24 +116,6 @@ export default class App {
     }
 
     this.appInstance = ReactDOM.hydrate(this.render(), element)
-  }
-
-  loadChunk = (chunkName, fn) => {
-    if (!this.chunks[chunkName]) {
-      this.chunks[chunkName] = fn().then(chunk => {
-        this.setState({
-          pages: this.state.pages.map(page => {
-            if (page.chunkName === chunkName) {
-              return { ...page, component: chunk.component }
-            }
-
-            return page
-          }),
-        })
-      })
-    }
-
-    return this.chunks[chunkName]
   }
 
   render() {

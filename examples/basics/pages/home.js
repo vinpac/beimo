@@ -4,12 +4,13 @@ import { NotFoundPage } from 'beimo/router'
 import Head from 'beimo/head'
 import s from '../home.css'
 
-const Home = () => (
+const Home = ({ a }) => (
   <div className={`page ${s.component}`}>
     <Head>
       <title>Basic example</title>
       <meta name="description" content="Home page" />
     </Head>
+    {a}
     <Link to="/">Home 1</Link>
     <Link to="/news">Home 2</Link>
     <Link to="/news/categories">Home 3</Link>
@@ -21,6 +22,10 @@ const Home = () => (
     <Link to="/?miss=1">Not found by throwing error</Link>
     <br />
     <Link to="/some-page">Not found page by url</Link>
+    <br />
+    <Link to="/redirect">Redirect 1</Link>
+    <br />
+    <Link to="/redirect2">Redirect 2</Link>
   </div>
 )
 
@@ -33,6 +38,7 @@ Home.getInitialProps = ({ query }) => {
   if (query.miss) {
     throw new NotFoundPage()
   }
+  return { a: 3 }
 }
 
 export default Home

@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
-import { Route } from 'react-router-dom'
+import { Route, Redirect } from 'beimo/router'
 import { isPage } from '../index'
 
 const { APP_STATE } = window
@@ -41,6 +41,7 @@ class Page extends React.Component {
       initialProps: isRenderedPage ? APP_STATE.page.props : undefined,
       error: isRenderedPage ? APP_STATE.page.error : undefined,
       errorComponent,
+      redirectURL: undefined,
     }
   }
 
@@ -52,32 +53,34 @@ class Page extends React.Component {
       return
     }
 
-    if (!component) {
+    if (component) {
+      this.loadInitialProps(this.props)
+    } else {
       loadChunk(chunkName, load)
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.component !== this.props.component) {
-      this.loadInitialProps(nextProps.component)
+    const { component, load, chunkName, loadChunk, location } = nextProps
+
+    if (component !== this.props.component) {
+      this.loadInitialProps(nextProps)
     }
 
+    // When path change, but rendering the same page
     if (
-      this.props.location.search !== nextProps.location.search ||
-      this.props.location.pathname !== nextProps.location.pathname
+      this.props.location.search !== location.search ||
+      this.props.location.pathname !== location.pathname
     ) {
-      if (!this.state.component) {
-        nextProps
-          .loadChunk(this.props.chunkName, nextProps.load)
-          .then(({ default: component }) => {
-            this.setState({ component })
-            this.loadInitialProps(component)
-          })
+      if (component) {
+        this.loadInitialProps(nextProps)
       } else {
-        this.loadInitialProps(this.state.component, nextProps)
+        loadChunk(chunkName, load)
       }
     }
   }
+
+  redirect = url => this.setState({ redirectURL: url })
 
   handleError = async (error, resolveErrorPage = this.props.resolveErrorPage) => {
     const errorPage = resolveErrorPage(error)
@@ -94,10 +97,10 @@ class Page extends React.Component {
 
     const yieldProps = props => this.setState({ initialProps: props })
     let initialProps = {}
-    const response = {}
+    const response = { redirect: this.redirect }
 
-    if (errorPage.getInitialProps) {
-      const promise = errorPage.getInitialProps({
+    if (errorComponent.getInitialProps) {
+      const promise = errorComponent.getInitialProps({
         error,
         yieldProps,
         response,
@@ -117,10 +120,7 @@ class Page extends React.Component {
     this.setState({ error, initialProps, errorComponent })
   }
 
-  async loadInitialProps(
-    component,
-    { resolveArgs, location, match, resolveErrorPage } = this.props,
-  ) {
+  async loadInitialProps({ component, resolveArgs, location, match, resolveErrorPage }) {
     if (component.getInitialProps) {
       const yieldProps = props =>
         this.setState({
@@ -128,7 +128,7 @@ class Page extends React.Component {
           errorComponent: null,
           initialProps: props,
         })
-      const response = {}
+      const response = { redirect: this.redirect }
       try {
         const newProps = component.getInitialProps(
           resolveArgs({
@@ -152,7 +152,11 @@ class Page extends React.Component {
 
   render() {
     const { loading: Loading, component: Component } = this.props
-    const { initialProps, error, errorComponent: ErrorComponent } = this.state
+    const { redirectURL, initialProps, error, errorComponent: ErrorComponent } = this.state
+
+    if (redirectURL) {
+      return <Redirect to={redirectURL} />
+    }
 
     if (error) {
       if (ErrorComponent) {

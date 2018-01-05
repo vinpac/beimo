@@ -1,4 +1,5 @@
 import hash from 'string-hash'
+import { Link, NavLink, Route, Redirect, Switch } from 'react-router-dom'
 
 export class PageError extends Error {
   constructor(message: ?string, status: ?number) {
@@ -73,4 +74,4 @@ export function parsePages(pages) {
   }
 }
 
-export const Wrap = ({ children }) => children
+export { Link, NavLink, Route, Redirect, Switch }

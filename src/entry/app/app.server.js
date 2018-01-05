@@ -34,6 +34,11 @@ app.prepare = (server, handle) => {
   } else {
     server.hot = module.hot
 
+    module.hot.accept('./assets.json', () => {
+      // eslint-disable-next-line import/no-unresolved
+      app.configure({ assets: require('./assets.json') })
+    })
+
     module.hot.accept('<beimo:pages-path>', () => {
       // eslint-disable-next-line import/no-unresolved
       app.configure(parsePages(require('<beimo:pages-path>').default))
