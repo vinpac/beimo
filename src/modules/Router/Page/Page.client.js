@@ -104,6 +104,7 @@ class Page extends React.Component {
         error,
         yieldProps,
         response,
+        pageProps: errorPage.pageProps,
       })
 
       if (promise instanceof Promise) {
@@ -120,7 +121,7 @@ class Page extends React.Component {
     this.setState({ error, initialProps, errorComponent })
   }
 
-  async loadInitialProps({ component, resolveArgs, location, match, resolveErrorPage }) {
+  async loadInitialProps({ component, pageProps, resolveArgs, location, match, resolveErrorPage }) {
     if (component.getInitialProps) {
       const yieldProps = props =>
         this.setState({
@@ -136,6 +137,7 @@ class Page extends React.Component {
             query: queryString.parse(location.search),
             yieldProps,
             response,
+            pageProps,
           }),
         )
 

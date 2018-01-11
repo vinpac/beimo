@@ -68,6 +68,7 @@ export default class App {
             yieldProps,
             response,
             error,
+            pageProps: page.pageProps,
           }),
         )
       }

@@ -2,8 +2,8 @@ import App from '../../modules/App'
 import { parsePages } from '../../modules/Router'
 /* eslint-disable */
 // Replaced by parse-defaults
-import pages from '<beimo:pages-path>'
 import configureApp from '<beimo:configureApp-path>'
+import pages from '<beimo:pages-path>'
 /* eslint-enable */
 
 const errorPage = {

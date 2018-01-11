@@ -1,5 +1,5 @@
 import React from 'react'
-import Link from 'beimo/link'
+import { Link } from 'beimo/router'
 import Head from 'beimo/head'
 import s from '../../about.css'
 

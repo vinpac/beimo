@@ -3,8 +3,8 @@ import Document from '../_document'
 import assets from './assets.json' // eslint-disable-line import/no-unresolved
 /* eslint-disable */
 // Replaced by parse-defaults
-import pages from '<beimo:pages-path>'
 import configureApp from '<beimo:configureApp-path>'
+import pages from '<beimo:pages-path>'
 import { createErrorPageResolver, parsePages } from '../../modules/Router'
 /* eslint-enable */
 

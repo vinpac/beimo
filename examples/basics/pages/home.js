@@ -1,6 +1,5 @@
 import React from 'react'
-import Link from 'beimo/link'
-import { NotFoundPage } from 'beimo/router'
+import { Link, NotFoundPage } from 'beimo/router'
 import Head from 'beimo/head'
 import s from '../home.css'
 
@@ -30,7 +29,7 @@ const Home = ({ a }) => (
 )
 
 Home.displayName = 'Home'
-Home.getInitialProps = ({ query }) => {
+Home.getInitialProps = ({ query, pageProps = { haha: 0 } }) => {
   if (query.error) {
     throw new Error('Some error')
   }
@@ -38,7 +37,7 @@ Home.getInitialProps = ({ query }) => {
   if (query.miss) {
     throw new NotFoundPage()
   }
-  return { a: 3 }
+  return { a: 3 + pageProps.haha }
 }
 
 export default Home

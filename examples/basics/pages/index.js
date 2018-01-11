@@ -4,7 +4,7 @@ import about from './about'
 import '../basics.css'
 
 const pages = [
-  page('./home', { path: '/', loading: () => <h1>Loading 2</h1> }),
+  page('./home', { path: '/', pageProps: { haha: 1 }, loading: () => <h1>Loading 2</h1> }),
   page('./home', { path: '/news', loading: () => <h1>Loading 2</h1> }),
   page('./home', { path: '/news/categories', loading: () => <h1>Loading 2</h1> }),
   page('./redirect', { path: '/redirect' }),
