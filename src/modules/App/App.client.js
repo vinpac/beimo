@@ -125,7 +125,7 @@ export default class App {
       }
     }
 
-    this.appInstance = ReactDOM.hydrate(this.render(), element)
+    this.instance = ReactDOM.hydrate(this.render(), element)
   }
 
   render() {
