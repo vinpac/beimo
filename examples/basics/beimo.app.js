@@ -3,6 +3,17 @@ import Head from 'beimo/head'
 
 export default app => {
   app.configure({
+    getInitialProps: ({ req, initialReduxState }) => {
+      const initialState = initialReduxState || { user: req.user || { fullName: 'John doe' } }
+      const store = { dispatch: () => { }, getState: () => initialState }
+
+      return { store }
+    },
+    getPageArgs: (args, { store }) => ({ ...args, store }),
+    getSharedState: (sharedState, { store }) => ({
+      ...sharedState,
+      initialReduxState: store.getState(),
+    }),
     component: ({ children }) => (
       <Fragment>
         <Head>

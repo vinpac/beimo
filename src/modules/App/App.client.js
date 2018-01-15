@@ -9,10 +9,14 @@ class AppComponent extends React.Component {
   static propTypes = {
     component: PropTypes.func,
     pages: PropTypes.arrayOf(
-      PropTypes.shape({ chunkName: PropTypes.string.isRequired, load: PropTypes.func.isRequired }),
+      PropTypes.shape({
+        chunkName: PropTypes.string.isRequired,
+        load: PropTypes.func.isRequired,
+      }),
     ).isRequired,
-    resolveErrorPage: PropTypes.func.isRequired,
-    resolvePageArgs: PropTypes.func.isRequired,
+    getErrorPage: PropTypes.func.isRequired,
+    getPageArgs: PropTypes.func.isRequired,
+    componentProps: PropTypes.object.isRequired, // eslint-disable-line
   }
 
   static defaultProps = { component: null }
@@ -23,6 +27,8 @@ class AppComponent extends React.Component {
     this.chunksPromisesMap = {}
     this.state = { pages: props.pages }
   }
+
+  getPageArgs = args => this.props.getPageArgs(args, this.props.componentProps)
 
   loadChunk = (chunkName, loadFn) => {
     if (!this.chunksPromisesMap[chunkName]) {
@@ -43,7 +49,7 @@ class AppComponent extends React.Component {
   }
 
   render() {
-    const { component: Component, resolvePageArgs, resolveErrorPage } = this.props
+    const { component: Component, componentProps, getErrorPage } = this.props
     const { pages } = this.state
 
     const children = (
@@ -52,8 +58,8 @@ class AppComponent extends React.Component {
           <Page
             key={i} //eslint-disable-line
             {...page}
-            resolveArgs={resolvePageArgs}
-            resolveErrorPage={resolveErrorPage}
+            getArgs={this.getPageArgs}
+            getErrorPage={getErrorPage}
             loadChunk={this.loadChunk}
           />
         ))}
@@ -61,25 +67,29 @@ class AppComponent extends React.Component {
     )
 
     return (
-      <BrowserRouter>{Component ? <Component>{children}</Component> : children}</BrowserRouter>
+      <BrowserRouter>{Component ? <Component {...componentProps}>{children}</Component> : children}</BrowserRouter>
     )
   }
 }
 
 export default class App {
-  constructor({ pages = [], resolveErrorPage, component, resolvePageArgs }) {
+  constructor({ pages = [], component, getInitialProps, getPageArgs, getErrorPage }) {
     this.pages = pages
     this.component = component
-    this.resolvePageArgs = resolvePageArgs || (args => args)
-    this.resolveErrorPage = resolveErrorPage
+    this.getInitialProps = getInitialProps || (() => ({}))
+    this.getPageArgs = getPageArgs || (args => args)
+    this.getErrorPage = getErrorPage
     this.chunks = {}
   }
 
-  configure({ pages, component, resolvePageArgs, resolveErrorPage }) {
+  configure({ pages, component, getInitialProps, getPageArgs, getErrorPage }) {
     if (pages !== undefined) this.pages = pages
-    if (resolvePageArgs !== undefined) this.resolvePageArgs = resolvePageArgs
     if (component !== undefined) this.component = component
-    if (resolveErrorPage !== undefined) this.resolveErrorPage = resolveErrorPage
+
+    // Getters
+    if (getInitialProps !== undefined) this.getComponentInitialProps = getInitialProps
+    if (getPageArgs !== undefined) this.getPageArgs = getPageArgs
+    if (getErrorPage !== undefined) this.getErrorPage = getErrorPage
   }
 
   // eslint-disable-next-line
@@ -93,7 +103,7 @@ export default class App {
     const { page: { error } } = window.APP_STATE
 
     if (error) {
-      const errorPage = this.resolveErrorPage(error)
+      const errorPage = this.getErrorPage(error)
 
       if (isPage(errorPage)) {
         errorPage.component = await errorPage.load().then(({ default: component }) => component)
@@ -119,13 +129,16 @@ export default class App {
   }
 
   render() {
+    const { page, ...sharedState } = window.APP_STATE
+
     return (
       <AppComponent
         key={this.hydrateKey}
         pages={this.pages}
-        resolveErrorPage={this.resolveErrorPage}
-        resolvePageArgs={this.resolvePageArgs}
+        getErrorPage={this.getErrorPage}
+        getPageArgs={this.getPageArgs}
         component={this.component}
+        componentProps={this.getComponentInitialProps(sharedState)}
       />
     )
   }

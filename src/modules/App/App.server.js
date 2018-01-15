@@ -11,48 +11,64 @@ import { NotFoundPage, isPage } from '../Router'
 // eslint-disable-next-line
 import { getStyles } from '!modular-style-loader/dist/store'
 
+const defaultPageArgsResolver = args => args
+const defaultSharedStateResolver = ({ page }) => ({ page })
 export default class App {
   constructor({
     pages = [],
     component,
-    resolvePageArgs,
     assets,
     styles,
     documentComponent,
-    resolveAppState,
-    resolveErrorPage,
+    getInitialProps,
+    getPageArgs,
+    getSharedState,
+    getErrorPage,
   }) {
+    // Core
     this.pages = pages
     this.assets = assets
     this.styles = styles || []
+    this.static = path.join(process.env.DIST_PATH, process.env.STATIC_DIR)
+
+    // Components
     this.component = component
     this.documentComponent = documentComponent
-    this.resolvePageArgs = resolvePageArgs || (args => args)
-    this.resolveAppState = resolveAppState || (args => args)
-    this.resolveErrorPage = resolveErrorPage
-    this.static = path.join(process.env.DIST_PATH, process.env.STATIC_DIR)
+
+    // Getters
+    this.getComponentInitialProps = getInitialProps
+    this.getPageArgs = getPageArgs || defaultPageArgsResolver
+    this.getSharedState = getSharedState || defaultSharedStateResolver
+    this.getErrorPage = getErrorPage
   }
 
   configure({
     assets,
     pages,
     component,
-    resolvePageArgs,
     documentComponent,
-    resolveAppState,
-    resolveErrorPage,
+    getInitialProps,
+    getPageArgs,
+    getSharedState,
+    getErrorPage,
   }) {
+    // Core
     if (assets !== undefined) this.assets = assets
-    if (resolveAppState !== undefined) this.resolveAppState = resolveAppState
-    if (documentComponent !== undefined) this.documentComponent = documentComponent
     if (pages !== undefined) this.pages = pages
-    if (resolvePageArgs !== undefined) this.resolvePageArgs = resolvePageArgs
-    if (resolveErrorPage !== undefined) this.resolveErrorPage = resolveErrorPage
+
+    // Components
     if (component !== undefined) this.component = component
+    if (documentComponent !== undefined) this.documentComponent = documentComponent
+
+    // Getters
+    if (getInitialProps !== undefined) this.getComponentInitialProps = getInitialProps
+    if (getPageArgs !== undefined) this.getPageArgs = getPageArgs
+    if (getSharedState !== undefined) this.getSharedState = getSharedState
+    if (getErrorPage !== undefined) this.getErrorPage = getErrorPage
   }
 
   // eslint-disable-next-line
-  loadPage(page, match, response, query, error) {
+  loadPage(page, match, response, query, error, appComponentProps) {
     let pageProps = {}
 
     const fn = async ({ default: component }) => {
@@ -62,14 +78,14 @@ export default class App {
         }
 
         pageProps = await component.getInitialProps(
-          this.resolvePageArgs({
+          this.getPageArgs({
             ...match,
             query: query || {},
             yieldProps,
             response,
             error,
             pageProps: page.pageProps,
-          }),
+          }, appComponentProps),
         )
       }
 
@@ -87,7 +103,7 @@ export default class App {
   }
 
   async render(req, res, query = req.query) {
-    const { pages, resolveErrorPage, documentComponent: Document } = this
+    const { pages, getErrorPage, documentComponent: Document } = this
 
     let matchedPage
     let response = {}
@@ -99,6 +115,9 @@ export default class App {
       this.assets.vendor.js,
       this.assets.client.js,
     ]
+    const appComponentProps = this.getComponentInitialProps
+      ? this.getComponentInitialProps({ req })
+      : {}
 
     try {
       let miss = true
@@ -114,7 +133,7 @@ export default class App {
             throw new NotFoundPage()
           }
 
-          promise = this.loadPage(page, match, response, query)
+          promise = this.loadPage(page, match, response, query, undefined, appComponentProps)
         }
 
         return match
@@ -133,9 +152,9 @@ export default class App {
       response = { status: error.status || 500, redirect: redirectFn }
       matchedPage = { page: matchedPage && matchedPage.page, props: {} }
       pageError = error
-      const errorPage = resolveErrorPage && resolveErrorPage(error)
+      const errorPage = getErrorPage && getErrorPage(error)
 
-      if (!resolveErrorPage || !errorPage) {
+      if (!getErrorPage || !errorPage) {
         throw error
       }
 
@@ -145,6 +164,7 @@ export default class App {
         response,
         query,
         error,
+        appComponentProps,
       )
 
       pageErrorComponent = loadResponse.component
@@ -167,7 +187,7 @@ export default class App {
             {...(matchedPage.page === page
               ? { component: matchedPage.component }
               : {}
-            )}
+            ) }
           />
         ))}
       </Switch>
@@ -175,11 +195,28 @@ export default class App {
 
     const body = ReactDOM.renderToString(
       <StaticRouter location={req.url} context={response}>
-        {this.component ? <this.component context={response}>{children}</this.component> : children}
+        {this.component
+          ? <this.component {...appComponentProps}>{children}</this.component>
+          : children
+        }
       </StaticRouter>,
     )
 
     const styles = this.styles.concat(getStyles(__DEV__))
+
+    const appState = this.getSharedState({
+      page: {
+        id: matchedPage.page && matchedPage.page.id,
+        props: matchedPage.props,
+        error: pageError && typeof pageError.toJSON === 'function'
+          ? pageError.toJSON()
+          : pageError && {
+            name: pageError.name,
+            message: pageError.message,
+            stack: pageError.stack,
+          },
+      },
+    }, appComponentProps)
 
     const html = `<!doctype html>${
       ReactDOM.renderToStaticMarkup(
@@ -187,25 +224,13 @@ export default class App {
           {...response}
           scripts={scripts}
           head={Helmet.renderStatic()}
-          appState={this.resolveAppState({
-            page: {
-              id: matchedPage.page && matchedPage.page.id,
-              props: matchedPage.props,
-              error: pageError && typeof pageError.toJSON === 'function'
-                ? pageError.toJSON()
-                : pageError && {
-                  name: pageError.name,
-                  message: pageError.message,
-                  stack: pageError.stack,
-                },
-            },
-          })}
+          appState={appState}
           styles={styles}
         >
           {body}
         </Document>,
       )
-    }`
+      }`
 
     if (response.url) {
       // Express.js

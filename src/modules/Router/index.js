@@ -67,7 +67,7 @@ export function parsePages(pages) {
 
   return {
     pages: pages.filter(page => page.use !== 'error'),
-    resolveErrorPage: createErrorPageResolver(
+    getErrorPage: createErrorPageResolver(
       pages.find(page => page.use === 'miss'),
       () => errorPage,
     ),

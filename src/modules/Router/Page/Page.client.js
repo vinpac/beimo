@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
-import { Route, Redirect } from 'beimo/router'
+import { Route, Redirect } from 'beimo/router' // eslint-disable-line
 import { isPage } from '../index'
 
 const { APP_STATE } = window
@@ -14,12 +14,12 @@ class Page extends React.Component {
     chunkName: PropTypes.string.isRequired,
     load: PropTypes.func.isRequired,
     location: Route.propTypes.location.isRequired,
-    resolveErrorPage: PropTypes.func,
+    getErrorPage: PropTypes.func,
   }
 
   static defaultProps = {
     loading: undefined,
-    resolveErrorPage: undefined,
+    getErrorPage: undefined,
     component: null,
   }
 
@@ -29,8 +29,8 @@ class Page extends React.Component {
     const isRenderedPage = APP_STATE.page.id === props.id && !APP_STATE.page.rendered
     let errorComponent
 
-    if (isRenderedPage && APP_STATE.page.error && props.resolveErrorPage) {
-      errorComponent = props.resolveErrorPage(APP_STATE.page.error)
+    if (isRenderedPage && APP_STATE.page.error && props.getErrorPage) {
+      errorComponent = props.getErrorPage(APP_STATE.page.error)
 
       if (isPage(errorComponent)) {
         errorComponent = errorComponent.component
@@ -82,8 +82,8 @@ class Page extends React.Component {
 
   redirect = url => this.setState({ redirectURL: url })
 
-  handleError = async (error, resolveErrorPage = this.props.resolveErrorPage) => {
-    const errorPage = resolveErrorPage(error)
+  handleError = async (error, getErrorPage = this.props.getErrorPage) => {
+    const errorPage = getErrorPage(error)
     let errorComponent = errorPage
 
     if (!errorPage) {
@@ -121,7 +121,7 @@ class Page extends React.Component {
     this.setState({ error, initialProps, errorComponent })
   }
 
-  async loadInitialProps({ component, pageProps, resolveArgs, location, match, resolveErrorPage }) {
+  async loadInitialProps({ component, pageProps, getArgs, location, match, getErrorPage }) {
     if (component.getInitialProps) {
       const yieldProps = props =>
         this.setState({
@@ -132,7 +132,7 @@ class Page extends React.Component {
       const response = { redirect: this.redirect }
       try {
         const newProps = component.getInitialProps(
-          resolveArgs({
+          getArgs({
             ...match,
             query: queryString.parse(location.search),
             yieldProps,
@@ -142,12 +142,12 @@ class Page extends React.Component {
         )
 
         if (newProps instanceof Promise) {
-          newProps.then(yieldProps).catch(error => this.handleError(error, resolveErrorPage))
+          newProps.then(yieldProps).catch(error => this.handleError(error, getErrorPage))
         } else {
           yieldProps(newProps)
         }
       } catch (error) {
-        this.handleError(error, resolveErrorPage)
+        this.handleError(error, getErrorPage)
       }
     }
   }
@@ -192,7 +192,7 @@ PageConnect.displayName = 'PageConnect'
 PageConnect.propTypes = {
   exact: PropTypes.bool,
   path: PropTypes.string,
-  resolveArgs: PropTypes.func.isRequired,
+  getArgs: PropTypes.func.isRequired,
 }
 PageConnect.defaultProps = { exact: true, path: undefined }
 
