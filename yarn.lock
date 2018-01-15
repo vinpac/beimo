@@ -1490,8 +1490,8 @@ caniuse-api@^1.5.2:
     lodash.uniq "^4.5.0"
 
 caniuse-db@^1.0.30000529, caniuse-db@^1.0.30000634, caniuse-db@^1.0.30000639:
-  version "1.0.30000787"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000787.tgz#ca07a281be536a88bd7fac96ba895f3cf53f811b"
+  version "1.0.30000792"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000792.tgz#a7dac6dc9f5181b675fd69e5cb06fefb523157f8"
 
 caniuse-lite@^1.0.30000784:
   version "1.0.30000787"
@@ -4371,9 +4371,9 @@ mixin-object@^2.0.1:
   dependencies:
     minimist "0.0.8"
 
-modular-css-loader@^0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/modular-css-loader/-/modular-css-loader-0.0.11.tgz#24f831ae15176d1f03230664638aeff98a4945d4"
+modular-css-loader@^0.0.12:
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/modular-css-loader/-/modular-css-loader-0.0.12.tgz#afc84d51c98ac535ee9917a044d056bb4d147707"
   dependencies:
     css-selector-tokenizer "^0.7.0"
     cssnano "^3.10.0"
@@ -5180,9 +5180,17 @@ postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0
     source-map "^0.5.6"
     supports-color "^3.2.3"
 
-postcss@^6.0.0, postcss@^6.0.1, postcss@^6.0.11, postcss@^6.0.13, postcss@^6.0.14, postcss@^6.0.15:
+postcss@^6.0.0, postcss@^6.0.1, postcss@^6.0.11, postcss@^6.0.14, postcss@^6.0.15:
   version "6.0.15"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-6.0.15.tgz#f460cd6269fede0d1bf6defff0b934a9845d974d"
+  dependencies:
+    chalk "^2.3.0"
+    source-map "^0.6.1"
+    supports-color "^5.1.0"
+
+postcss@^6.0.13:
+  version "6.0.16"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-6.0.16.tgz#112e2fe2a6d2109be0957687243170ea5589e146"
   dependencies:
     chalk "^2.3.0"
     source-map "^0.6.1"

@@ -504,7 +504,7 @@ export default params => {
     return parseWebpackConfig({
       client: clientConfig,
       server: serverConfig,
-    }, params, { extractTextPlugin, reStyle, reScript, reImage })
+    }, params, { extractTextPlugin, postCSSConfig, reStyle, reScript, reImage })
   }
 
   return {
