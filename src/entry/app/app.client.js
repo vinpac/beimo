@@ -25,7 +25,7 @@ if (module.hot) {
   module.hot.accept('<beimo:pages-path>', () => {
     // eslint-disable-next-line import/no-unresolved
     app.configure(parsePages(require('<beimo:pages-path>').default))
-    app.hydrate(document.getElementById('root'))
+    app.hydrate(document.getElementById('root'), true)
   })
 }
 

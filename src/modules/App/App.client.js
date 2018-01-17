@@ -28,6 +28,8 @@ class AppComponent extends React.Component {
     this.state = { pages: props.pages }
   }
 
+  setPages = pages => this.setState({ pages })
+
   getPageArgs = args => this.props.getPageArgs(args, this.props.componentProps)
 
   loadChunk = (chunkName, loadFn) => {
@@ -56,7 +58,7 @@ class AppComponent extends React.Component {
       <Switch>
         {pages.map((page, i) => (
           <Page
-            key={i} //eslint-disable-line
+            key={page.id} //eslint-disable-line
             {...page}
             getArgs={this.getPageArgs}
             getErrorPage={getErrorPage}
@@ -65,29 +67,30 @@ class AppComponent extends React.Component {
         ))}
       </Switch>
     )
-
     return (
-      <BrowserRouter>{Component ? <Component {...componentProps}>{children}</Component> : children}</BrowserRouter>
+      <BrowserRouter>
+        {Component ? <Component {...componentProps}>{children}</Component> : children}
+      </BrowserRouter>
     )
   }
 }
 
 export default class App {
-  constructor({ pages = [], component, getInitialProps, getPageArgs, getErrorPage }) {
+  constructor({ pages = [], component, getComponentProps, getPageArgs, getErrorPage }) {
     this.pages = pages
     this.component = component
-    this.getInitialProps = getInitialProps || (() => ({}))
+    this.getComponentProps = getComponentProps || (() => ({}))
     this.getPageArgs = getPageArgs || (args => args)
     this.getErrorPage = getErrorPage
     this.chunks = {}
   }
 
-  configure({ pages, component, getInitialProps, getPageArgs, getErrorPage }) {
+  configure({ pages, component, getComponentProps, getPageArgs, getErrorPage }) {
     if (pages !== undefined) this.pages = pages
     if (component !== undefined) this.component = component
 
     // Getters
-    if (getInitialProps !== undefined) this.getComponentInitialProps = getInitialProps
+    if (getComponentProps !== undefined) this.getComponentProps = getComponentProps
     if (getPageArgs !== undefined) this.getPageArgs = getPageArgs
     if (getErrorPage !== undefined) this.getErrorPage = getErrorPage
   }
@@ -97,7 +100,7 @@ export default class App {
     throw new Error('handle is a server only method. Use hydrate instead.')
   }
 
-  async hydrate(element) {
+  async hydrate(element, updateIfPossible) {
     this.hydrateKey = Date.now() || this.hydrateKey + 1
 
     const { page: { error } } = window.APP_STATE
@@ -125,6 +128,11 @@ export default class App {
       }
     }
 
+    if (updateIfPossible && this.renderedAppCompoent) {
+      this.renderedAppCompoent.setPages(this.pages)
+      return
+    }
+
     this.instance = ReactDOM.hydrate(this.render(), element)
   }
 
@@ -134,11 +142,14 @@ export default class App {
     return (
       <AppComponent
         key={this.hydrateKey}
+        ref={component => {
+          this.renderedAppCompoent = component
+        }}
         pages={this.pages}
         getErrorPage={this.getErrorPage}
         getPageArgs={this.getPageArgs}
         component={this.component}
-        componentProps={this.getComponentInitialProps(sharedState)}
+        componentProps={this.getComponentProps(sharedState)}
       />
     )
   }

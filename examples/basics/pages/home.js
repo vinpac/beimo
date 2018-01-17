@@ -29,7 +29,7 @@ const Home = ({ a }) => (
 )
 
 Home.displayName = 'Home'
-Home.getInitialProps = ({ query, pageProps = { haha: 0 } }) => {
+Home.getInitialProps = ({ query, store, pageProps = { haha: 0 } }) => {
   if (query.error) {
     throw new Error('Some error')
   }
@@ -37,6 +37,7 @@ Home.getInitialProps = ({ query, pageProps = { haha: 0 } }) => {
   if (query.miss) {
     throw new NotFoundPage()
   }
+
   return { a: 3 + pageProps.haha }
 }
 

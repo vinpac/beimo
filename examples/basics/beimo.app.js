@@ -3,7 +3,19 @@ import Head from 'beimo/head'
 
 export default app => {
   app.configure({
-    getInitialProps: ({ req, initialReduxState }) => {
+    component: ({ children, store }) => (
+      <Fragment>
+        <Head>
+          <link
+            href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500"
+            rel="stylesheet"
+          />
+        </Head>
+        {children}
+        {store.getState().user.fullName}
+      </Fragment>
+    ),
+    getComponentProps: ({ req, initialReduxState }) => {
       const initialState = initialReduxState || { user: req.user || { fullName: 'John doe' } }
       const store = { dispatch: () => { }, getState: () => initialState }
 
@@ -14,16 +26,5 @@ export default app => {
       ...sharedState,
       initialReduxState: store.getState(),
     }),
-    component: ({ children }) => (
-      <Fragment>
-        <Head>
-          <link
-            href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500"
-            rel="stylesheet"
-          />
-        </Head>
-        {children}
-      </Fragment>
-    ),
   })
 }

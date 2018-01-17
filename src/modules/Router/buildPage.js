@@ -1,7 +1,13 @@
 const hash = require('string-hash')
 
+const chunkCountMap = {}
 module.exports = (chunkName, props) => {
-  props.id = String(hash(`${chunkName}${props.path}${props.exact ? '1' : '0'}`))
+  if (!chunkCountMap[chunkName]) {
+    chunkCountMap[chunkName] = 0
+  }
+
+  props.id = String(hash(`${chunkName}${chunkCountMap[chunkName] || ''}`))
+  chunkCountMap[chunkName] += 1
 
   props.chunkName = chunkName
   props.exact = !!(props.path && props.exact !== false)

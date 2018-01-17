@@ -20,7 +20,7 @@ export default class App {
     assets,
     styles,
     documentComponent,
-    getInitialProps,
+    getComponentProps,
     getPageArgs,
     getSharedState,
     getErrorPage,
@@ -36,7 +36,7 @@ export default class App {
     this.documentComponent = documentComponent
 
     // Getters
-    this.getComponentInitialProps = getInitialProps
+    this.getComponentProps = getComponentProps
     this.getPageArgs = getPageArgs || defaultPageArgsResolver
     this.getSharedState = getSharedState || defaultSharedStateResolver
     this.getErrorPage = getErrorPage
@@ -47,7 +47,7 @@ export default class App {
     pages,
     component,
     documentComponent,
-    getInitialProps,
+    getComponentProps,
     getPageArgs,
     getSharedState,
     getErrorPage,
@@ -61,7 +61,7 @@ export default class App {
     if (documentComponent !== undefined) this.documentComponent = documentComponent
 
     // Getters
-    if (getInitialProps !== undefined) this.getComponentInitialProps = getInitialProps
+    if (getComponentProps !== undefined) this.getComponentProps = getComponentProps
     if (getPageArgs !== undefined) this.getPageArgs = getPageArgs
     if (getSharedState !== undefined) this.getSharedState = getSharedState
     if (getErrorPage !== undefined) this.getErrorPage = getErrorPage
@@ -115,8 +115,8 @@ export default class App {
       this.assets.vendor.js,
       this.assets.client.js,
     ]
-    const appComponentProps = this.getComponentInitialProps
-      ? this.getComponentInitialProps({ req })
+    const appComponentProps = this.getComponentProps
+      ? this.getComponentProps({ req })
       : {}
 
     try {
