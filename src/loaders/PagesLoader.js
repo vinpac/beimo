@@ -6,6 +6,7 @@ This is only intended for testing of idea.
 /* eslint-disable no-continue */
 
 const path = require('path')
+const stringHash = require('string-hash')
 
 const importRegex = /(?:import[\s\n]+((?:(?!from|;)[\s\S])*)[\s\n]+from[\s]+(?:'beimo\/page'|"beimo\/page"))/g
 const strChars = ["'", '"', '`']
@@ -31,12 +32,9 @@ module.exports = function PagesLoader(rawSource) {
   let name = ''
   let found = false
   let justFound = false
-  let afterFound = false
   let str = ''
   let strStart
   let strEnd
-  let hasMoreArgs = false
-  let loadStatement
   for (; i < source.length; i += 1) {
     const char = source.charAt(i)
     const code = source.charCodeAt(i)
@@ -76,14 +74,6 @@ module.exports = function PagesLoader(rawSource) {
       continue
     }
 
-    if (afterFound) {
-      afterFound = false
-
-      if (char !== '}') {
-        source = `${source.substr(0, i)},${source.substr(i)}`
-      }
-    }
-
     if (found && !expect) {
       if (justFound) {
         if (char === ')') {
@@ -98,48 +88,19 @@ module.exports = function PagesLoader(rawSource) {
           )
         }
 
-        if (char === ',') {
-          hasMoreArgs = true
-          continue
+        if (!path.join(pagesPath, str).startsWith(pagesPath)) {
+          throw new Error('You cannot use pages outside of the pages folder')
         }
 
-        if (!loadStatement) {
-          if (!path.join(pagesPath, str).startsWith(pagesPath)) {
-            throw new Error('You cannot use pages outside of the pages folder')
-          }
+        const chunkName = path.join('pages', path.relative(pagesPath, path.resolve(this.context, str)))
+        const chunkId = stringHash(chunkName)
+        const load = `() => import(/* webpackChunkName: '${chunkName}' */'${str}')`
+        const newsArgs = `'${chunkName}', ${load}, '${chunkId}'`
 
-          const chunkName = path.join('pages', path.relative(pagesPath, path.resolve(this.context, str)))
-
-          // Replace first argument to reflet chunk name
-          source = `${source.substr(0, strStart)}'${chunkName}${source.substr(strEnd)}`
-
-          loadStatement = `load: () => import(/* webpackChunkName: '${chunkName}' */'${str}')`
-          i += chunkName.length - str.length
-        }
-
-        if (hasMoreArgs) {
-          found = false
-          if (char === '(') {
-            continue
-          }
-
-          if (char === '{') {
-            source = `${source.substr(0, i)}{ ${loadStatement} ${source.substr(i + 1)}`
-            i += loadStatement.length + 1
-            found = false
-            hasMoreArgs = false
-            loadStatement = null
-            afterFound = true
-            continue
-          }
-
-          throw new Error('Sencond argument of page must be an object')
-        } else if (char === ')') {
-          source = `${source.substr(0, i)}, { ${loadStatement} })${source.substr(i + 1)}`
-          i += loadStatement.length + 1
-          found = false
-          loadStatement = null
-        }
+        // Replace first argument to reflet chunk name
+        source = `${source.substr(0, strStart)}${newsArgs}${source.substr(strEnd + 1)}`
+        i += newsArgs.length - str.length
+        found = false
 
         continue
       }

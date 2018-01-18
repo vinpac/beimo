@@ -56,7 +56,7 @@ export function parsePages(pages) {
   let errorPage
 
   pages.some(page => {
-    if (page.use === 'error') {
+    if (page.useAs === 'error') {
       errorPage = page
     }
 
@@ -66,9 +66,9 @@ export function parsePages(pages) {
   })
 
   return {
-    pages: pages.filter(page => page.use !== 'error'),
+    pages: pages.filter(page => page.useAs !== 'error'),
     getErrorPage: createErrorPageResolver(
-      pages.find(page => page.use === 'miss'),
+      pages.find(page => page.useAs === 'miss'),
       () => errorPage,
     ),
   }

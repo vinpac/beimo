@@ -13,7 +13,7 @@ const errorPage = {
   load: () => import(/* webpackChunkName: 'pages/_error' */ '../_error'),
 }
 
-if (!pages.some(page => page.use !== 'error')) {
+if (!pages.some(page => page.useAs !== 'error')) {
   pages.push(errorPage)
 }
 

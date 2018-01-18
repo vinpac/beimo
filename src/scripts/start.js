@@ -165,9 +165,11 @@ export default async params => {
 
           // eslint-disable-next-line
           delete __non_webpack_require__.cache[path.join(params.distPath, 'server.js')]
-          // eslint-disable-next-line
-          app = __non_webpack_require__(path.join(params.distPath, 'server.js')).default
-          console.warn(hmrPrefix, 'App has been reloaded.')
+          setTimeout(() => {
+            // eslint-disable-next-line
+            app = __non_webpack_require__(path.join(params.distPath, 'server.js')).default
+            console.warn(hmrPrefix, 'App has been reloaded.')
+          }, 1)
         } else {
           console.warn(hmrPrefix, `Update failed: ${error.stack || error.message}`)
         }

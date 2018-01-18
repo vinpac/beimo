@@ -71,21 +71,27 @@ export default class App {
   loadPage(page, match, response, query, error, appComponentProps) {
     let pageProps = {}
 
-    const fn = async ({ default: component }) => {
+    const fn = async module => {
+      page.module = module
+      const { default: component } = module
+
       if (component.getInitialProps) {
         const yieldProps = props => {
           pageProps = props
         }
 
         pageProps = await component.getInitialProps(
-          this.getPageArgs({
-            ...match,
-            query: query || {},
-            yieldProps,
-            response,
-            error,
-            pageProps: page.pageProps,
-          }, appComponentProps),
+          this.getPageArgs(
+            {
+              ...match,
+              query: query || {},
+              yieldProps,
+              response,
+              error,
+              pageProps: page.pageProps,
+            },
+            appComponentProps,
+          ),
         )
       }
 
@@ -93,13 +99,18 @@ export default class App {
       return { props: pageProps, component }
     }
 
-    if (isPage(page)) {
-      return page.load()
+    let promise
+    if (page.module) {
+      promise = fn(page.module)
+    } else if (isPage(page)) {
+      promise = page
+        .load()
         .then(fn)
-        .then(res => ({ ...res, script: this.assets[page.chunkName].js }))
+    } else {
+      promise = fn({ default: page })
     }
 
-    return fn({ default: page })
+    return promise.then(res => ({ ...res, script: this.assets[page.chunkName].js }))
   }
 
   async render(req, res, query = req.query) {
@@ -109,15 +120,12 @@ export default class App {
     let response = {}
     let pageError
     let pageErrorComponent
-    const redirectFn = url => { response.url = url }
+    const redirectFn = url => {
+      response.url = url
+    }
     response.redirect = redirectFn
-    const scripts = [
-      this.assets.vendor.js,
-      this.assets.client.js,
-    ]
-    const appComponentProps = this.getComponentProps
-      ? this.getComponentProps({ req })
-      : {}
+    const scripts = [this.assets.vendor.js, this.assets.client.js]
+    const appComponentProps = this.getComponentProps ? this.getComponentProps({ req }) : {}
 
     try {
       let miss = true
@@ -128,7 +136,7 @@ export default class App {
           miss = false
           matchedPage = { page }
 
-          if (page.use === 'miss') {
+          if (page.useAs === 'miss') {
             miss = true
             throw new NotFoundPage()
           }
@@ -181,13 +189,10 @@ export default class App {
           <Page
             {...page}
             key={i} //eslint-disable-line
-            initialProps={matchedPage.page === page ? matchedPage.props : undefined}
             error={pageError}
             errorComponent={pageErrorComponent}
-            {...(matchedPage.page === page
-              ? { component: matchedPage.component }
-              : {}
-            ) }
+            initialProps={matchedPage.page === page ? matchedPage.props : undefined}
+            component={matchedPage.page === page ? matchedPage.component : undefined}
           />
         ))}
       </Switch>
@@ -195,42 +200,44 @@ export default class App {
 
     const body = ReactDOM.renderToString(
       <StaticRouter location={req.url} context={response}>
-        {this.component
-          ? <this.component {...appComponentProps}>{children}</this.component>
-          : children
-        }
+        {this.component ? (
+          <this.component {...appComponentProps}>{children}</this.component>
+        ) : (
+          children
+        )}
       </StaticRouter>,
     )
 
     const styles = this.styles.concat(getStyles(__DEV__))
 
-    const appState = this.getSharedState({
-      page: {
-        id: matchedPage.page && matchedPage.page.id,
-        props: matchedPage.props,
-        error: pageError && typeof pageError.toJSON === 'function'
-          ? pageError.toJSON()
-          : pageError && {
-            name: pageError.name,
-            message: pageError.message,
-            stack: pageError.stack,
-          },
+    const appState = this.getSharedState(
+      {
+        page: {
+          id: matchedPage.page && matchedPage.page.id,
+          props: matchedPage.props,
+          error: pageError && typeof pageError.toJSON === 'function'
+            ? pageError.toJSON()
+            : pageError && {
+              name: pageError.name,
+              message: pageError.message,
+              stack: pageError.stack,
+            },
+        },
       },
-    }, appComponentProps)
+      appComponentProps,
+    )
 
-    const html = `<!doctype html>${
-      ReactDOM.renderToStaticMarkup(
-        <Document
-          {...response}
-          scripts={scripts}
-          head={Helmet.renderStatic()}
-          appState={appState}
-          styles={styles}
-        >
-          {body}
-        </Document>,
-      )
-      }`
+    const html = `<!doctype html>${ReactDOM.renderToStaticMarkup(
+      <Document
+        {...response}
+        scripts={scripts}
+        head={Helmet.renderStatic()}
+        appState={appState}
+        styles={styles}
+      >
+        {body}
+      </Document>,
+    )}`
 
     if (response.url) {
       // Express.js

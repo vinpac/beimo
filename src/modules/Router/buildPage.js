@@ -1,14 +1,7 @@
-const hash = require('string-hash')
-
-const chunkCountMap = {}
-module.exports = (chunkName, props) => {
-  if (!chunkCountMap[chunkName]) {
-    chunkCountMap[chunkName] = 0
+module.exports = (chunkName, load, id, props) => {
+  if (typeof props !== 'object') {
+    throw new Error('Second argument of page must be an object')
   }
-
-  props.id = String(hash(`${chunkName}${chunkCountMap[chunkName] || ''}`))
-  chunkCountMap[chunkName] += 1
-
   props.chunkName = chunkName
   props.exact = !!(props.path && props.exact !== false)
 
@@ -18,6 +11,9 @@ module.exports = (chunkName, props) => {
   if (props.component) {
     delete props.component
   }
+
+  props.load = load
+  props.id = id
 
   return props
 }
