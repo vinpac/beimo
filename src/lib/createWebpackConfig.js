@@ -4,6 +4,7 @@ import nodeExternals from 'webpack-node-externals'
 import AssetsPlugin from 'assets-webpack-plugin'
 import StringReplacePlugin from 'string-replace-webpack-plugin'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
+import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 import overrideRules from '../lib/overrideRules'
 import postCSSConfig from './postcss.config'
 
@@ -62,6 +63,27 @@ export default params => {
     __DEV__: isDev,
   }
 
+  const extractOptions = {
+    fallback: {
+      loader: 'modular-style-loader',
+      options: { add: false },
+    },
+    use: [
+      {
+        loader: 'modular-css-loader',
+        options: {
+          // CSS Nano http://cssnano.co/options/
+          minimize: true,
+        },
+      },
+      // Apply PostCSS plugins including autoprefixer
+      {
+        loader: 'postcss-loader',
+        options: postCSSConfig,
+      },
+    ],
+  }
+
   // Base config ===================================================================================
   const baseConfig = {
     context: basePath,
@@ -102,7 +124,7 @@ export default params => {
                   // A Babel preset that can automatically determine the Babel plugins and polyfills
                   // https://github.com/babel/babel-preset-env
                   [
-                    'env',
+                    '@babel/preset-env',
                     {
                       targets: {
                         browsers: pkg.browserslist,
@@ -115,13 +137,13 @@ export default params => {
                   ],
                   // Experimental ECMAScript proposals
                   // https://babeljs.io/docs/plugins/#presets-stage-x-experimental-presets-
-                  'stage-2',
+                  '@babel/preset-stage-2',
                   // Flow
                   // https://github.com/babel/babel/tree/master/packages/babel-preset-flow
-                  'flow',
+                  '@babel/preset-flow',
                   // JSX
                   // https://github.com/babel/babel/tree/master/packages/babel-preset-react
-                  ['react', { development: isDev }],
+                  ['@babel/preset-react', { development: isDev }],
                 ],
                 plugins: [
                   ['module-resolver', {
@@ -132,13 +154,14 @@ export default params => {
                       beimo: path.resolve(__dirname, '..', 'src', 'entry', 'app'),
                     },
                   }],
-                  // Replaces the React.createElement function with one that is more optimized for
-                  // production
-                  // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-inline-elements
-                  ...(isDev ? [] : ['transform-react-inline-elements']),
-                  // Remove unnecessary React propTypes from the production build
-                  // https://github.com/oliviertassinari/babel-plugin-transform-react-remove-prop-types
-                  ...(isDev ? [] : ['transform-react-remove-prop-types']),
+                  ...(isDev ? [] : [
+                    // Replaces the React.createElement function with one that is more optimized for production
+                    // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-inline-elements
+                    '@babel/plugin-transform-react-inline-elements',
+                    // Remove unnecessary React propTypes from the production build
+                    // https://github.com/oliviertassinari/babel-plugin-transform-react-remove-prop-types
+                    'transform-react-remove-prop-types',
+                  ]),
                 ],
               },
             },
@@ -171,6 +194,7 @@ export default params => {
               loader: path.resolve(__dirname, '..', 'src', 'loaders', 'PagesLoader'),
               options: { pagesPath: path.join(sourcePath, 'pages') },
             },
+            { loader: 'thread-loader' },
           ],
         },
 
@@ -313,10 +337,10 @@ export default params => {
               options: {
                 ...rule.options,
                 presets: rule.options.presets.map(preset => (
-                  preset[0] !== 'env'
+                  preset[0] !== '@babel/preset-env'
                     ? preset
                     : [
-                      'env',
+                      '@babel/preset-env',
                       {
                         targets: { node: pkg.engines.node },
                         modules: false,
@@ -375,7 +399,7 @@ export default params => {
 
     entry: {
       client: [
-        'babel-polyfill',
+        '@babel/polyfill',
         has.client
           ? path.join(sourcePath, 'client')
           : path.resolve(__dirname, '..', 'src', 'entry', 'client.js'),
@@ -413,26 +437,7 @@ export default params => {
             ],
           } : {
             // Release configuration
-            loader: extractTextPlugin.extract({
-              fallback: {
-                loader: 'modular-style-loader',
-                options: { add: false },
-              },
-              use: [
-                {
-                  loader: 'modular-css-loader',
-                  options: {
-                    // CSS Nano http://cssnano.co/options/
-                    minimize: true,
-                  },
-                },
-                // Apply PostCSS plugins including autoprefixer
-                {
-                  loader: 'postcss-loader',
-                  options: postCSSConfig,
-                },
-              ],
-            }),
+            loader: extractTextPlugin.extract(extractOptions),
           },
         },
       ],
@@ -471,19 +476,31 @@ export default params => {
 
           // Minimize all JavaScript output of chunks
           // https://github.com/mishoo/UglifyJS2#compressor-options
-          new webpack.optimize.UglifyJsPlugin({
+          new UglifyJSPlugin({
+            uglifyOptions: {
+              ecma: 5,
+              compress: {
+                warnings: isVerbose,
+                // Disabled because of an issue with Uglify breaking seemingly valid code:
+                // https://github.com/facebookincubator/create-react-app/issues/2376
+                // Pending further investigation:
+                // https://github.com/mishoo/UglifyJS2/issues/2011
+                comparisons: false,
+              },
+              mangle: { safari10: true },
+              output: {
+                comments: false,
+                // Turned on because emoji and regex is not minified properly using default
+                // https://github.com/facebookincubator/create-react-app/issues/2488
+                ascii_only: true,
+              },
+            },
+            // Use multi-process parallel running to improve the build speed
+            // Default number of concurrent runs: os.cpus().length - 1
+            parallel: true,
+            // Enable file caching
+            cache: true,
             sourceMap: true,
-            compress: {
-              screw_ie8: true, // React doesn't support IE8
-              warnings: isVerbose,
-              unused: true,
-              dead_code: true,
-            },
-            mangle: { screw_ie8: true },
-            output: {
-              comments: false,
-              screw_ie8: true,
-            },
           }),
         ]
         : []),
@@ -504,7 +521,7 @@ export default params => {
     return parseWebpackConfig({
       client: clientConfig,
       server: serverConfig,
-    }, params, { extractTextPlugin, postCSSConfig, reStyle, reScript, reImage })
+    }, params, { extractTextPlugin, extractOptions, postCSSConfig, reStyle, reScript, reImage })
   }
 
   return {

@@ -50,7 +50,7 @@ const compiler = webpack({
             // A Babel preset that can automatically determine the Babel plugins and polyfills
             // https://github.com/babel/babel-preset-env
             [
-              'env',
+              '@babel/preset-env',
               {
                 targets: { node: '6.0.0' },
                 modules: false,
@@ -60,10 +60,10 @@ const compiler = webpack({
             ],
             // Experimental ECMAScript proposals
             // https://babeljs.io/docs/plugins/#presets-stage-x-experimental-presets-
-            'stage-2',
+            '@babel/preset-stage-2',
             // Flow
             // https://github.com/babel/babel/tree/master/packages/babel-preset-flow
-            'flow',
+            '@babel/preset-flow',
           ],
         },
       },
