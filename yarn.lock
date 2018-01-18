@@ -1490,8 +1490,8 @@ caniuse-api@^1.5.2:
     lodash.uniq "^4.5.0"
 
 caniuse-db@^1.0.30000529, caniuse-db@^1.0.30000634, caniuse-db@^1.0.30000639:
-  version "1.0.30000792"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000792.tgz#a7dac6dc9f5181b675fd69e5cb06fefb523157f8"
+  version "1.0.30000793"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000793.tgz#3c00c66e423a7a1907c7dd96769a78b2afa8a72e"
 
 caniuse-lite@^1.0.30000784:
   version "1.0.30000787"
@@ -2094,7 +2094,11 @@ electron-releases@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/electron-releases/-/electron-releases-2.1.0.tgz#c5614bf811f176ce3c836e368a0625782341fd4e"
 
-electron-to-chromium@^1.2.7, electron-to-chromium@^1.3.30:
+electron-to-chromium@^1.2.7:
+  version "1.3.31"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.31.tgz#00d832cba9fe2358652b0c48a8816c8e3a037e9f"
+
+electron-to-chromium@^1.3.30:
   version "1.3.30"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.30.tgz#9666f532a64586651fc56a72513692e820d06a80"
   dependencies:
@@ -3761,9 +3765,13 @@ jest@^21.2.1:
   dependencies:
     jest-cli "^21.2.1"
 
-js-base64@^2.1.8, js-base64@^2.1.9:
+js-base64@^2.1.8:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.0.tgz#9e566fee624751a1d720c966cd6226d29d4025aa"
+
+js-base64@^2.1.9:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.1.tgz#e02813181cd53002888e918935467acb2910e596"
 
 js-tokens@^3.0.0, js-tokens@^3.0.2:
   version "3.0.2"
@@ -4371,15 +4379,15 @@ mixin-object@^2.0.1:
   dependencies:
     minimist "0.0.8"
 
-modular-css-loader@^0.0.12:
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/modular-css-loader/-/modular-css-loader-0.0.12.tgz#afc84d51c98ac535ee9917a044d056bb4d147707"
+modular-css-loader@^0.0.13:
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/modular-css-loader/-/modular-css-loader-0.0.13.tgz#3936c612e5baf714aac3083ccd04aacbf91497ac"
   dependencies:
     css-selector-tokenizer "^0.7.0"
     cssnano "^3.10.0"
     loader-utils "^1.1.0"
     postcss "^6.0.13"
-    postcss-modular "^0.0.3"
+    postcss-modular "^0.0.4"
 
 modular-style-loader@^0.0.1-beta.4:
   version "0.0.1-beta.4"
@@ -5055,9 +5063,9 @@ postcss-minify-selectors@^2.0.4:
     postcss "^5.0.14"
     postcss-selector-parser "^2.0.0"
 
-postcss-modular@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/postcss-modular/-/postcss-modular-0.0.3.tgz#d220a71d54e930f87ba37d4758e48c625289d56d"
+postcss-modular@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/postcss-modular/-/postcss-modular-0.0.4.tgz#9b30c3188b77bab818cbe0eb5064cf70d16bfbfc"
   dependencies:
     has "^1.0.1"
     postcss "^6.0.13"
