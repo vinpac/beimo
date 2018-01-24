@@ -1,6 +1,3 @@
-import hash from 'string-hash'
-import { Link, NavLink, Route, Redirect, Switch } from 'react-router-dom'
-
 export class PageError extends Error {
   constructor(message: ?string, status: ?number) {
     super(message)
@@ -74,4 +71,4 @@ export function parsePages(pages) {
   }
 }
 
-export { Link, NavLink, Route, Redirect, Switch }
+export { Link, NavLink, Route, Redirect, Switch, withRouter } from 'react-router-dom'

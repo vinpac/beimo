@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.2-beta.34",
+  "version": "0.0.2-beta.35",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
@@ -94,7 +94,8 @@
     "jest": "^21.2.1",
     "koa": "^2.3.0",
     "koa-router": "^7.2.1",
-    "prettier": "^1.10.2"
+    "prettier": "^1.10.2",
+    "react-transition-group": "^2.2.1"
   },
   "scripts": {
     "lint": "$(npm bin)/eslint --fix lib defaults",

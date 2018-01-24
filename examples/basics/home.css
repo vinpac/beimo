@@ -3,3 +3,29 @@
   appearance: none;
   background: #fff url('./assets/image.gif') left no-repeat;
 }
+
+:global .fade-appear, :global .fade-enter {
+  opacity: 0;
+  z-index: 3;
+  position: relative;
+}
+
+:global .fade-appear-active,
+:global .fade-enter-active {
+  transition: opacity .3s linear;
+  opacity: 1;
+}
+
+:global .fade-exit {
+  transition: opacity .2s linear;
+  opacity: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+:global .fade-exit-active {
+  opacity: 0;
+}

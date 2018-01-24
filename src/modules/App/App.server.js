@@ -103,9 +103,7 @@ export default class App {
     if (page.module) {
       promise = fn(page.module)
     } else if (isPage(page)) {
-      promise = page
-        .load()
-        .then(fn)
+      promise = page.load().then(fn)
     } else {
       promise = fn({ default: page })
     }
@@ -201,7 +199,15 @@ export default class App {
     const body = ReactDOM.renderToString(
       <StaticRouter location={req.url} context={response}>
         {this.component ? (
-          <this.component {...appComponentProps}>{children}</this.component>
+          <this.component
+            location={{
+              pathname: req.path,
+              search: req.url.substr(req.url.indexOf('?') - 1).substr(1),
+            }}
+            {...appComponentProps}
+          >
+            {children}
+          </this.component>
         ) : (
           children
         )}
@@ -215,13 +221,14 @@ export default class App {
         page: {
           id: matchedPage.page && matchedPage.page.id,
           props: matchedPage.props,
-          error: pageError && typeof pageError.toJSON === 'function'
-            ? pageError.toJSON()
-            : pageError && {
-              name: pageError.name,
-              message: pageError.message,
-              stack: pageError.stack,
-            },
+          error:
+            pageError && typeof pageError.toJSON === 'function'
+              ? pageError.toJSON()
+              : pageError && {
+                  name: pageError.name,
+                  message: pageError.message,
+                  stack: pageError.stack,
+                },
         },
       },
       appComponentProps,

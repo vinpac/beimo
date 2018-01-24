@@ -8,6 +8,7 @@ const { APP_STATE } = window
 class Page extends React.Component {
   static propTypes = {
     component: PropTypes.func,
+    onWillMount: PropTypes.func.isRequired,
     loading: PropTypes.func,
     loadChunk: PropTypes.func.isRequired,
     id: PropTypes.string.isRequired,
@@ -46,7 +47,9 @@ class Page extends React.Component {
   }
 
   componentWillMount() {
-    const { loadChunk, load, component, chunkName } = this.props
+    const { loadChunk, load, onWillMount, component, chunkName } = this.props
+
+    onWillMount(this)
 
     if (!APP_STATE.page.rendered) {
       APP_STATE.page.rendered = true
@@ -157,6 +160,11 @@ class Page extends React.Component {
     const { redirectURL, initialProps, error, errorComponent: ErrorComponent } = this.state
 
     if (redirectURL) {
+      if (this.redirectedTo === redirectURL) {
+        return null
+      }
+
+      this.redirectedTo = redirectURL
       return <Redirect to={redirectURL} />
     }
 

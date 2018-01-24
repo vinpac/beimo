@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
-import { BrowserRouter, Switch } from 'react-router-dom'
+import { withRouter, BrowserRouter, Switch } from 'react-router-dom'
 import Page from '../Router/Page'
 import { isPage } from '../Router'
 
 class AppComponent extends React.Component {
   static propTypes = {
+    initialChunkName: PropTypes.string,
     component: PropTypes.func,
     pages: PropTypes.arrayOf(
       PropTypes.shape({
@@ -19,23 +20,40 @@ class AppComponent extends React.Component {
     componentProps: PropTypes.object.isRequired, // eslint-disable-line
   }
 
-  static defaultProps = { component: null }
+  static defaultProps = {
+    initialChunkName: null,
+    component: null,
+  }
 
   constructor(props) {
     super(props)
 
     this.chunksPromisesMap = {}
     this.state = { pages: props.pages }
+    this.currentPageChunkName = props.initialChunkName
   }
-
-  setPages = pages => this.setState({ pages })
 
   getPageArgs = args => this.props.getPageArgs(args, this.props.componentProps)
 
+  handlePageWillMount = ref => {
+    if (ref.props.chunkName !== this.currentPageChunkName) {
+      const hasComponent = !!ref.props.component
+      if (!hasComponent) {
+        this.setState({ lastRenderedPage: this.currentPageRef.render() })
+      }
+    }
+
+    this.currentPageChunkName = ref.props.chunkName
+    this.currentPageRef = ref
+  }
+
   loadChunk = (chunkName, loadFn) => {
     if (!this.chunksPromisesMap[chunkName]) {
+      this.setState({ isLoadingChunk: true })
       this.chunksPromisesMap[chunkName] = loadFn().then(chunk => {
         this.setState({
+          lastRenderedPage: null,
+          isLoadingChunk: false,
           pages: this.state.pages.map(page => {
             if (page.chunkName === chunkName) {
               return { ...page, component: chunk.default }
@@ -51,29 +69,36 @@ class AppComponent extends React.Component {
   }
 
   render() {
-    const { component: Component, componentProps, getErrorPage } = this.props
-    const { pages } = this.state
+    const { component: Component, location, componentProps, getErrorPage } = this.props
+    const { pages, isLoadingChunk, lastRenderedPage } = this.state
 
     const children = (
-      <Switch>
-        {pages.map((page, i) => (
-          <Page
-            key={page.id} //eslint-disable-line
-            {...page}
-            getArgs={this.getPageArgs}
-            getErrorPage={getErrorPage}
-            loadChunk={this.loadChunk}
-          />
-        ))}
-      </Switch>
+      <Fragment>
+        {lastRenderedPage}
+        <Switch location={location}>
+          {pages.map(page => (
+            <Page
+              key={page.id} //eslint-disable-line
+              {...page}
+              getArgs={this.getPageArgs}
+              getErrorPage={getErrorPage}
+              loadChunk={this.loadChunk}
+              onWillMount={this.handlePageWillMount}
+            />
+          ))}
+        </Switch>
+      </Fragment>
     )
-    return (
-      <BrowserRouter>
-        {Component ? <Component {...componentProps}>{children}</Component> : children}
-      </BrowserRouter>
-    )
+
+    return Component ? (
+      <Component location={location} isLoadingChunk={isLoadingChunk} {...componentProps}>
+        {children}
+      </Component>
+    ) : children
   }
 }
+
+const AppComponentWithRouter = withRouter(AppComponent)
 
 export default class App {
   constructor({ pages = [], component, getComponentProps, getPageArgs, getErrorPage }) {
@@ -100,10 +125,11 @@ export default class App {
     throw new Error('handle is a server only method. Use hydrate instead.')
   }
 
-  async hydrate(element, updateIfPossible) {
+  async hydrate(element) {
     this.hydrateKey = Date.now() || this.hydrateKey + 1
 
     const { page: { error } } = window.APP_STATE
+    let initialChunkName
 
     if (error) {
       const errorPage = this.getErrorPage(error)
@@ -113,6 +139,7 @@ export default class App {
       }
     } else {
       const renderedPage = this.pages.find(p => p.id === window.APP_STATE.page.id)
+      initialChunkName = renderedPage.chunkName
 
       if (renderedPage) {
         // Load rendered page chunk and set it to every page that uses this chunk
@@ -128,29 +155,24 @@ export default class App {
       }
     }
 
-    if (updateIfPossible && this.renderedAppCompoent) {
-      this.renderedAppCompoent.setPages(this.pages)
-      return
-    }
-
-    this.instance = ReactDOM.hydrate(this.render(), element)
+    this.instance = ReactDOM.hydrate(this.render(initialChunkName), element)
   }
 
-  render() {
+  render(initialChunkName) {
     const { page, ...sharedState } = window.APP_STATE
 
     return (
-      <AppComponent
-        key={this.hydrateKey}
-        ref={component => {
-          this.renderedAppCompoent = component
-        }}
-        pages={this.pages}
-        getErrorPage={this.getErrorPage}
-        getPageArgs={this.getPageArgs}
-        component={this.component}
-        componentProps={this.getComponentProps(sharedState)}
-      />
+      <BrowserRouter>
+        <AppComponentWithRouter
+          key={this.hydrateKey}
+          pages={this.pages}
+          getErrorPage={this.getErrorPage}
+          getPageArgs={this.getPageArgs}
+          component={this.component}
+          componentProps={this.getComponentProps(sharedState)}
+          initialChunkName={initialChunkName}
+        />
+      </BrowserRouter>
     )
   }
 }
