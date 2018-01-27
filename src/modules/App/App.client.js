@@ -7,6 +7,7 @@ import { isPage } from '../Router'
 
 class AppComponent extends React.Component {
   static propTypes = {
+    location: PropTypes.shape({ pathname: PropTypes.string }).isRequired,
     initialChunkName: PropTypes.string,
     component: PropTypes.func,
     pages: PropTypes.arrayOf(
@@ -39,7 +40,11 @@ class AppComponent extends React.Component {
     if (ref.props.chunkName !== this.currentPageChunkName) {
       const hasComponent = !!ref.props.component
       if (!hasComponent) {
-        this.setState({ lastRenderedPage: this.currentPageRef.render() })
+        // eslint-disable-next-line react/no-find-dom-node
+        const node = ReactDOM.findDOMNode(this.currentPageRef)
+        if (node && node.outerHTML) {
+          this.setState({ lastRenderedPageHTML: node.outerHTML })
+        }
       }
     }
 
@@ -52,7 +57,7 @@ class AppComponent extends React.Component {
       this.setState({ isLoadingChunk: true })
       this.chunksPromisesMap[chunkName] = loadFn().then(chunk => {
         this.setState({
-          lastRenderedPage: null,
+          lastRenderedPageHTML: null,
           isLoadingChunk: false,
           pages: this.state.pages.map(page => {
             if (page.chunkName === chunkName) {
@@ -70,11 +75,14 @@ class AppComponent extends React.Component {
 
   render() {
     const { component: Component, location, componentProps, getErrorPage } = this.props
-    const { pages, isLoadingChunk, lastRenderedPage } = this.state
+    const { pages, isLoadingChunk, lastRenderedPageHTML } = this.state
 
     const children = (
       <Fragment>
-        {lastRenderedPage}
+        {lastRenderedPageHTML && (
+          // eslint-disable-next-line react/no-danger
+          <div dangerouslySetInnerHTML={{ __html: lastRenderedPageHTML }} />
+        )}
         <Switch location={location}>
           {pages.map(page => (
             <Page
@@ -94,7 +102,9 @@ class AppComponent extends React.Component {
       <Component location={location} isLoadingChunk={isLoadingChunk} {...componentProps}>
         {children}
       </Component>
-    ) : children
+    ) : (
+      children
+    )
   }
 }
 
