@@ -29,7 +29,7 @@ const program = new commander.Command(pkg.name)
   .option('--base <base-directory>', 'base directory [.]', '')
   .option('--source <source-directory>', 'source directory [.]', '')
   .option('--output <output-directory>', 'output directory [dist]', 'dist')
-  .option('--static-dir <static-directory>', 'static directory [static]', 'static')
+  .option('--static <static-directory>', 'static directory [public]', 'public')
   .on('--help', () => {
     /* eslint-disable no-console */
     console.log()
@@ -74,8 +74,8 @@ const params = {
   pagesPath: path.join(sourcePath, 'pages'),
   distDir: program.output,
   distPath: path.resolve(basePath, program.output),
-  staticDir: program.staticDir,
-  staticPath: path.resolve(basePath, program.staticDir),
+  staticDir: program.static,
+  staticPath: path.resolve(basePath, program.static),
   port: program.port,
   has: {
     server: fs.existsSync(path.resolve(sourcePath, 'server.js')),

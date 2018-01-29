@@ -29,7 +29,11 @@ export default class App {
     this.pages = pages
     this.assets = assets
     this.styles = styles || []
-    this.static = path.join(process.env.DIST_PATH, process.env.STATIC_DIR)
+    this.staticPath = process.env.STATIC_PATH
+
+    if (!__DEV__) {
+      this.staticPath = path.resolve(__dirname, process.env.STATIC_PATH)
+    }
 
     // Components
     this.component = component

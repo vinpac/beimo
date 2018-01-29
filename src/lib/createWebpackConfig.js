@@ -34,6 +34,7 @@ export default params => {
     distPath,
     port,
     staticDir,
+    staticPath,
     has,
     parseWebpackConfig,
   } = params
@@ -365,6 +366,7 @@ export default params => {
         'process.env.PORT': port,
         'process.env.DIST_PATH': `'${distPath}'`,
         'process.env.STATIC_DIR': `'${staticDir}'`,
+        'process.env.STATIC_PATH': `'${isDev ? path.relative(distPath, staticPath) : staticDir}'`,
         'process.env.BROWSER': false,
         __DEV__: isDev,
       }),

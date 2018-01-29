@@ -1,4 +1,5 @@
 {
+  "name": "basics",
   "scripts": {
     "start": "beimo"
   },
