@@ -419,7 +419,7 @@ export default params => {
             rules: [
               {
                 loader: 'modular-style-loader',
-                options: { add: true },
+                options: { add: true, hmr: true },
               },
               {
                 loader: 'modular-css-loader',
