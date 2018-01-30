@@ -1,3 +1,5 @@
+:import { basics: './basics.css' }
+
 .component {
   /* test autoprefixer */
   appearance: none;
@@ -28,4 +30,9 @@
 
 :global .fade-exit-active {
   opacity: 0;
+}
+
+basics::block {
+  padding: 15px;
+  border: 2px solid #fff;
 }

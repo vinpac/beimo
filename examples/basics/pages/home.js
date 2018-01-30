@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, NotFoundPage } from 'beimo/router'
 import Head from 'beimo/head'
+import s1 from '../basics.css'
 import s from '../home.css'
 
 class HomePage extends React.Component {
@@ -29,6 +30,9 @@ class HomePage extends React.Component {
           <meta name="description" content="Home page" />
         </Head>
         {a}
+        <div className={s1.block}>
+          Block test
+        </div>
         <button onClick={() => this.setState({ count: count + 1 })}>Count: {count}</button>
         <Link to="/">Home 1</Link>
         <Link to="/news">Home 2</Link>

@@ -38,3 +38,7 @@ h1 {
 :global .text-left {
   text-align: left;
 }
+
+.block {
+  background: #333;
+}
