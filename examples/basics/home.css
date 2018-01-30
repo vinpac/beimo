@@ -1,4 +1,4 @@
-:import { basics: './basics.css' }
+:import { basics: './basics' }
 
 .component {
   /* test autoprefixer */
