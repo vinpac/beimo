@@ -12,7 +12,6 @@ class Page extends React.Component {
     loading: PropTypes.func,
     loadChunk: PropTypes.func.isRequired,
     id: PropTypes.string.isRequired,
-    chunkName: PropTypes.string.isRequired,
     load: PropTypes.func.isRequired,
     location: Route.propTypes.location.isRequired,
     getErrorPage: PropTypes.func,
@@ -47,7 +46,7 @@ class Page extends React.Component {
   }
 
   componentWillMount() {
-    const { loadChunk, load, onWillMount, component, chunkName } = this.props
+    const { loadChunk, load, onWillMount, component, id } = this.props
 
     onWillMount(this)
 
@@ -59,12 +58,12 @@ class Page extends React.Component {
     if (component) {
       this.loadInitialProps(this.props)
     } else {
-      loadChunk(chunkName, load)
+      loadChunk(id, load)
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    const { component, load, chunkName, loadChunk, location } = nextProps
+    const { component, load, id, loadChunk, location } = nextProps
 
     if (component !== this.props.component) {
       this.loadInitialProps(nextProps)
@@ -78,7 +77,7 @@ class Page extends React.Component {
       if (component) {
         this.loadInitialProps(nextProps)
       } else {
-        loadChunk(chunkName, load)
+        loadChunk(id, load)
       }
     }
   }

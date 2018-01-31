@@ -1,8 +1,7 @@
-module.exports = (chunkName, load, id, props) => {
+module.exports = (chunkId, load, props) => {
   if (typeof props !== 'object') {
     throw new Error('Second argument of page must be an object')
   }
-  props.chunkName = chunkName
   props.exact = !!(props.path && props.exact !== false)
 
   // eslint-disable-next-line
@@ -13,7 +12,7 @@ module.exports = (chunkName, load, id, props) => {
   }
 
   props.load = load
-  props.id = id
+  props.id = chunkId
 
   return props
 }

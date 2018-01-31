@@ -8,11 +8,11 @@ import { isPage } from '../Router'
 class AppComponent extends React.Component {
   static propTypes = {
     location: PropTypes.shape({ pathname: PropTypes.string }).isRequired,
-    initialChunkName: PropTypes.string,
+    initialPageId: PropTypes.string,
     component: PropTypes.func,
     pages: PropTypes.arrayOf(
       PropTypes.shape({
-        chunkName: PropTypes.string.isRequired,
+        id: PropTypes.string.isRequired,
         load: PropTypes.func.isRequired,
       }),
     ).isRequired,
@@ -22,7 +22,7 @@ class AppComponent extends React.Component {
   }
 
   static defaultProps = {
-    initialChunkName: null,
+    initialPageId: null,
     component: null,
   }
 
@@ -31,13 +31,13 @@ class AppComponent extends React.Component {
 
     this.chunksPromisesMap = {}
     this.state = { pages: props.pages }
-    this.currentPageChunkName = props.initialChunkName
+    this.currentPageId = props.initialPageId
   }
 
   getPageArgs = args => this.props.getPageArgs(args, this.props.componentProps)
 
   handlePageWillMount = ref => {
-    if (ref.props.chunkName !== this.currentPageChunkName) {
+    if (ref.props.id !== this.currentPageId) {
       const hasComponent = !!ref.props.component
       if (!hasComponent) {
         // eslint-disable-next-line react/no-find-dom-node
@@ -48,19 +48,19 @@ class AppComponent extends React.Component {
       }
     }
 
-    this.currentPageChunkName = ref.props.chunkName
+    this.currentPageId = ref.props.id
     this.currentPageRef = ref
   }
 
-  loadChunk = (chunkName, loadFn) => {
-    if (!this.chunksPromisesMap[chunkName]) {
+  loadChunk = (chunkId, loadFn) => {
+    if (!this.chunksPromisesMap[chunkId]) {
       this.setState({ isLoadingChunk: true })
-      this.chunksPromisesMap[chunkName] = loadFn().then(chunk => {
+      this.chunksPromisesMap[chunkId] = loadFn().then(chunk => {
         this.setState({
           lastRenderedPageHTML: null,
           isLoadingChunk: false,
           pages: this.state.pages.map(page => {
-            if (page.chunkName === chunkName) {
+            if (page.id === chunkId) {
               return { ...page, component: chunk.default }
             }
 
@@ -70,7 +70,7 @@ class AppComponent extends React.Component {
       })
     }
 
-    return this.chunksPromisesMap[chunkName]
+    return this.chunksPromisesMap[chunkId]
   }
 
   render() {
@@ -139,7 +139,7 @@ export default class App {
     this.hydrateKey = Date.now() || this.hydrateKey + 1
 
     const { page: { error } } = window.APP_STATE
-    let initialChunkName
+    let initialPageId
 
     if (error) {
       const errorPage = this.getErrorPage(error)
@@ -149,13 +149,13 @@ export default class App {
       }
     } else {
       const renderedPage = this.pages.find(p => p.id === window.APP_STATE.page.id)
-      initialChunkName = renderedPage.chunkName
+      initialPageId = renderedPage.id
 
       if (renderedPage) {
         // Load rendered page chunk and set it to every page that uses this chunk
         await renderedPage.load().then(({ default: component }) => {
           this.pages = this.pages.map(page => {
-            if (page.chunkName === renderedPage.chunkName) {
+            if (page.id === renderedPage.id) {
               return { ...page, component }
             }
 
@@ -165,10 +165,10 @@ export default class App {
       }
     }
 
-    this.instance = ReactDOM.hydrate(this.render(initialChunkName), element)
+    this.instance = ReactDOM.hydrate(this.render(initialPageId), element)
   }
 
-  render(initialChunkName) {
+  render(initialPageId) {
     const { page, ...sharedState } = window.APP_STATE
 
     return (
@@ -180,7 +180,7 @@ export default class App {
           getPageArgs={this.getPageArgs}
           component={this.component}
           componentProps={this.getComponentProps(sharedState)}
-          initialChunkName={initialChunkName}
+          initialPageId={initialPageId}
         />
       </BrowserRouter>
     )

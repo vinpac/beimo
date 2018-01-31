@@ -14,7 +14,7 @@ const strChars = ["'", '"', '`']
 module.exports = function PagesLoader(rawSource) {
   if (this.cacheable) this.cacheable()
 
-  const { pagesPath } = this.query
+  const { pagesPath, isDev } = this.query
 
   let source = rawSource
   importRegex.lastIndex = 0
@@ -92,10 +92,12 @@ module.exports = function PagesLoader(rawSource) {
           throw new Error('You cannot use pages outside of the pages folder')
         }
 
-        const chunkName = path.join('pages', path.relative(pagesPath, path.resolve(this.context, str)))
-        const chunkId = stringHash(chunkName)
-        const load = `() => import(/* webpackChunkName: '${chunkName}' */'${str}')`
-        const newsArgs = `'${chunkName}', ${load}, '${chunkId}'`
+        const chunkName = path.relative(pagesPath, path.resolve(this.context, str))
+        const chunkId = `${isDev ? `${chunkName.replace(/\/\\/g, '.')}.` : ''}${stringHash(
+          chunkName,
+        )}`
+        const load = `() => import(/* webpackChunkName: 'pages/${chunkId}' */'${str}')`
+        const newsArgs = `'${chunkId}', ${load}`
 
         // Replace first argument to reflet chunk name
         source = `${source.substr(0, strStart)}${newsArgs}${source.substr(strEnd + 1)}`

@@ -193,7 +193,7 @@ export default params => {
             {
               include: [sourcePath],
               loader: path.resolve(__dirname, '..', 'src', 'loaders', 'PagesLoader'),
-              options: { pagesPath: path.join(sourcePath, 'pages') },
+              options: { pagesPath: path.join(sourcePath, 'pages'), isDev },
             },
             { loader: 'thread-loader' },
           ],

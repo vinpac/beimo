@@ -42,6 +42,7 @@ app.prepare = (server, handle) => {
     module.hot.accept('<beimo:pages-path>', () => {
       // eslint-disable-next-line import/no-unresolved
       app.configure(parsePages(require('<beimo:pages-path>').default))
+      console.log(require('<beimo:pages-path>').default)
     })
 
     if (process.env.HAS.APP_CONFIGURATION) {

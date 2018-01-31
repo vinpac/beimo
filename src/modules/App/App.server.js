@@ -112,7 +112,7 @@ export default class App {
       promise = fn({ default: page })
     }
 
-    return promise.then(res => ({ ...res, script: this.assets[page.chunkName].js }))
+    return promise.then(res => ({ ...res, script: this.assets[`pages/${page.id}`].js }))
   }
 
   async render(req, res, query = req.query) {
