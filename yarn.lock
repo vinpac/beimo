@@ -4254,15 +4254,15 @@ mississippi@^1.3.0:
   dependencies:
     minimist "0.0.8"
 
-modular-css-loader@^0.0.19:
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/modular-css-loader/-/modular-css-loader-0.0.19.tgz#75cab76060f1d7333c7eab3fb1e1ca497b564a64"
+modular-css-loader@^0.0.20:
+  version "0.0.20"
+  resolved "https://registry.yarnpkg.com/modular-css-loader/-/modular-css-loader-0.0.20.tgz#bfae3f8bcdd38b7db7d68f7327c9c29013ab2606"
   dependencies:
     css-selector-tokenizer "^0.7.0"
     cssnano "^3.10.0"
     loader-utils "^1.1.0"
     postcss "^6.0.13"
-    postcss-modular "^0.0.9"
+    postcss-modular "^0.0.10"
 
 modular-style-loader@^0.0.1-beta.5:
   version "0.0.1-beta.5"
@@ -4885,9 +4885,9 @@ postcss-minify-selectors@^2.0.4:
     postcss "^5.0.14"
     postcss-selector-parser "^2.0.0"
 
-postcss-modular@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/postcss-modular/-/postcss-modular-0.0.9.tgz#7cbdc1f631da7c6b7a8c9576452b42266ca3e512"
+postcss-modular@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/postcss-modular/-/postcss-modular-0.0.10.tgz#d83506dff259a9a2977046d1e4f3d86848b0819e"
   dependencies:
     has "^1.0.1"
     postcss "^6.0.13"
