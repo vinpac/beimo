@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.2-beta.46",
+  "version": "0.0.2-beta.47",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
@@ -50,7 +50,7 @@
     "loader-utils": "^1.1.0",
     "mkdirp": "^0.5.1",
     "modular-css-loader": "^0.0.21",
-    "modular-style-loader": "^0.0.1-beta.5",
+    "modular-style-loader": "^0.0.1-beta.6",
     "path-to-regexp": "^2.1.0",
     "pleeease-filters": "^4.0.0",
     "postcss-flexbugs-fixes": "^3.2.0",
