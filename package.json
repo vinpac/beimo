@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.2-beta.47",
+  "version": "0.0.2-beta.48",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
@@ -98,7 +98,7 @@
     "react-transition-group": "^2.2.1"
   },
   "scripts": {
-    "lint": "$(npm bin)/eslint --fix lib defaults",
+    "lint": "$(npm bin)/eslint --fix src",
     "cli": "yarn transpile && bin/beimo",
     "example": "bin/example",
     "transpile": "node transpile --supress-stats",

@@ -10,6 +10,7 @@ const pages = [
   page('./redirect', { path: '/redirect' }),
   page('./redirect2', { path: '/redirect2' }),
   about,
+  page('./test', { path: '/test2' }),
   page('./_error', { useAs: 'error' }),
   page('./_miss', { useAs: 'miss' }),
 ]

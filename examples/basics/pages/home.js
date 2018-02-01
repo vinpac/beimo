@@ -30,9 +30,6 @@ class HomePage extends React.Component {
           <meta name="description" content="Home page" />
         </Head>
         {a}
-        <div className={s1.block}>
-          Block test
-        </div>
         <button onClick={() => this.setState({ count: count + 1 })}>Count: {count}</button>
         <Link to="/">Home 1</Link>
         <Link to="/news">Home 2</Link>

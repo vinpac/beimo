@@ -4,7 +4,6 @@ import formatWebpackMessages from 'react-dev-utils/formatWebpackMessages'
 import {
   setEditorHandler,
   reportBuildError,
-  dismissBuildError,
   startReportingRuntimeErrors,
   stopReportingRuntimeErrors,
 } from 'react-error-overlay'
@@ -12,9 +11,11 @@ import {
 setEditorHandler(errorLocation => {
   const fileName = encodeURIComponent(errorLocation.fileName)
   const lineNumber = encodeURIComponent(errorLocation.lineNumber || 1)
+  const colNumber = encodeURIComponent(errorLocation.colNumber || 1)
+
   fetch(
     // Keep in sync with react-dev-utils/errorOverlayMiddleware
-    `${launchEditorEndpoint}?fileName=${fileName}&lineNumber=${lineNumber}`,
+    `${launchEditorEndpoint}?fileName=${fileName}&lineNumber=${lineNumber}&colNumber=${colNumber}`,
   )
 })
 
@@ -28,7 +29,9 @@ hotClient.useCustomOverlay({
     reportBuildError(formatted.errors[0])
   },
   clear() {
-    dismissBuildError()
+    if (window.HMR_HAS_ERROR) {
+      window.location.reload()
+    }
   },
 })
 
@@ -37,7 +40,12 @@ hotClient.setOptionsAndConnect({
   reload: true,
 })
 
-startReportingRuntimeErrors({ filename: '/assets/client.js' })
+startReportingRuntimeErrors({
+  onError() {
+    window.HMR_HAS_ERROR = true
+  },
+  filename: '/assets/client.js',
+})
 
 if (module.hot) {
   module.hot.dispose(stopReportingRuntimeErrors)

@@ -165,6 +165,15 @@ export default class App {
       }
     }
 
+    if (module.hot) {
+      if (window.HMR_HAS_ERROR) {
+        window.HMR_HAS_ERROR = false
+        element.innerHTML = ''
+        this.instance = ReactDOM.render(this.render(initialPageId), element)
+        return
+      }
+    }
+
     this.instance = ReactDOM.hydrate(this.render(initialPageId), element)
   }
 

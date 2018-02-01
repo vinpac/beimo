@@ -7,6 +7,7 @@ import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 import overrideRules from '../lib/overrideRules'
 import postCSSConfig from './postcss.config'
+import PagesChunkPlugin from './PagesChunkPlugin'
 
 const appModulesMap = [
   {
@@ -56,11 +57,7 @@ export default params => {
 
   const appGlobals = {
     'process.env.NODE_ENV': isDev ? '"development"' : '"production"',
-    'process.env.HAS': {
-      CLIENT: has.client,
-      SERVER: has.server,
-      APP_CONFIGURATION: has.configureApp,
-    },
+    'process.env.HAS_APP_CONFIGURATION': has.configureApp,
     __DEV__: isDev,
   }
 
@@ -156,7 +153,8 @@ export default params => {
                     },
                   }],
                   ...(isDev ? [] : [
-                    // Replaces the React.createElement function with one that is more optimized for production
+                    // Replaces the React.createElement function with one that is more optimized
+                    // for production
                     // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-inline-elements
                     '@babel/plugin-transform-react-inline-elements',
                     // Remove unnecessary React propTypes from the production build
@@ -192,8 +190,9 @@ export default params => {
             },
             {
               include: [sourcePath],
-              loader: path.resolve(__dirname, '..', 'src', 'loaders', 'PagesLoader'),
+              loader: path.resolve(__dirname, '..', 'src', 'lib', 'PagesLoader'),
               options: { pagesPath: path.join(sourcePath, 'pages'), isDev },
+
             },
             { loader: 'thread-loader' },
           ],
@@ -254,6 +253,7 @@ export default params => {
     plugins: [
       // Required for string-replace-plugin loader
       new StringReplacePlugin(),
+      new PagesChunkPlugin(),
     ],
 
     // Specify what bundle information gets displayed
@@ -368,7 +368,6 @@ export default params => {
         'process.env.STATIC_DIR': `'${staticDir}'`,
         'process.env.STATIC_PATH': `'${isDev ? path.relative(distPath, staticPath) : staticDir}'`,
         'process.env.BROWSER': false,
-        __DEV__: isDev,
       }),
 
       // Adds a banner to the top of each generated chunk

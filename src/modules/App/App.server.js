@@ -112,6 +112,13 @@ export default class App {
       promise = fn({ default: page })
     }
 
+    if (__DEV__) {
+      if (!this.assets[`pages/${page.id}`]) {
+        delete __non_webpack_require__.cache[path.join(__dirname, 'assets.json')] // eslint-disable-line no-undef
+        this.assets = __non_webpack_require__('./assets.json') // eslint-disable-line no-undef
+      }
+    }
+
     return promise.then(res => ({ ...res, script: this.assets[`pages/${page.id}`].js }))
   }
 
@@ -229,10 +236,10 @@ export default class App {
             pageError && typeof pageError.toJSON === 'function'
               ? pageError.toJSON()
               : pageError && {
-                  name: pageError.name,
-                  message: pageError.message,
-                  stack: pageError.stack,
-                },
+                name: pageError.name,
+                message: pageError.message,
+                stack: pageError.stack,
+              },
         },
       },
       appComponentProps,
