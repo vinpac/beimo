@@ -97,6 +97,7 @@ export default async params => {
       publicPath: clientConfig.output.publicPath,
       quiet: true,
       watchOptions: params.watchOptions,
+      stats: false,
     }),
   )
 

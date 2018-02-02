@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.2-beta.48",
+  "version": "0.0.2-beta.51",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "bin",
     "src/entry",
     "src/modules",
-    "src/loaders",
+    "src/lib/PagesLoader.js",
     ".babelrc.js"
   ],
   "bin": {
