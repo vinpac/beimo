@@ -1,5 +1,5 @@
 import React from 'react'
-import { Redirect } from 'beimo/router'
+import Redirect from 'beimo/redirect'
 
 const RedirectPage = () => <Redirect to="/" />
 export default RedirectPage

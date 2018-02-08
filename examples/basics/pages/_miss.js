@@ -13,8 +13,8 @@ const NotFound = ({ a, error }) => (
 )
 
 NotFound.displayName = 'NotFound'
-NotFound.getInitialProps = ({ response }) => {
-  response.status = 404
+NotFound.getInitialProps = ({ send }) => {
+  send({ status: 404 })
 
   return { a: 3 }
 }

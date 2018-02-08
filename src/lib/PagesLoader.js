@@ -25,6 +25,9 @@ module.exports = function PagesLoader(rawSource) {
   }
 
   const moduleAlias = importMatch[1].replace(/\{[^}]*\}|{|}|,/g, '').trim()
+  if (!moduleAlias) {
+    return rawSource
+  }
 
   let expect = null
   let skip = false
@@ -92,12 +95,14 @@ module.exports = function PagesLoader(rawSource) {
           throw new Error('You cannot use pages outside of the pages folder')
         }
 
-        const chunkName = path.relative(pagesPath, path.resolve(this.context, str))
-        const chunkId = `${isDev ? `${chunkName.replace(/\/\\/g, '.')}.` : ''}${stringHash(
-          chunkName,
+        const pageName = str
+        const chunkId = `${isDev ? `${pageName.replace(/\/\\/g, '.')}.` : ''}${stringHash(
+          pageName,
         )}`
-        const load = `() => import(/* webpackChunkName: 'pages/${chunkId}' */'${str}')`
-        const newsArgs = `'${chunkId}', ${load}`
+        const load = `() => import(/* webpackChunkName: 'pages/${chunkId}' */'./${
+          path.relative(path.dirname(this.resourcePath), path.resolve(pagesPath, str))
+        }')`
+        const newsArgs = `'${pageName}', '${chunkId}', ${load}`
 
         // Replace first argument to reflet chunk name
         source = `${source.substr(0, strStart)}${newsArgs}${source.substr(strEnd + 1)}`

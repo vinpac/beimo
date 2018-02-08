@@ -14,7 +14,7 @@ export default app => {
         </Head>
         <TransitionGroup>
           <CSSTransition
-            key={location.key || '/'}
+            key={location.path}
             timeout={{ enter: 300, exit: 200 }}
             classNames="fade"
             appear
@@ -22,16 +22,15 @@ export default app => {
             <div>{children}</div>
           </CSSTransition>
         </TransitionGroup>
-        {store.getState().user.fullName}
       </Fragment>
     ),
-    getComponentProps: ({ req, initialReduxState }) => {
+    getContext: ({ req, initialReduxState }) => {
       const initialState = initialReduxState || { user: req.user || { fullName: 'John doe' } }
       const store = { dispatch: () => {}, getState: () => initialState }
 
       return { store }
     },
-    getPageArgs: (args, { store }) => ({ ...args, store }),
+    getLoadPropsParams: (args, { store }) => ({ ...args, store }),
     getSharedState: (sharedState, { store }) => ({
       ...sharedState,
       initialReduxState: store.getState(),

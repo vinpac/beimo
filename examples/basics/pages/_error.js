@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 const ErrorPage = ({ error }) => (
   __DEV__ ? (
     <div className="page">
-      Basic example custom error
+      Basic example custom error qwe asdasd asdasdqwe
       <h1 className="title">{error.message}</h1>
       <pre className="text-left">{error.stack}</pre>
     </div>
@@ -22,8 +22,8 @@ ErrorPage.propTypes = {
     stack: PropTypes.string,
   }).isRequired,
 }
-ErrorPage.getInitialProps = ({ response }) => {
-  response.status = 500
+ErrorPage.getInitialProps = ({ send }) => {
+  send({ status: 500 })
 }
 
 export default ErrorPage

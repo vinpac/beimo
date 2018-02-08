@@ -1,3 +1,3 @@
 const Redirect2 = () => 'null'
-Redirect2.getInitialProps = ({ response }) => response.redirect('/1')
+Redirect2.getInitialProps = ({ send }) => send({ redirect: '/' })
 export default Redirect2

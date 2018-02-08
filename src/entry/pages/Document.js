@@ -12,6 +12,7 @@ const Document = ({ head, children, scripts, styles, appState }) => (
       {head.title.toComponent()}
       {head.meta.toComponent()}
       {head.style.toComponent()}
+      {head.script.toComponent()}
       {head.link.toComponent()}
       {scripts.map(script => (
         <link key={script} rel="preload" href={script} as="script" />

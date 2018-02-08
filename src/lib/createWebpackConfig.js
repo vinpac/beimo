@@ -147,8 +147,12 @@ export default params => {
                   ['module-resolver', {
                     alias: {
                       'beimo/head': 'react-helmet',
+                      'beimo/link': path.resolve(__dirname, '..', 'src', 'modules', 'Link'),
+                      'beimo/nav-link': path.resolve(__dirname, '..', 'src', 'modules', 'NavLink'),
+                      'beimo/route': path.resolve(__dirname, '..', 'src', 'modules', 'Route'),
                       'beimo/router': path.resolve(__dirname, '..', 'src', 'modules', 'Router'),
-                      'beimo/page': path.resolve(__dirname, '..', 'src', 'modules', 'Router', 'buildPage'),
+                      'beimo/redirect': path.resolve(__dirname, '..', 'src', 'modules', 'Redirect'),
+                      'beimo/page': path.resolve(__dirname, '..', 'src', 'modules', 'Router', 'page'),
                       beimo: path.resolve(__dirname, '..', 'src', 'entry', 'app'),
                     },
                   }],
@@ -189,7 +193,10 @@ export default params => {
               }),
             },
             {
-              include: [sourcePath],
+              include: [
+                sourcePath,
+                path.resolve(__dirname, '..', 'src', 'entry', 'pages'),
+              ],
               loader: path.resolve(__dirname, '..', 'src', 'lib', 'PagesLoader'),
               options: { pagesPath: path.join(sourcePath, 'pages'), isDev },
 
@@ -463,7 +470,13 @@ export default params => {
       // https://webpack.js.org/plugins/commons-chunk-plugin/
       new webpack.optimize.CommonsChunkPlugin({
         name: 'vendor',
-        minChunks: module => /node_modules/.test(module.resource),
+        minChunks: module => {
+          if (isDev) {
+            return false
+          }
+
+          return /node_modules/.test(module.resource)
+        },
       }),
 
       // If release

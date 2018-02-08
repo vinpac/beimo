@@ -1,20 +1,20 @@
 import React from 'react'
-import { Link, NotFoundPage } from 'beimo/router'
+import { NotFound } from 'beimo/router'
+import Link from 'beimo/link'
 import Head from 'beimo/head'
-import s1 from '../basics.css'
 import s from '../home.css'
 
 class HomePage extends React.Component {
-  static getInitialProps = ({ query, store, pageProps = { haha: 0 } }) => {
+  static getInitialProps = ({ query, props }) => {
     if (query.error) {
       throw new Error('Some error')
     }
 
     if (query.miss) {
-      throw new NotFoundPage()
+      throw new NotFound()
     }
 
-    return { a: 3 + pageProps.haha }
+    return { a: 3 + (props.haha || 0) }
   }
 
   state = { count: 0 }

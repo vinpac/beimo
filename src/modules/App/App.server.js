@@ -1,269 +1,162 @@
-import path from 'path'
-import send from 'send'
 import React from 'react'
+import path from 'path'
 import ReactDOM from 'react-dom/server'
-import { StaticRouter } from 'react-router'
 import Helmet from 'react-helmet'
-import { Switch, matchPath } from 'react-router-dom'
-import Page from '../Router/Page'
-import { NotFoundPage, isPage } from '../Router'
+import Router, { buildLocation, matchPage, NotFound, isPage } from '../Router'
+import { ERROR_PAGE, NOT_FOUND_PAGE } from 'beimo/page'
 
 // eslint-disable-next-line
 import { getStyles } from '!modular-style-loader/dist/store'
 
-const defaultPageArgsResolver = args => args
-const defaultSharedStateResolver = ({ page }) => ({ page })
-export default class App {
-  constructor({
-    pages = [],
-    component,
-    assets,
-    styles,
-    documentComponent,
-    getComponentProps,
-    getPageArgs,
-    getSharedState,
-    getErrorPage,
-  }) {
-    // Core
+const allowedOverrides = [
+  'pages',
+  'assets',
+  'component',
+  'getContext',
+  'getLoadPropsParams',
+  'getSharedState',
+]
+class App {
+  constructor(pages, assets, styles, documentComponent) {
     this.pages = pages
     this.assets = assets
-    this.styles = styles || []
-    this.staticPath = process.env.STATIC_PATH
-
-    if (!__DEV__) {
-      this.staticPath = path.resolve(__dirname, process.env.STATIC_PATH)
-    }
-
-    // Components
-    this.component = component
+    this.styles = styles
     this.documentComponent = documentComponent
 
-    // Getters
-    this.getComponentProps = getComponentProps
-    this.getPageArgs = getPageArgs || defaultPageArgsResolver
-    this.getSharedState = getSharedState || defaultSharedStateResolver
-    this.getErrorPage = getErrorPage
+    // Default getters
+    this.getSharedState = a => a
+    this.getLoadPropsParams = a => a
   }
 
-  configure({
-    assets,
-    pages,
-    component,
-    documentComponent,
-    getComponentProps,
-    getPageArgs,
-    getSharedState,
-    getErrorPage,
-  }) {
-    // Core
-    if (assets !== undefined) this.assets = assets
-    if (pages !== undefined) this.pages = pages
-
-    // Components
-    if (component !== undefined) this.component = component
-    if (documentComponent !== undefined) this.documentComponent = documentComponent
-
-    // Getters
-    if (getComponentProps !== undefined) this.getComponentProps = getComponentProps
-    if (getPageArgs !== undefined) this.getPageArgs = getPageArgs
-    if (getSharedState !== undefined) this.getSharedState = getSharedState
-    if (getErrorPage !== undefined) this.getErrorPage = getErrorPage
+  configure(overrides) {
+    Object.keys(overrides).forEach(key => {
+      if (allowedOverrides.includes(key)) {
+        this[key] = overrides[key]
+      }
+    })
   }
 
-  // eslint-disable-next-line
-  loadPage(page, match, response, query, error, appComponentProps) {
+  getPageByName(name) {
+    return this.pages.find(page => name === page.name)
+  }
+
+  async loadPageInitialProps(page, component, match, context, error) {
+    const response = {}
     let pageProps = {}
 
-    const fn = async module => {
-      page.module = module
-      const { default: component } = module
-
-      if (component.getInitialProps) {
-        const yieldProps = props => {
-          pageProps = props
-        }
-
-        pageProps = await component.getInitialProps(
-          this.getPageArgs(
-            {
-              ...match,
-              query: query || {},
-              yieldProps,
-              response,
-              error,
-              pageProps: page.pageProps,
-            },
-            appComponentProps,
-          ),
-        )
-      }
-
-      // Handles a component
-      return { props: pageProps, component }
+    const yieldProps = newProps => {
+      pageProps = newProps
     }
+    const send = overrides => Object.assign(response, overrides)
 
-    let promise
-    if (page.module) {
-      promise = fn(page.module)
-    } else if (isPage(page)) {
-      promise = page.load().then(fn)
-    } else {
-      promise = fn({ default: page })
-    }
-
-    if (__DEV__) {
-      if (!this.assets[`pages/${page.id}`]) {
-        delete __non_webpack_require__.cache[path.join(__dirname, 'assets.json')] // eslint-disable-line no-undef
-        this.assets = __non_webpack_require__('./assets.json') // eslint-disable-line no-undef
-      }
-    }
-
-    return promise.then(res => ({ ...res, script: this.assets[`pages/${page.id}`].js }))
-  }
-
-  async render(req, res, query = req.query) {
-    const { pages, getErrorPage, documentComponent: Document } = this
-
-    let matchedPage
-    let response = {}
-    let pageError
-    let pageErrorComponent
-    const redirectFn = url => {
-      response.url = url
-    }
-    response.redirect = redirectFn
-    const scripts = [this.assets.vendor.js, this.assets.client.js]
-    const appComponentProps = this.getComponentProps ? this.getComponentProps({ req }) : {}
-
-    try {
-      let miss = true
-      let promise
-      pages.some(page => {
-        const match = matchPath(req.path, page)
-        if (match) {
-          miss = false
-          matchedPage = { page }
-
-          if (page.useAs === 'miss') {
-            miss = true
-            throw new NotFoundPage()
-          }
-
-          promise = this.loadPage(page, match, response, query, undefined, appComponentProps)
-        }
-
-        return match
-      })
-
-      if (miss) {
-        throw new NotFoundPage()
-      }
-
-      await promise.then(({ props, component, script }) => {
-        matchedPage.props = props
-        matchedPage.component = component
-        scripts.push(script)
-      })
-    } catch (error) {
-      response = { status: error.status || 500, redirect: redirectFn }
-      matchedPage = { page: matchedPage && matchedPage.page, props: {} }
-      pageError = error
-      const errorPage = getErrorPage && getErrorPage(error)
-
-      if (!getErrorPage || !errorPage) {
-        throw error
-      }
-
-      const loadResponse = await this.loadPage(
-        errorPage,
-        { url: req.url, path: req.path },
-        response,
-        query,
-        error,
-        appComponentProps,
+    if (component.getInitialProps) {
+      const promiseCandidate = component.getInitialProps(
+        this.getLoadPropsParams(
+          {
+            ...match,
+            props: page.props,
+            yieldProps,
+            send,
+            error,
+          },
+          context,
+        ),
       )
 
-      pageErrorComponent = loadResponse.component
-      matchedPage.props = loadResponse.props
-
-      if (loadResponse.script) {
-        scripts.push(loadResponse.script)
+      let possibleNewProps
+      if (promiseCandidate instanceof Promise) {
+        possibleNewProps = await promiseCandidate
+      } else {
+        possibleNewProps = promiseCandidate
       }
+
+      pageProps = possibleNewProps || pageProps
     }
 
-    const children = (
-      <Switch>
-        {pages.map((page, i) => (
-          <Page
-            {...page}
-            key={i} //eslint-disable-line
-            error={pageError}
-            errorComponent={pageErrorComponent}
-            initialProps={matchedPage.page === page ? matchedPage.props : undefined}
-            component={matchedPage.page === page ? matchedPage.component : undefined}
-          />
-        ))}
-      </Switch>
+    return [pageProps, response]
+  }
+
+  async render(possiblePage, req, res, match, error) {
+    if (!possiblePage) {
+      throw new Error(`Page must not be ${typeof possiblePage} in render.`)
+    }
+
+    const { documentComponent: Document } = this
+    const page = isPage(possiblePage) ? possiblePage : this.getPageByName(possiblePage)
+    const Component = await page.load().then(module => module.default || module)
+    const context = this.getContext ? this.getContext({ req, page, isServer: true }) : {}
+    const [loadedProps, response] = await this.loadPageInitialProps(
+      page,
+      Component,
+      match || matchPage(req.path, page),
+      context,
+      error,
     )
+    response.status = error ? response.status || error.status || 500 : 200
+    const location = buildLocation(req.path)
+
+    if ((Component === undefined || !this.assets[`pages/${page.id}`]) && __DEV__) {
+      // eslint-disable-next-line
+      this.__beimo_devForceServerReload__()
+      throw new Error('Components is undefined. Reload the page to see changes.')
+    }
 
     const body = ReactDOM.renderToString(
-      <StaticRouter location={req.url} context={response}>
+      <Router.StaticRouter location={location} response={response}>
         {this.component ? (
-          <this.component
-            location={{
-              pathname: req.path,
-              search: req.url.substr(req.url.indexOf('?') - 1).substr(1),
-            }}
-            {...appComponentProps}
-          >
-            {children}
+          <this.component location={location} context={context}>
+            <Component {...page.props} error={error} {...loadedProps} />
           </this.component>
         ) : (
-          children
+          <Component {...page.props} error={error} {...loadedProps} />
         )}
-      </StaticRouter>,
+      </Router.StaticRouter>,
     )
 
-    const styles = this.styles.concat(getStyles(__DEV__))
-
-    const appState = this.getSharedState(
+    const sharedAppState = this.getSharedState(
       {
         page: {
-          id: matchedPage.page && matchedPage.page.id,
-          props: matchedPage.props,
+          id: page.id,
+          props: loadedProps,
           error:
-            pageError && typeof pageError.toJSON === 'function'
-              ? pageError.toJSON()
-              : pageError && {
-                name: pageError.name,
-                message: pageError.message,
-                stack: pageError.stack,
+            error && typeof error.toJSON === 'function'
+              ? error.toJSON()
+              : error && {
+                name: error.name,
+                message: error.message,
+                stack: __DEV__ && error.stack,
               },
         },
       },
-      appComponentProps,
+      context,
     )
+
+    const styles = this.styles.concat(getStyles(__DEV__))
+    const scripts = [
+      this.assets.vendor.js,
+      __DEV__ ? path.resolve(this.assets.client.js, '..', 'client.js') : this.assets.client.js,
+      this.assets[`pages/${page.id}`].js,
+    ]
 
     const html = `<!doctype html>${ReactDOM.renderToStaticMarkup(
       <Document
         {...response}
         scripts={scripts}
         head={Helmet.renderStatic()}
-        appState={appState}
+        appState={sharedAppState}
         styles={styles}
       >
         {body}
       </Document>,
     )}`
 
-    if (response.url) {
+    if (response.redirect) {
       // Express.js
       if (res.redirect) {
-        res.redirect(response.url)
+        res.redirect(response.redirect)
       } else {
         res.statusCode = response.status || 302
-        res.writeHead(res.statusCode, { Location: response.url })
+        res.writeHead(res.statusCode, { Location: response.redirect })
         res.end()
       }
       return
@@ -277,19 +170,58 @@ export default class App {
     res.end()
   }
 
-  // eslint-disable-next-line
-  serveStatic(req, res, p) {
-    return new Promise((resolve, reject) => {
-      send(req, p)
-        .on('directory', () => {
-          // We don't allow directories to be read.
-          const err = new Error('No directory access')
-          err.code = 'ENOENT'
-          reject(err)
-        })
-        .on('error', reject)
-        .pipe(res)
-        .on('finish', resolve)
+  renderError(error, req, res) {
+    const isNotFoundError = error instanceof NotFound
+    let errorPage
+    this.pages.some(page => {
+      if (isNotFoundError && page.as === NOT_FOUND_PAGE) {
+        errorPage = page
+        return true
+      }
+
+      if (!errorPage && page.as === ERROR_PAGE) {
+        errorPage = page
+
+        if (!isNotFoundError) {
+          return true
+        }
+      }
+
+      return false
     })
+
+    this.render(errorPage, req, res, undefined, error)
+  }
+
+  async handle(...args) {
+    if (args.length > 2) {
+      // Assume first argument is an error
+
+      await this.renderError(args[0], args[1], args[2])
+      return
+    }
+
+    const [req, res] = args
+    try {
+      const [page, match] = this.findPageByRequest(req)
+      if (!page) {
+        throw new NotFound()
+      }
+      await this.render(page, req, res, match)
+    } catch (error) {
+      await this.renderError(error, req, res)
+    }
+  }
+
+  findPageByRequest(req) {
+    let match
+    const matchedPage = this.pages.find(page => {
+      match = matchPage(req.url, page)
+      return match
+    })
+
+    return [matchedPage, match]
   }
 }
+
+export default App

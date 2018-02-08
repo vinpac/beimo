@@ -1,0 +1,5 @@
+{
+  "main": "Route.server.js",
+  "browser": "Route.client.js",
+  "private": true
+}

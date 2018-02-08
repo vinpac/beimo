@@ -1,0 +1,5 @@
+{
+  "main": "../StaticRouter.js",
+  "browser": "../BrowserRouter.js",
+  "private": true
+}

@@ -1,5 +1,8 @@
+import queryString from 'query-string'
+import pathToRegexp from 'path-to-regexp'
+
 export class PageError extends Error {
-  constructor(message: ?string, status: ?number) {
+  constructor(message, status) {
     super(message)
 
     this.name = 'PageError'
@@ -16,11 +19,11 @@ export class PageError extends Error {
   }
 }
 
-export class NotFoundPage extends PageError {
-  constructor(message: ?string) {
+export class NotFound extends PageError {
+  constructor(message) {
     super(message, 404)
 
-    this.name = 'NotFoundPage'
+    this.name = 'NotFound'
   }
 
   toJSON() {
@@ -38,37 +41,63 @@ export function isPage(potentialPage) {
   return potentialPage.__BEIMO_PAGE__ && typeof potentialPage.load === 'function'
 }
 
-export function createErrorPageResolver(missPage, fn) {
-  return error => {
-    if (missPage && error.name === 'NotFoundPage') {
-      return missPage
-    }
+const urlToPathname = url => {
+  const queryIndex = url.indexOf('?')
+  return `${queryIndex === -1 ? url : url.substr(0, queryIndex)}`
+}
 
-    return fn ? fn(error) : undefined
+export function extractPathData(str) {
+  const queryIndex = str.indexOf('?')
+  return {
+    url: str,
+    params: {},
+    query: queryIndex === -1 ? {} : queryString.parse(str.substr(queryIndex)),
   }
 }
 
-export function parsePages(pages) {
-  let missPage
-  let errorPage
+export function matchPage(url, page) {
+  if (!page.matcher) {
+    return null
+  }
 
-  pages.some(page => {
-    if (page.useAs === 'error') {
-      errorPage = page
-    }
+  const match = page.matcher.re.exec(urlToPathname(url), -1)
 
-    missPage = errorPage
+  if (!match) {
+    return null
+  }
 
-    return missPage && errorPage
+  const result = extractPathData(url)
+
+  page.matcher.keys.forEach((key, i) => {
+    result.params[key.name] = match[i + 1]
   })
 
+  return result
+}
+
+export function createMatcher(path, options) {
+  const keys = []
   return {
-    pages: pages.filter(page => page.useAs !== 'error'),
-    getErrorPage: createErrorPageResolver(
-      pages.find(page => page.useAs === 'miss'),
-      () => errorPage,
-    ),
+    re: pathToRegexp(path, keys, options),
+    keys,
   }
 }
 
-export { Link, NavLink, Route, Redirect, Switch, withRouter } from 'react-router-dom'
+export function buildLocation(path) {
+  const [pathname, search] = path.split('?')
+
+  return { path, pathname, search: search || '' }
+}
+
+export function matchPath(path, pages) {
+  let match
+  const page = pages.find(p => {
+    match = matchPage(path, p)
+
+    return match
+  })
+
+  return [page, path, match]
+}
+
+export { default } from './SharedRouter'

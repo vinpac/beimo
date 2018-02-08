@@ -1,21 +1,14 @@
 import App from '../../modules/App'
-import { parsePages } from '../../modules/Router'
+import { normalizePages } from '../../modules/utils'
 /* eslint-disable */
 // Replaced by parse-defaults
 import configureApp from '<beimo:configureApp-path>'
 import pages from '<beimo:pages-path>'
 /* eslint-enable */
 
-const errorPage = {
-  use: 'error',
-  load: () => import(/* webpackChunkName: 'pages/_error' */'../_error'),
-}
+normalizePages(pages)
 
-if (!pages.some(page => page.useAs !== 'error')) {
-  pages.push(errorPage)
-}
-
-const app = new App(parsePages(pages))
+const app = new App(pages)
 
 if (configureApp) {
   configureApp(app)
@@ -24,8 +17,7 @@ if (configureApp) {
 if (module.hot) {
   module.hot.accept('<beimo:pages-path>', () => {
     // eslint-disable-next-line import/no-unresolved
-    app.configure(parsePages(require('<beimo:pages-path>').default))
-    app.hydrate(document.getElementById('root'))
+    app.configure({ pages: normalizePages(require('<beimo:pages-path>').default) })
   })
 }
 

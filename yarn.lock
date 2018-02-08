@@ -3017,10 +3017,6 @@ hoek@4.x.x:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-4.2.0.tgz#72d9d0754f7fe25ca2d01ad8f8f9a9449a89526d"
 
-hoist-non-react-statics@^2.3.0:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.3.1.tgz#343db84c6018c650778898240135a1420ee22ce0"
-
 home-or-tmp@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/home-or-tmp/-/home-or-tmp-2.0.0.tgz#e36c3f2d2cae7d746a857e38d18d5f32a7882db8"
@@ -4254,19 +4250,19 @@ mississippi@^1.3.0:
   dependencies:
     minimist "0.0.8"
 
-modular-css-loader@^0.0.20:
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/modular-css-loader/-/modular-css-loader-0.0.20.tgz#bfae3f8bcdd38b7db7d68f7327c9c29013ab2606"
+modular-css-loader@^0.0.21:
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/modular-css-loader/-/modular-css-loader-0.0.21.tgz#d2883668d01884336253633d499934532479018b"
   dependencies:
     css-selector-tokenizer "^0.7.0"
     cssnano "^3.10.0"
     loader-utils "^1.1.0"
     postcss "^6.0.13"
-    postcss-modular "^0.0.10"
+    postcss-modular "^0.0.11"
 
-modular-style-loader@^0.0.1-beta.5:
-  version "0.0.1-beta.5"
-  resolved "https://registry.yarnpkg.com/modular-style-loader/-/modular-style-loader-0.0.1-beta.5.tgz#055524671a2c724f75e460a496eb5b9e93a826e1"
+modular-style-loader@^0.0.1-beta.6:
+  version "0.0.1-beta.6"
+  resolved "https://registry.yarnpkg.com/modular-style-loader/-/modular-style-loader-0.0.1-beta.6.tgz#6d47c563ede2b6b1a659a7a0ca68970dcf63f857"
   dependencies:
     loader-utils "^1.1.0"
 
@@ -4636,7 +4632,7 @@ path-to-regexp@0.1.7:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
 
-path-to-regexp@^1.1.1, path-to-regexp@^1.7.0:
+path-to-regexp@^1.1.1:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-1.7.0.tgz#59fde0f435badacba103a84e9d3bc64e96b9937d"
   dependencies:
@@ -4885,9 +4881,9 @@ postcss-minify-selectors@^2.0.4:
     postcss "^5.0.14"
     postcss-selector-parser "^2.0.0"
 
-postcss-modular@^0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/postcss-modular/-/postcss-modular-0.0.10.tgz#d83506dff259a9a2977046d1e4f3d86848b0819e"
+postcss-modular@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/postcss-modular/-/postcss-modular-0.0.11.tgz#d28fce809f52efd6ba4eab2560d735801119b00c"
   dependencies:
     has "^1.0.1"
     postcss "^6.0.13"
@@ -5263,29 +5259,6 @@ react-helmet@^5.2.0:
     object-assign "^4.1.1"
     prop-types "^15.5.4"
     react-side-effect "^1.1.0"
-
-react-router-dom@^4.2.2:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-4.2.2.tgz#c8a81df3adc58bba8a76782e946cbd4eae649b8d"
-  dependencies:
-    history "^4.7.2"
-    invariant "^2.2.2"
-    loose-envify "^1.3.1"
-    prop-types "^15.5.4"
-    react-router "^4.2.0"
-    warning "^3.0.0"
-
-react-router@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-4.2.0.tgz#61f7b3e3770daeb24062dae3eedef1b054155986"
-  dependencies:
-    history "^4.7.2"
-    hoist-non-react-statics "^2.3.0"
-    invariant "^2.2.2"
-    loose-envify "^1.3.1"
-    path-to-regexp "^1.7.0"
-    prop-types "^15.5.4"
-    warning "^3.0.0"
 
 react-side-effect@^1.1.0:
   version "1.1.3"

@@ -1,47 +1,46 @@
 import App from '../../modules/App'
-import Document from '../_document'
+import Document from '../pages/Document'
+import { normalizePages } from '../../modules/utils'
 import assets from './assets.json' // eslint-disable-line import/no-unresolved
-/* eslint-disable */
+/* eslint-disable import/no-unresolved,import/first,import/extensions */
 // Replaced by parse-defaults
 import configureApp from '<beimo:configureApp-path>'
 import pages from '<beimo:pages-path>'
-import { createErrorPageResolver, parsePages } from '../../modules/Router'
 /* eslint-enable */
 
-const errorPage = {
-  use: 'error',
-  load: () => import(/* webpackChunkName: 'pages/_error' */ '../_error'),
-}
+normalizePages(pages)
 
-if (!pages.some(page => page.useAs !== 'error')) {
-  pages.push(errorPage)
-}
-
-const app = new App({
-  ...parsePages(pages),
-  documentComponent: Document,
+const app = new App(
+  pages,
   assets,
-  styles: assets.client.css ? [{ url: assets.client.css }] : [],
-})
+  assets.client.css ? [{ url: assets.client.css }] : [],
+  Document,
+)
 
 if (configureApp) {
   configureApp(app)
 }
 
-app.prepare = (server, handle) => {
+app.prepare = (server, m, run = m) => {
   if (!module.hot) {
-    handle(server)
+    run(server)
   } else {
-    server.hot = module.hot
+    server.hot = m.hot || module.hot
+
+    /* eslint-disable no-underscore-dangle */
+    server.__beimo_addDevForceServerReload__ = fn => {
+      app.__beimo_devForceServerReload__ = fn
+    }
+    /* eslint-enable no-underscore-dangle */
 
     module.hot.accept('./assets.json', () => {
-      // eslint-disable-next-line import/no-unresolved
-      app.configure({ assets: require('./assets.json') })
+      // eslint-disable-next-line import/no-unresolved, no-underscore-dangle
+      app.__setAssets(require('./assets.json'))
     })
 
     module.hot.accept('<beimo:pages-path>', () => {
-      // eslint-disable-next-line import/no-unresolved
-      app.configure(parsePages(require('<beimo:pages-path>').default))
+      // eslint-disable-next-line import/no-unresolved, no-underscore-dangle
+      app.configure({ pages: normalizePages(require('<beimo:pages-path>').default) })
     })
 
     if (process.env.HAS_APP_CONFIGURATION) {
@@ -56,3 +55,4 @@ app.prepare = (server, handle) => {
 }
 
 export default app
+export const STATIC_PATH = process.env.STATIC_PATH // eslint-disable-line

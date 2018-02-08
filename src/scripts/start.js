@@ -9,17 +9,26 @@ import createWebpackConfig from '../lib/createWebpackConfig'
 import clean from './clean'
 import utils from '../../utils'
 
-let compiledTimes = 0
+
+const hmrPrefix = `${chalk.bold.yellow('HMR ➜ ')}`
 let clearConsole
-function createCompilationPromise(name, compiler, config) {
+let compiledTimes = 0
+let lastCompiledName
+
+function createCompilationPromise(name, compiler, config, params) {
   return new Promise((resolve, reject) => {
     utils.logEvent(name, 'Compiling...', false)
 
     compiler.plugin('done', stats => {
+      if (compiledTimes > 1 && lastCompiledName !== name) {
+        console.log('') // eslint-disable-line
+      }
+
+      lastCompiledName = name
       if (compiledTimes === 0) {
-        compiledTimes += 1
         clearConsole()
       }
+      compiledTimes += 1
 
       const compilationTime = `${chalk.bold(stats.endTime - stats.startTime)}ms`
       if (stats.hasErrors()) {
@@ -28,12 +37,13 @@ function createCompilationPromise(name, compiler, config) {
         utils.logEvent(stats.compilation.name, `Compiled successfully in ${compilationTime}`)
       }
 
-      console.info(stats.toString({ ...config.stats, timings: false }))
+      if (params.isVerbose || stats.hasErrors()) {
+        console.info(stats.toString({ ...config.stats, timings: false }))
+      }
+
       stats.compilation.warnings.forEach(warning => {
         console.warn(warning)
       })
-
-      console.log('\n') // eslint-disable-line
 
       if (stats.hasErrors()) {
         reject(new Error('Compilation failed!'))
@@ -47,6 +57,19 @@ function createCompilationPromise(name, compiler, config) {
 
 export default async params => {
   await clean(params)
+
+
+  const cacheRegex = new RegExp(`^(${params.sourcePath}|${params.distPath})`)
+  const clearCache = () => {
+    // eslint-disable-next-line no-undef
+    Object.keys(__non_webpack_require__.cache).forEach(modulePath => {
+      if (cacheRegex.test(modulePath)) {
+        // eslint-disable-next-line no-undef
+        delete __non_webpack_require__.cache[modulePath]
+      }
+    })
+  }
+
   clearConsole = () => {
     utils.clearConsole()
     console.info(`${chalk.bold.cyan(params.isRelease ? 'RELEASE' : 'DEVELOPMENT')}\n`)
@@ -88,8 +111,8 @@ export default async params => {
   const multiCompiler = webpack([clientConfig, serverConfig])
   const clientCompiler = multiCompiler.compilers.find(compiler => compiler.name === 'client')
   const serverCompiler = multiCompiler.compilers.find(compiler => compiler.name === 'server')
-  const clientPromise = createCompilationPromise('client', clientCompiler, clientConfig)
-  const serverPromise = createCompilationPromise('server', serverCompiler, serverConfig)
+  const clientPromise = createCompilationPromise('client', clientCompiler, clientConfig, params)
+  const serverPromise = createCompilationPromise('server', serverCompiler, serverConfig, params)
 
   // https://github.com/webpack/webpack-dev-middleware
   server.use(
@@ -98,6 +121,7 @@ export default async params => {
       quiet: true,
       watchOptions: params.watchOptions,
       stats: false,
+      logLevel: params.isVerbore ? 'trace' : 'silent',
     }),
   )
 
@@ -133,8 +157,24 @@ export default async params => {
       .catch(error => console.error(error))
   })
 
+  function reloadApp() {
+    clearCache()
+    setTimeout(() => {
+      /* eslint-disable no-underscore-dangle, no-undef */
+      app = __non_webpack_require__(path.join(params.distPath, 'server.js')).default
+      app.__beimo_addDevForceServerReload__(reloadApp)
+      /* eslint-enable no-underscore-dangle, no-undef */
+
+      console.warn(hmrPrefix, 'App has been reloaded.')
+    }, 1)
+  }
+
   function checkForUpdate(fromUpdate) {
-    const hmrPrefix = `${chalk.bold.yellow('HMR ➜ ')}`
+    if (lastCompiledName !== 'hmr') {
+      console.log('') // eslint-disable-line
+    }
+
+    lastCompiledName = 'hmr'
     if (!app.hot) {
       throw new Error(`${hmrPrefix}Hot Module Replacement is disabled.`)
     }
@@ -164,13 +204,7 @@ export default async params => {
         if (['abort', 'fail'].includes(app.hot.status())) {
           console.warn(hmrPrefix, 'Cannot apply update.')
 
-          // eslint-disable-next-line
-          delete __non_webpack_require__.cache[path.join(params.distPath, 'server.js')]
-          setTimeout(() => {
-            // eslint-disable-next-line
-            app = __non_webpack_require__(path.join(params.distPath, 'server.js')).default
-            console.warn(hmrPrefix, 'App has been reloaded.')
-          }, 1)
+          reloadApp()
         } else {
           console.warn(hmrPrefix, `Update failed: ${error.stack || error.message}`)
         }
@@ -189,9 +223,13 @@ export default async params => {
   await clientPromise
   await serverPromise
 
-  // eslint-disable-next-line
+  /* eslint-disable no-underscore-dangle, no-undef */
   app = __non_webpack_require__(path.join(params.distPath, 'server.js')).default
+  app.__beimo_addDevForceServerReload__(reloadApp)
+  /* eslint-enable no-underscore-dangle, no-undef */
+
   appPromiseResolve()
 
   server.listen(params.port)
+  console.info(`\nThe server is running at\n\t${chalk.cyan(`http://localhost:${params.port}/`)}`)
 }

@@ -1,0 +1,4 @@
+{
+  "browser": "Redirect.client.js",
+  "main": "Redirect.server.js"
+}
