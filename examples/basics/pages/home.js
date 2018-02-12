@@ -2,7 +2,7 @@ import React from 'react'
 import { NotFound } from 'beimo/router'
 import Link from 'beimo/link'
 import Head from 'beimo/head'
-import s from '../home.css'
+import s from './home.css'
 
 class HomePage extends React.Component {
   static getInitialProps = ({ query, props }) => {
@@ -52,3 +52,4 @@ class HomePage extends React.Component {
 }
 
 export default HomePage
+export const style = s

@@ -30,6 +30,28 @@ class App {
 
   configure(overrides) {
     Object.keys(overrides).forEach(key => {
+      if (key === 'pages' && module.hot) {
+        // Check if theres a new page
+        const shouldReload = overrides[key].some(page => {
+          if (this.pages.some(p => p.id === page.id)) {
+            return false
+          }
+
+          return true
+        })
+
+        if (shouldReload) {
+          setTimeout(() => {
+            // eslint-disable-next-line
+            this.__beimo_devForceServerReload__()
+          }, 100)
+          return
+        }
+
+        this.pages = overrides[key]
+        return
+      }
+
       if (allowedOverrides.includes(key)) {
         this[key] = overrides[key]
       }

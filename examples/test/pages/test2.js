@@ -3,7 +3,7 @@ import Link from 'beimo/link'
 
 const Test = () => (
   <div>
-    <h1>Workeasdasdd</h1>
+    <h1>Worked</h1>
     <Link to="/?abacate=true">HOME</Link>
   </div>
 )

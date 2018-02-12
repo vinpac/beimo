@@ -1,9 +1,9 @@
-:import { basics: './basics' }
+:import { basics: '../basics' }
 
 .component {
   /* test autoprefixer */
   appearance: none;
-  background: #fff url('./assets/image.gif') left no-repeat;
+  background: #fff url('../assets/image.gif') left no-repeat;
 }
 
 :global .fade-appear, :global .fade-enter {

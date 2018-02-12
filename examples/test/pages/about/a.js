@@ -5,7 +5,7 @@ import Link from 'beimo/nav-link'
 
 const about = ({ error, loading }) => (
   <h1>
-    <Link to="/test"> asdasdqwqeqwe sd</Link>
+    <Link to="/test"> asdasdqasdwqeqwe sd</Link>
     Aboasd asdut {loading && 'carregando'}
 
     <Link activeStyle={{ color: 'red' }} to="/user">user</Link>
