@@ -1,3 +1,4 @@
+import path from 'path'
 import App from '../../modules/App'
 import Document from '../pages/Document'
 import { normalizePages } from '../../modules/utils'
@@ -55,4 +56,4 @@ app.prepare = (server, m, run = m) => {
 }
 
 export default app
-export const STATIC_PATH = process.env.STATIC_PATH // eslint-disable-line
+export const STATIC_PATH = path.resolve(__dirname, process.env.STATIC_PATH) // eslint-disable-line
