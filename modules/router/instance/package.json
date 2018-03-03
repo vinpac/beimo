@@ -1,0 +1,4 @@
+{
+  "main": "./RouterInstance.server.js",
+  "browser": "./RouterInstance.client.js"
+}

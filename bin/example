@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+'use strict';
+
+process.argv[2] = '--base=examples/' + process.argv[2];
+require(require('path').resolve(__dirname, '../dist/scripts/index.js'));
