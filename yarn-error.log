@@ -1,5 +1,5 @@
 Arguments: 
-  /home/murdock/.nvm/versions/node/v8.9.1/bin/node /usr/share/yarn/bin/yarn.js example basics --no-console-clear
+  /home/murdock/.nvm/versions/node/v8.9.1/bin/node /usr/share/yarn/bin/yarn.js start
 
 PATH: 
   /home/murdock/.nvm/versions/node/v8.9.1/bin:/home/murdock/bin:/home/murdock/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
@@ -16,13 +16,30 @@ Platform:
 npm manifest: 
   {
     "name": "beimo",
+    "version": "0.0.4-beta.9",
+    "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
+    "license": "MIT",
     "main": "./dist/server/index.js",
     "browser": "./dist/client/index.js",
-    "version": "0.0.8",
     "files": [
       "dist",
-      "pages"
+      "pages",
+      "bin/beimo",
+      "router.js",
+      "head.js",
+      "link.js",
+      "nav-link.js",
+      "route.js",
+      "redirect.js",
+      "client/webpack-hot-dev-client.js"
     ],
+    "bin": {
+      "beimo": "./bin/beimo"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git@github.com:vinpac/beimo.git"
+    },
     "devDependencies": {
       "babel-eslint": "^8.2.2",
       "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
@@ -33,6 +50,8 @@ npm manifest:
       "eslint-plugin-jsx-a11y": "^6.0.3",
       "eslint-plugin-react": "^7.7.0",
       "express": "^4.16.2",
+      "gulp": "^3.9.1",
+      "gulp-babel": "^8.0.0-beta.1",
       "gulp-copy": "^1.1.0",
       "prettier": "^1.11.0",
       "rimraf": "^2.6.2"
@@ -54,13 +73,11 @@ npm manifest:
       "extract-text-webpack-plugin": "^3.0.2",
       "file-loader": "^1.1.10",
       "glob": "^7.1.2",
-      "gulp": "^3.9.1",
-      "gulp-babel": "^8.0.0-beta.1",
       "history": "^4.7.2",
       "js-yaml": "^3.10.0",
       "mkdirp": "^0.5.1",
       "modular-css-loader": "^0.0.21",
-      "modular-style-loader": "^0.0.1-beta.10",
+      "modular-style-loader": "^0.0.1-beta.12",
       "path-to-regexp": "^2.1.0",
       "pleeease-filters": "^4.0.0",
       "postcss-flexbugs-fixes": "^3.3.0",
@@ -77,14 +94,16 @@ npm manifest:
       "serialize-javascript": "^1.4.0",
       "source-map-support": "^0.5.3",
       "uglifyjs-webpack-plugin": "^1.2.2",
-      "webpack": "3.11.0",
+      "webpack": "^3.11.0",
       "webpack-dev-middleware": "^2.0.6",
-      "webpack-hot-middleware": "^2.21.1",
+      "webpack-hot-middleware": "^2.21.2",
       "webpack-node-externals": "^1.6.0",
       "webpack-parallel-uglify-plugin": "^1.0.2"
     },
     "scripts": {
       "example": "bin/example",
+      "transpile": "gulp transpile",
+      "prepublish": "npm run lint && npm run transpile",
       "lint": "eslint server client build router pages --fix"
     }
   }
@@ -857,6 +876,13 @@ Lockfile:
       micromatch "^2.1.5"
       normalize-path "^2.0.0"
   
+  anymatch@^2.0.0:
+    version "2.0.0"
+    resolved "https://registry.yarnpkg.com/anymatch/-/anymatch-2.0.0.tgz#bcb24b4f37934d9aa7ac17b4adaf89e7c76ef2eb"
+    dependencies:
+      micromatch "^3.1.4"
+      normalize-path "^2.1.1"
+  
   aproba@^1.0.3, aproba@^1.1.1:
     version "1.2.0"
     resolved "https://registry.yarnpkg.com/aproba/-/aproba-1.2.0.tgz#6802e6264efd18c790a1b0d517f0f2627bf2c94a"
@@ -1274,7 +1300,7 @@ Lockfile:
       preserve "^0.2.0"
       repeat-element "^1.1.2"
   
-  braces@^2.3.1:
+  braces@^2.3.0, braces@^2.3.1:
     version "2.3.1"
     resolved "https://registry.yarnpkg.com/braces/-/braces-2.3.1.tgz#7086c913b4e5a08dbe37ac0ee6a2500c4ba691bb"
     dependencies:
@@ -1485,7 +1511,7 @@ Lockfile:
     version "0.4.2"
     resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.4.2.tgz#b5473b33dc97c424e5d98dc87d55d4d8a29c8bf2"
   
-  chokidar@^1.6.1, chokidar@^1.7.0:
+  chokidar@^1.6.1:
     version "1.7.0"
     resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-1.7.0.tgz#798e689778151c8076b4b360e5edd28cda2bb468"
     dependencies:
@@ -1497,6 +1523,24 @@ Lockfile:
       is-glob "^2.0.0"
       path-is-absolute "^1.0.0"
       readdirp "^2.0.0"
+    optionalDependencies:
+      fsevents "^1.0.0"
+  
+  chokidar@^2.0.2:
+    version "2.0.2"
+    resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-2.0.2.tgz#4dc65139eeb2714977735b6a35d06e97b494dfd7"
+    dependencies:
+      anymatch "^2.0.0"
+      async-each "^1.0.0"
+      braces "^2.3.0"
+      glob-parent "^3.1.0"
+      inherits "^2.0.1"
+      is-binary-path "^1.0.0"
+      is-glob "^4.0.0"
+      normalize-path "^2.1.1"
+      path-is-absolute "^1.0.0"
+      readdirp "^2.0.0"
+      upath "^1.0.0"
     optionalDependencies:
       fsevents "^1.0.0"
   
@@ -2901,6 +2945,13 @@ Lockfile:
     dependencies:
       is-glob "^2.0.0"
   
+  glob-parent@^3.1.0:
+    version "3.1.0"
+    resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-3.1.0.tgz#9e6af6299d8d3bd2bd40430832bd113df906c5ae"
+    dependencies:
+      is-glob "^3.1.0"
+      path-dirname "^1.0.0"
+  
   glob-stream@^3.1.5:
     version "3.1.18"
     resolved "https://registry.yarnpkg.com/glob-stream/-/glob-stream-3.1.18.tgz#9170a5f12b790306fdfe598f313f8f7954fd143b"
@@ -3448,7 +3499,7 @@ Lockfile:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/is-extglob/-/is-extglob-1.0.0.tgz#ac468177c4943405a092fc8f29760c6ffc6206c0"
   
-  is-extglob@^2.1.0:
+  is-extglob@^2.1.0, is-extglob@^2.1.1:
     version "2.1.1"
     resolved "https://registry.yarnpkg.com/is-extglob/-/is-extglob-2.1.1.tgz#a88c02535791f02ed37c76a1b9ea9773c833f8c2"
   
@@ -3473,6 +3524,12 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/is-glob/-/is-glob-3.1.0.tgz#7ba5ae24217804ac70707b96922567486cc3e84a"
     dependencies:
       is-extglob "^2.1.0"
+  
+  is-glob@^4.0.0:
+    version "4.0.0"
+    resolved "https://registry.yarnpkg.com/is-glob/-/is-glob-4.0.0.tgz#9521c76845cc2610a85203ddf080a958c2ffabc0"
+    dependencies:
+      is-extglob "^2.1.1"
   
   is-number@^2.1.0:
     version "2.1.0"
@@ -4019,7 +4076,7 @@ Lockfile:
       parse-glob "^3.0.4"
       regex-cache "^0.4.2"
   
-  micromatch@^3.0.4:
+  micromatch@^3.0.4, micromatch@^3.1.4:
     version "3.1.9"
     resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-3.1.9.tgz#15dc93175ae39e52e93087847096effc73efcf89"
     dependencies:
@@ -4145,9 +4202,9 @@ Lockfile:
       postcss "^6.0.13"
       postcss-modular "^0.0.11"
   
-  modular-style-loader@^0.0.1-beta.7:
-    version "0.0.1-beta.10"
-    resolved "https://registry.yarnpkg.com/modular-style-loader/-/modular-style-loader-0.0.1-beta.10.tgz#54123796b31d45bf88b1a36527fdbc09824a370d"
+  modular-style-loader@^0.0.1-beta.12:
+    version "0.0.1-beta.12"
+    resolved "https://registry.yarnpkg.com/modular-style-loader/-/modular-style-loader-0.0.1-beta.12.tgz#845edd3ed74281ae42c2bc8c317391b09db8f425"
     dependencies:
       loader-utils "^1.1.0"
   
@@ -4208,6 +4265,10 @@ Lockfile:
   negotiator@0.6.1:
     version "0.6.1"
     resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
+  
+  neo-async@^2.5.0:
+    version "2.5.0"
+    resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.5.0.tgz#76b1c823130cca26acfbaccc8fbaf0a2fa33b18f"
   
   node-fetch@^1.0.1:
     version "1.7.3"
@@ -4276,7 +4337,7 @@ Lockfile:
       semver "2 || 3 || 4 || 5"
       validate-npm-package-license "^3.0.1"
   
-  normalize-path@^2.0.0, normalize-path@^2.0.1:
+  normalize-path@^2.0.0, normalize-path@^2.0.1, normalize-path@^2.1.1:
     version "2.1.1"
     resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-2.1.1.tgz#1ab28b556e198363a8c1a6f7e6fa20137fe6aed9"
     dependencies:
@@ -4555,6 +4616,10 @@ Lockfile:
   path-browserify@0.0.0:
     version "0.0.0"
     resolved "https://registry.yarnpkg.com/path-browserify/-/path-browserify-0.0.0.tgz#a0b870729aae214005b7d5032ec2cbbb0fb4451a"
+  
+  path-dirname@^1.0.0:
+    version "1.0.2"
+    resolved "https://registry.yarnpkg.com/path-dirname/-/path-dirname-1.0.2.tgz#cc33d24d525e099a5388c0336c6e32b9160609e0"
   
   path-exists@^2.0.0:
     version "2.1.0"
@@ -6284,6 +6349,10 @@ Lockfile:
       has-value "^0.3.1"
       isobject "^3.0.0"
   
+  upath@^1.0.0:
+    version "1.0.4"
+    resolved "https://registry.yarnpkg.com/upath/-/upath-1.0.4.tgz#ee2321ba0a786c50973db043a50b7bcba822361d"
+  
   urix@^0.1.0:
     version "0.1.0"
     resolved "https://registry.yarnpkg.com/urix/-/urix-0.1.0.tgz#da937f7a62e21fec1fd18d49b35c2935067a6c72"
@@ -6423,12 +6492,12 @@ Lockfile:
       loose-envify "^1.0.0"
   
   watchpack@^1.4.0:
-    version "1.4.0"
-    resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-1.4.0.tgz#4a1472bcbb952bd0a9bb4036801f954dfb39faac"
+    version "1.5.0"
+    resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-1.5.0.tgz#231e783af830a22f8966f65c4c4bacc814072eed"
     dependencies:
-      async "^2.1.2"
-      chokidar "^1.7.0"
+      chokidar "^2.0.2"
       graceful-fs "^4.1.2"
+      neo-async "^2.5.0"
   
   webpack-dev-middleware@^2.0.6:
     version "2.0.6"
@@ -6442,9 +6511,9 @@ Lockfile:
       url-join "^2.0.2"
       webpack-log "^1.0.1"
   
-  webpack-hot-middleware@^2.21.1:
-    version "2.21.1"
-    resolved "https://registry.yarnpkg.com/webpack-hot-middleware/-/webpack-hot-middleware-2.21.1.tgz#1b03b20a1a65a2e2ea0ea987476a5d23370ff176"
+  webpack-hot-middleware@^2.21.2:
+    version "2.21.2"
+    resolved "https://registry.yarnpkg.com/webpack-hot-middleware/-/webpack-hot-middleware-2.21.2.tgz#2e2aa65563b8b32546b67e53b5a9667dcd80f327"
     dependencies:
       ansi-html "0.0.7"
       html-entities "^1.2.0"
@@ -6484,7 +6553,7 @@ Lockfile:
       source-list-map "^2.0.0"
       source-map "~0.6.1"
   
-  webpack@3.11.0:
+  webpack@^3.11.0:
     version "3.11.0"
     resolved "https://registry.yarnpkg.com/webpack/-/webpack-3.11.0.tgz#77da451b1d7b4b117adaf41a1a93b5742f24d894"
     dependencies:
@@ -6632,17 +6701,14 @@ Lockfile:
       window-size "0.1.0"
 
 Trace: 
-  Error: Command failed.
-  Exit code: 1
-  Command: sh
-  Arguments: -c bin/example basics --no-console-clear
-  Directory: /home/murdock/lab/next-test
-  Output:
-  
-      at ProcessTermError.MessageError (/usr/share/yarn/lib/cli.js:186:110)
-      at new ProcessTermError (/usr/share/yarn/lib/cli.js:226:113)
-      at ChildProcess.<anonymous> (/usr/share/yarn/lib/cli.js:30281:17)
-      at emitTwo (events.js:126:13)
-      at ChildProcess.emit (events.js:214:7)
-      at maybeClose (internal/child_process.js:925:16)
-      at Process.ChildProcess._handle.onexit (internal/child_process.js:209:5)
+  Error: Command "start" not found.
+      at new MessageError (/usr/share/yarn/lib/cli.js:186:110)
+      at /usr/share/yarn/lib/cli.js:87307:17
+      at Generator.next (<anonymous>)
+      at step (/usr/share/yarn/lib/cli.js:98:30)
+      at /usr/share/yarn/lib/cli.js:116:14
+      at new Promise (<anonymous>)
+      at new F (/usr/share/yarn/lib/cli.js:23451:28)
+      at /usr/share/yarn/lib/cli.js:95:12
+      at runCommand (/usr/share/yarn/lib/cli.js:87312:22)
+      at Object.<anonymous> (/usr/share/yarn/lib/cli.js:87412:14)

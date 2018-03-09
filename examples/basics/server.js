@@ -1,5 +1,5 @@
 import express from 'express'
-import beimo from '../../dist/server' // eslint-disable-line
+import beimo from '../../dist/server/index.js'
 
 const app = express()
 

@@ -1,6 +1,6 @@
 import path from 'path'
 import DynamicEntryPlugin from 'webpack/lib/DynamicEntryPlugin'
-import { getRequireablePath } from '../server/require'
+import getRequireablePath from './utils/get-requireable-path'
 import { PageNotFoundError } from '../modules/router'
 
 function createAllCompilersCallback(fn, compilers, remove) {
@@ -20,11 +20,15 @@ function createAllCompilersCallback(fn, compilers, remove) {
 }
 
 class OnDemandEntryHandler {
-  constructor(multiCompiler, pagesDir, watchers) {
+  constructor(multiCompiler, pagesDir, buildedPages = [], watchers) {
     this.entries = {}
     this.watchers = watchers
     this.pagesDir = pagesDir
     this.compilers = multiCompiler.compilers
+
+    buildedPages.forEach(page => {
+      this.entries[page] = {}
+    })
 
     this.compilers.forEach(compiler => {
       // compiler.hooks.make.tapAsync('OnDemandEntryHandlerMake', (compilation, done) => {

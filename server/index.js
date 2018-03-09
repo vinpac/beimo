@@ -168,8 +168,9 @@ class Beimo {
 
     let appState = {
       route: {
+        loadedProps,
+        id: route.id,
         page: route.page,
-        props: loadedProps,
         error:
           error && typeof error.toJSON === 'function'
             ? error.toJSON()

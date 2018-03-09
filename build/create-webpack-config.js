@@ -11,8 +11,9 @@ const RE_SCRIPT = /\.jsx?$/
 const RE_STYLE = /\.(css|less|scss|sss|styl|sass)$/
 const RE_IMAGE = /\.(bmp|gif|jpe?g|png|svg)$/
 
-export default (
-  {
+export default (params, { pages }, pagesWatcher) => {
+  const {
+    webpack: configMapper,
     baseDir,
     distDir,
     sourceDir,
@@ -24,10 +25,7 @@ export default (
     isRelease,
     isVerbose,
     overrideServer,
-  },
-  { pages },
-  pagesWatcher,
-) => {
+  } = params
   const isDev = !isRelease
   const staticAssetName = isDev ? 'file/[path][name].[ext]?[hash:8]' : '[hash:8].[ext]'
   const extractOptions = {
@@ -57,7 +55,6 @@ export default (
 
   const baseConfig = {
     context: baseDir,
-    // mode: isRelease ? 'production' : 'development',
 
     output: {
       publicPath,
@@ -205,7 +202,7 @@ export default (
 
     // Choose a developer tool to enhance debugging
     // https://webpack.js.org/configuration/devtool/#devtool
-    devtool: 'source-map',
+    devtool: isDev ? 'cheap-module-eval-source-map' : 'source-map',
   }
 
   const clientConfig = {
@@ -220,10 +217,7 @@ export default (
 
     entry: {
       ...clientEntries,
-      client: [
-        '@babel/polyfill',
-        path.resolve(__dirname, '..', 'defaults', 'client.js'),
-      ],
+      client: path.resolve(__dirname, '..', 'defaults', 'client.js'),
     },
 
     module: {
@@ -294,6 +288,7 @@ export default (
           },
         }),
       ] : []),
+
       // Move modules that occur in multiple entry chunks to a new entry chunk (the commons chunk).
       // https://webpack.js.org/plugins/commons-chunk-plugin/
       new webpack.optimize.CommonsChunkPlugin({
@@ -349,7 +344,7 @@ export default (
       libraryTarget: 'commonjs2',
     },
 
-    externals: [nodeExternals()],
+    externals: [nodeExternals({ whitelist: ['beimo'] })],
 
     module: {
       ...baseConfig.module,
@@ -441,14 +436,6 @@ export default (
           ? 'undefined'
           : `'${path.resolve(__dirname, '..', 'server', 'create-dev-server')}'`,
       }),
-
-      // Adds a banner to the top of each generated chunk
-      // https://webpack.js.org/plugins/banner-plugin/
-      new webpack.BannerPlugin({
-        banner: 'require("source-map-support").install();',
-        raw: true,
-        entryOnly: false,
-      }),
     ],
 
     node: {
@@ -459,6 +446,28 @@ export default (
       __filename: false,
       __dirname: false,
     },
+  }
+
+
+  if (configMapper) {
+    const parseConfig = config => configMapper(
+      config,
+      {
+        ...params,
+        pages,
+        extractTextPlugin,
+        extractOptions,
+        postCSSConfig,
+        RE_STYLE,
+        RE_SCRIPT,
+        RE_IMAGE,
+      },
+    )
+
+    return {
+      clientConfig: parseConfig(clientConfig),
+      serverConfig: parseConfig(serverConfig),
+    }
   }
 
   return { clientConfig, serverConfig }

@@ -73,10 +73,7 @@ function createCompilationPromise(compilers) {
 export default async params => {
   // First clean the dist folder
   await clean(params)
-
-
   const { sourceDir, distDir, publicPath } = params
-  Object.assign(params, createPageEntries(params, []))
 
   const pagesDir = path.resolve(sourceDir, 'pages')
   const config = { watchOptions: {} }
@@ -85,6 +82,9 @@ export default async params => {
   let app = {}
   app.routes = await loadAsync(path.resolve(pagesDir, 'index.yml'))
   app.pages = extractPagesFromRoutes(app.routes)
+
+  // Build all pages
+  Object.assign(params, createPageEntries(params, app.pages))
 
   // Start watching pages
   const pagesWatcher = chokidar.watch(path.resolve(pagesDir, 'index.yml'))
@@ -175,7 +175,7 @@ export default async params => {
   await compilationPromise
   shouldUpdatePages = true
 
-  const onDemandEntryHandler = new OnDemandEntryHandler(multiCompiler, pagesDir, [
+  const onDemandEntryHandler = new OnDemandEntryHandler(multiCompiler, pagesDir, app.pages, [
     devMiddleware,
     serverWatcher,
   ])

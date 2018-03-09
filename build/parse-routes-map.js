@@ -79,6 +79,12 @@ export default function parseRoutesMap(
     }
   })
 
+  if (!pagePrefix) {
+    routes.forEach((route, i) => {
+      route.id = String(i)
+    })
+  }
+
   return routes
 }
 

@@ -8,10 +8,14 @@ let app
 export function render() {
   const { route, ...sharedState } = window.APP_STATE
 
+  const renderedRoute = route.id ? Router.routes.find(r => r.id === route.id) : null
   return (
     <BeimoComponent
       app={app}
-      route={route}
+      route={renderedRoute || { page: route.page }}
+      page={route.page}
+      error={route.error}
+      loadedProps={route.loadedProps}
       context={app && app.getContext ? app.getContext(sharedState) : {}}
     />
   )

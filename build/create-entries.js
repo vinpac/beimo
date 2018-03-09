@@ -1,5 +1,5 @@
 import path from 'path'
-import { getRequireablePath } from '../server/require'
+import getRequireablePath from './utils/get-requireable-path'
 
 const specialPages = ['_app', '_document', '_error']
 

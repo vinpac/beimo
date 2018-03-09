@@ -1,4 +1,5 @@
-import fs from 'fs'
+/* eslint-disable import/prefer-default-export */
+
 import path from 'path'
 import { PageNotFoundError } from '../modules/router'
 
@@ -15,26 +16,3 @@ export function requirePage(page) {
     throw error
   }
 }
-
-export function getRequireablePath(modulePath) {
-  const paths = []
-
-  if (/\..+$/.test(modulePath)) {
-    paths.push(modulePath)
-  } else {
-    paths.push(
-      `${modulePath}.js`,
-      path.join(modulePath, 'index.js'),
-      path.join(modulePath, 'package.json'),
-    )
-  }
-
-  const pathFound = paths.find(possiblePath => fs.existsSync(possiblePath))
-
-  if (pathFound && pathFound.endsWith('package.json')) {
-    return path.join(modulePath, __non_webpack_require__(pathFound).main)
-  }
-
-  return pathFound
-}
-

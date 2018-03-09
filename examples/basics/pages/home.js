@@ -1,14 +1,13 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import s from './home.css'
-import Head from 'react-helmet'
 import image from './image.jpg'
 import Link from '../../../dist/modules/router/link'
 
-const HomePage = ({ items }) => (
+const HomePage = ({ items, renderForm }) => (
   <div className={s.page}>
+    {console.log(renderForm)}
     <img src={image} alt="" />
-    <Link href="/about">About</Link>
+    <Link href="/about">asdqweqweqweqweasddasd</Link>
     <h1>{items.join(', ')} a<button onClick={() => console.log('asdasdasdasdqweqw')}>Hey</button>
     </h1>
   </div>

@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.4-beta.0",
+  "version": "0.0.4-beta.10",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "license": "MIT",
   "main": "./dist/server/index.js",
@@ -14,7 +14,8 @@
     "link.js",
     "nav-link.js",
     "route.js",
-    "redirect.js"
+    "redirect.js",
+    "client/webpack-hot-dev-client.js"
   ],
   "bin": {
     "beimo": "./bin/beimo"
@@ -34,8 +35,8 @@
     "eslint-plugin-react": "^7.7.0",
     "express": "^4.16.2",
     "gulp": "^3.9.1",
-    "gulp-copy": "^1.1.0",
     "gulp-babel": "^8.0.0-beta.1",
+    "gulp-copy": "^1.1.0",
     "prettier": "^1.11.0",
     "rimraf": "^2.6.2"
   },
@@ -60,7 +61,7 @@
     "js-yaml": "^3.10.0",
     "mkdirp": "^0.5.1",
     "modular-css-loader": "^0.0.21",
-    "modular-style-loader": "^0.0.1-beta.10",
+    "modular-style-loader": "^0.0.1-beta.12",
     "path-to-regexp": "^2.1.0",
     "pleeease-filters": "^4.0.0",
     "postcss-flexbugs-fixes": "^3.3.0",
@@ -77,14 +78,16 @@
     "serialize-javascript": "^1.4.0",
     "source-map-support": "^0.5.3",
     "uglifyjs-webpack-plugin": "^1.2.2",
-    "webpack": "3.11.0",
+    "webpack": "^3.11.0",
     "webpack-dev-middleware": "^2.0.6",
-    "webpack-hot-middleware": "^2.21.1",
+    "webpack-hot-middleware": "^2.21.2",
     "webpack-node-externals": "^1.6.0",
     "webpack-parallel-uglify-plugin": "^1.0.2"
   },
   "scripts": {
     "example": "bin/example",
+    "transpile": "gulp transpile",
+    "prepublish": "npm run lint && npm run transpile",
     "lint": "eslint server client build router pages --fix"
   }
 }

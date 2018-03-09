@@ -1,3 +1,6 @@
-home: /
+home:
+  - /
+  - /about2:
+      renderForm: true
 about: /about
 blog: /blog

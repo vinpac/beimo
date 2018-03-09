@@ -40,7 +40,7 @@ let appConfig
 
 if (existsSync(resolve(program.base, 'beimo.config.js'))) {
   // eslint-disable-next-line no-undef
-  appConfig = __non_webpack_require__(resolve(program.base, 'beimo.config.js'))
+  appConfig = require(resolve(program.base, 'beimo.config.js'))
 }
 
 const buildId = String(Date.now())

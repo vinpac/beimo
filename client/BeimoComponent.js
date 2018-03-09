@@ -4,15 +4,16 @@ import Router from '../modules/router'
 
 class BeimoComponent extends React.Component {
   static propTypes = {
-    route: PropTypes.shape({
-      page: PropTypes.string.isRequired,
-      props: PropTypes.object,
-    }).isRequired,
+    route: PropTypes.shape({ page: PropTypes.string }).isRequired,
+    loadedProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+    error: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     app: PropTypes.func,
     context: PropTypes.object, // eslint-disable-line
   }
 
   static defaultProps = {
+    loadedProps: {},
+    error: undefined,
     app: undefined,
     context: undefined,
   }
@@ -20,13 +21,13 @@ class BeimoComponent extends React.Component {
   constructor(props) {
     super(props)
 
-    const { route } = props
+    const { route, error, loadedProps } = props
 
     this.state = {
-      route: { page: route.page },
-      pageError: route.error,
+      route,
       pageComponent: Router.requirePage(route.page),
-      pageProps: route.props,
+      pageError: error,
+      pageProps: loadedProps,
     }
   }
 
