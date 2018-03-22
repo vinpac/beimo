@@ -1,26 +1,27 @@
+import stringHash from 'string-hash'
 import { createMatcher } from 'beimo/router'
-
-export default (name, chunkId, load, props = {}) => {
-
-  // eslint-disable-next-line
-  props.__BEIMO_PAGE__ = true
-
-  if (props.component) {
-    delete props.component
-  }
-
-  props.load = load
-  props.name = name
-  props.id = chunkId
-  props.props = props.props || {}
-
-  if (!props.as && props.path) {
-    props.exact = !!(props.path && props.exact !== false)
-    props.matcher = createMatcher(props.path, props)
-  }
-
-  return props
-}
 
 export const NOT_FOUND_PAGE = '@@router/NOT_FOUND_PAGE'
 export const ERROR_PAGE = '@@router/ERROR_PAGE'
+
+export default (name, chunk, load, path, props = {}) => {
+  // eslint-disable-next-line
+  const page = { __BEIMO_PAGE__: true }
+
+  page.load = load
+  page.chunk = chunk
+  page.name = name
+  page.id = String(stringHash(JSON.stringify({ chunk, path, props })))
+  page.props = props
+
+  if (path) {
+    if (path === NOT_FOUND_PAGE || path === ERROR_PAGE) {
+      page.as = path
+    } else {
+      page.exact = true
+      page.matcher = createMatcher(path, { exact: true })
+    }
+  }
+
+  return page
+}

@@ -7,50 +7,57 @@ import webpackHotMiddleware from 'webpack-hot-middleware'
 import errorOverlayMiddleware from 'react-dev-utils/errorOverlayMiddleware'
 import createWebpackConfig from '../lib/createWebpackConfig'
 import clean from './clean'
-import utils from '../../utils'
-
 
 const hmrPrefix = `${chalk.bold.yellow('HMR ➜ ')}`
-let clearConsole
-let compiledTimes = 0
-let lastCompiledName
+const preventClearConsole = process.argv.includes('--no-console-clear')
+const clearConsole = () => {
+  if (!preventClearConsole) {
+    process.stdout.write(process.platform === 'win32' ? '\x1Bc' : '\x1B[2J\x1B[3J\x1B[H')
+  }
+}
 
-function createCompilationPromise(name, compiler, config, params) {
+function createCompilationPromise(compilers) {
   return new Promise((resolve, reject) => {
-    utils.logEvent(name, 'Compiling...', false)
+    const isCompiling = {}
 
-    compiler.plugin('done', stats => {
-      if (compiledTimes > 1 && lastCompiledName !== name) {
-        console.log('') // eslint-disable-line
-      }
+    compilers.forEach(compiler => {
+      // compiler.hooks.compilation.tap('DevServerCompilation', () => {
+      compiler.plugin('compilation', () => {
+        if (!compilers.some(c => isCompiling[c.name])) {
+          clearConsole()
+          console.info(`${chalk.bold.cyan('WAIT')} ${chalk.cyan('Compiling...')}`)
+        }
 
-      lastCompiledName = name
-      if (compiledTimes === 0) {
-        clearConsole()
-      }
-      compiledTimes += 1
-
-      const compilationTime = `${chalk.bold(stats.endTime - stats.startTime)}ms`
-      if (stats.hasErrors()) {
-        utils.logEvent(stats.compilation.name, `Failed in ${compilationTime}`, 'red')
-      } else {
-        utils.logEvent(stats.compilation.name, `Compiled successfully in ${compilationTime}`)
-      }
-
-      if (params.isVerbose || stats.hasErrors()) {
-        console.info(stats.toString({ ...config.stats, timings: false }))
-      }
-
-      stats.compilation.warnings.forEach(warning => {
-        console.warn(warning)
+        isCompiling[compiler.name] = true
       })
 
-      if (stats.hasErrors()) {
-        reject(new Error('Compilation failed!'))
-        return
-      }
+      // compiler.hooks.done.tap('DevServerDone', stats => {
+      compiler.plugin('done', stats => {
+        isCompiling[compiler.name] = false
+        const allCompiled = !compilers.some(c => isCompiling[c.name])
 
-      resolve(stats)
+        if (stats.hasErrors()) {
+          console.info(`${chalk.bold.red(' FAIL ')} ${compiler.name}`)
+          console.info(stats.toString({ colors: true }))
+        } else if (allCompiled) {
+          clearConsole()
+          console.info(`${chalk.bold.green('DONE')} ${
+            chalk.green(`Compiled successfully in ${stats.endTime - stats.startTime}ms`)}`)
+        }
+
+        stats.compilation.warnings.forEach(warning => {
+          console.warn(warning)
+        })
+
+        if (stats.hasErrors()) {
+          reject(new Error('Compilation failed!'))
+          return
+        }
+
+        if (allCompiled) {
+          resolve(stats)
+        }
+      })
     })
   })
 }
@@ -68,11 +75,6 @@ export default async params => {
         delete __non_webpack_require__.cache[modulePath]
       }
     })
-  }
-
-  clearConsole = () => {
-    utils.clearConsole()
-    console.info(`${chalk.bold.cyan(params.isRelease ? 'RELEASE' : 'DEVELOPMENT')}\n`)
   }
 
   const { client: clientConfig, server: serverConfig } = await createWebpackConfig(params)
@@ -111,8 +113,7 @@ export default async params => {
   const multiCompiler = webpack([clientConfig, serverConfig])
   const clientCompiler = multiCompiler.compilers.find(compiler => compiler.name === 'client')
   const serverCompiler = multiCompiler.compilers.find(compiler => compiler.name === 'server')
-  const clientPromise = createCompilationPromise('client', clientCompiler, clientConfig, params)
-  const serverPromise = createCompilationPromise('server', serverCompiler, serverConfig, params)
+  const compilationPromise = createCompilationPromise(multiCompiler.compilers)
 
   // https://github.com/webpack/webpack-dev-middleware
   server.use(
@@ -170,11 +171,6 @@ export default async params => {
   }
 
   function checkForUpdate(fromUpdate) {
-    if (lastCompiledName !== 'hmr') {
-      console.log('') // eslint-disable-line
-    }
-
-    lastCompiledName = 'hmr'
     if (!app.hot) {
       throw new Error(`${hmrPrefix}Hot Module Replacement is disabled.`)
     }
@@ -220,8 +216,7 @@ export default async params => {
     }
   })
 
-  await clientPromise
-  await serverPromise
+  await compilationPromise
 
   /* eslint-disable no-underscore-dangle, no-undef */
   app = __non_webpack_require__(path.join(params.distPath, 'server.js')).default

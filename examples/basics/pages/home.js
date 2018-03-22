@@ -31,7 +31,7 @@ class HomePage extends React.Component {
         </Head>
         {a}
         <button onClick={() => this.setState({ count: count + 1 })}>Count: {count}</button>
-        <Link to="/">Home 1</Link>
+        <Link to="/">asdasdas asdasd  asdaqweqwe  asdasd  asdasd sd  asdasdas 1</Link>
         <Link to="/news">Home 2</Link>
         <Link to="/news/categories">Home 3</Link>
         <h1 className="title">Home</h1>

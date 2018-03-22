@@ -33,7 +33,7 @@ export default params => {
     isRelease,
     isVerbose,
     distPath,
-    port,
+    assetsDir,
     staticDir,
     staticPath,
     has,
@@ -87,8 +87,8 @@ export default params => {
     context: basePath,
 
     output: {
-      path: path.join(distPath, staticDir, 'assets'),
-      publicPath: '/assets/',
+      path: path.join(distPath, staticDir, assetsDir),
+      publicPath: `/${assetsDir}/`,
       pathinfo: isVerbose,
       filename: isDev ? '[name].js' : '[name].[chunkhash:8].js',
       chunkFilename: isDev ? '[name].chunk.js' : '[name].[chunkhash:8].chunk.js',
@@ -361,6 +361,21 @@ export default params => {
             }
           }
 
+          // Override paths to static assets
+          if (
+            rule.loader === 'file-loader' ||
+            rule.loader === 'url-loader' ||
+            rule.loader === 'svg-url-loader'
+          ) {
+            return {
+              ...rule,
+              options: {
+                ...rule.options,
+                emitFile: false,
+              },
+            }
+          }
+
           return rule
         }),
       ],
@@ -370,7 +385,6 @@ export default params => {
       ...baseConfig.plugins,
       new webpack.DefinePlugin({
         ...appGlobals,
-        'process.env.PORT': port,
         'process.env.DIST_PATH': `'${distPath}'`,
         'process.env.STATIC_DIR': `'${staticDir}'`,
         'process.env.STATIC_PATH': `'${isDev ? path.relative(distPath, staticPath) : staticDir}'`,
@@ -470,13 +484,16 @@ export default params => {
       // https://webpack.js.org/plugins/commons-chunk-plugin/
       new webpack.optimize.CommonsChunkPlugin({
         name: 'vendor',
-        minChunks: module => {
-          if (isDev) {
-            return false
-          }
+        filename: 'vendor.js',
+        minChunks: isRelease ? (
+          module => {
+            if (isDev) {
+              return false
+            }
 
-          return /node_modules/.test(module.resource)
-        },
+            return /node_modules/.test(module.resource)
+          }
+        ) : undefined,
       }),
 
       // If release

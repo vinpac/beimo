@@ -63,7 +63,7 @@ class App {
     return (
       <AppComponent
         defaultPage={defaultPage}
-        defaultPageProps={renderedPage.props}
+        defaultPageProps={renderedPage.loadedProps}
         defaultPageError={renderedPage.error}
         component={this.component}
         context={this.getContext ? this.getContext(sharedState) : {}}

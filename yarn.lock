@@ -4260,9 +4260,9 @@ modular-css-loader@^0.0.21:
     postcss "^6.0.13"
     postcss-modular "^0.0.11"
 
-modular-style-loader@^0.0.1-beta.6:
-  version "0.0.1-beta.6"
-  resolved "https://registry.yarnpkg.com/modular-style-loader/-/modular-style-loader-0.0.1-beta.6.tgz#6d47c563ede2b6b1a659a7a0ca68970dcf63f857"
+modular-style-loader@^0.0.1-beta.7:
+  version "0.0.1-beta.12"
+  resolved "https://registry.yarnpkg.com/modular-style-loader/-/modular-style-loader-0.0.1-beta.12.tgz#845edd3ed74281ae42c2bc8c317391b09db8f425"
   dependencies:
     loader-utils "^1.1.0"
 

@@ -33,7 +33,7 @@ class App {
       if (key === 'pages' && module.hot) {
         // Check if theres a new page
         const shouldReload = overrides[key].some(page => {
-          if (this.pages.some(p => p.id === page.id)) {
+          if (this.pages.some(p => p.chunk === page.chunk)) {
             return false
           }
 
@@ -117,7 +117,7 @@ class App {
     response.status = error ? response.status || error.status || 500 : 200
     const location = buildLocation(req.path)
 
-    if ((Component === undefined || !this.assets[`pages/${page.id}`]) && __DEV__) {
+    if ((Component === undefined || !this.assets[`pages/${page.chunk}`]) && __DEV__) {
       // eslint-disable-next-line
       this.__beimo_devForceServerReload__()
       throw new Error('Components is undefined. Reload the page to see changes.')
@@ -138,8 +138,8 @@ class App {
     const sharedAppState = this.getSharedState(
       {
         page: {
+          loadedProps,
           id: page.id,
-          props: loadedProps,
           error:
             error && typeof error.toJSON === 'function'
               ? error.toJSON()
@@ -157,7 +157,7 @@ class App {
     const scripts = [
       this.assets.vendor.js,
       __DEV__ ? path.resolve(this.assets.client.js, '..', 'client.js') : this.assets.client.js,
-      this.assets[`pages/${page.id}`].js,
+      this.assets[`pages/${page.chunk}`].js,
     ]
 
     const html = `<!doctype html>${ReactDOM.renderToStaticMarkup(

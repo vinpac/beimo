@@ -41,7 +41,6 @@ module.exports = function PagesLoader(rawSource) {
   for (; i < source.length; i += 1) {
     const char = source.charAt(i)
     const code = source.charCodeAt(i)
-
     if (expect !== null) {
       if (char === '\\') {
         if (skip) {
@@ -96,18 +95,21 @@ module.exports = function PagesLoader(rawSource) {
         }
 
         const pageName = str
-        const chunkId = `${isDev ? `${pageName.replace(/\/\\/g, '.')}.` : ''}${stringHash(
+        const chunk = `${isDev ? `${pageName.replace(/\/\\/g, '.')}.` : ''}${stringHash(
           pageName,
         )}`
-        const load = `() => import(/* webpackChunkName: 'pages/${chunkId}' */'./${
+        const load = `() => import(/* webpackChunkName: 'pages/${chunk}' */'./${
           path.relative(path.dirname(this.resourcePath), path.resolve(pagesPath, str))
         }')`
-        const newsArgs = `'${pageName}', '${chunkId}', ${load}`
+        const newsArgs = `'${pageName}', '${chunk}', ${load}`
 
         // Replace first argument to reflet chunk name
         source = `${source.substr(0, strStart)}${newsArgs}${source.substr(strEnd + 1)}`
-        i += newsArgs.length - str.length
+        i += newsArgs.length - str.length - 2
         found = false
+        str = ''
+        name = ''
+        expect = null
 
         continue
       }

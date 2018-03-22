@@ -29,6 +29,7 @@ const program = new commander.Command(pkg.name)
   .option('--base <base-directory>', 'base directory [.]', '')
   .option('--source <source-directory>', 'source directory [.]', '')
   .option('--output <output-directory>', 'output directory [dist]', 'dist')
+  .option('--assets <output-directory>', 'assets directory [assets]', 'assets')
   .option('--static <static-directory>', 'static directory [public]', 'public')
   .on('--help', () => {
     /* eslint-disable no-console */
@@ -39,7 +40,7 @@ const program = new commander.Command(pkg.name)
     /* eslint-enable no-console */
   })
   .usage('[options]')
-  .parse(process.argv)
+  .parse(process.argv.filter(arg => arg !== '--no-console-clear'))
 
 if (program.release) {
   process.env.NODE_ENV = 'production'
@@ -75,6 +76,7 @@ const params = {
   distDir: program.output,
   distPath: path.resolve(basePath, program.output),
   staticDir: program.static,
+  assetsDir: program.assets,
   staticPath: path.resolve(basePath, program.static),
   port: program.port,
   has: {
