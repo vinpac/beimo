@@ -1,6 +1,6 @@
 {
   "name": "beimo",
-  "version": "0.0.3-beta.9",
+  "version": "0.0.3-beta.11",
   "author": "Vinicius Pacheco Furtado vin175pacheco@gmail.com",
   "main": "dist/cli.js",
   "license": "MIT",

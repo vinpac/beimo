@@ -53,11 +53,14 @@ class App {
     Router.__pages = this.pages
     Router.renderedPageId = window.APP_STATE.page.id
     /* eslint-enable no-underscore-dangle */
+
+    const { page, ...sharedState } = window.APP_STATE
+    this.context = this.getContext ? await this.getContext(sharedState) : {}
     this.instance = ReactDOM.hydrate(this.render(), element)
   }
 
   render() {
-    const { page: renderedPage, ...sharedState } = window.APP_STATE
+    const { page: renderedPage } = window.APP_STATE
     const defaultPage = this.pages.find(page => page.id === renderedPage.id)
 
     return (
@@ -66,7 +69,7 @@ class App {
         defaultPageProps={renderedPage.loadedProps}
         defaultPageError={renderedPage.error}
         component={this.component}
-        context={this.getContext ? this.getContext(sharedState) : {}}
+        context={this.context}
         getLoadPropsParams={this.getLoadPropsParams}
         requirePageModule={this.requirePageModule}
       />

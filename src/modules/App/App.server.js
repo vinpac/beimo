@@ -2,11 +2,9 @@ import React from 'react'
 import path from 'path'
 import ReactDOM from 'react-dom/server'
 import Helmet from 'react-helmet'
-import Router, { buildLocation, matchPage, NotFound, isPage } from '../Router'
 import { ERROR_PAGE, NOT_FOUND_PAGE } from 'beimo/page'
-
-// eslint-disable-next-line
-import { getStyles } from '!modular-style-loader/dist/store'
+import { getStyles } from 'modular-style-loader/dist/store'
+import Router, { buildLocation, matchPage, NotFound, isPage } from '../Router'
 
 const allowedOverrides = [
   'pages',
@@ -106,7 +104,7 @@ class App {
     const { documentComponent: Document } = this
     const page = isPage(possiblePage) ? possiblePage : this.getPageByName(possiblePage)
     const Component = await page.load().then(module => module.default || module)
-    const context = this.getContext ? this.getContext({ req, page, isServer: true }) : {}
+    const context = this.getContext ? await this.getContext({ req, page, isServer: true }) : {}
     const [loadedProps, response] = await this.loadPageInitialProps(
       page,
       Component,
