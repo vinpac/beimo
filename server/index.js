@@ -25,30 +25,35 @@ class Beimo {
     }
   }
 
-  prepare() {
-    return new Promise(async (resolve, reject) => {
-      if (__DEV__) {
-        // Dev server will automatically load pages and routes
-        // eslint-disable-next-line no-undef
-        await __non_webpack_require__(process.env.CREATE_DEV_SERVER_PATH).default(this)
-      }
+  async start(listen) {
+    let server
+    if (__DEV__) {
+      // Dev server will automatically load pages and routes
+      // eslint-disable-next-line no-undef
+      server = await __non_webpack_require__(process.env.CREATE_DEV_SERVER_PATH).default(
+        this,
+        listen,
+      )
+    }
 
-      try {
-        this.app = requirePage('_app')
-      } catch (error) {
-        if (!(error instanceof PageNotFoundError)) {
-          reject(error)
-          return
-        }
+    try {
+      this.app = requirePage('_app')
+    } catch (error) {
+      if (!(error instanceof PageNotFoundError)) {
+        throw error
       }
+    }
 
-      resolve()
-    })
+    if (!__DEV__) {
+      server = listen()
+    }
+
+    return server
   }
 
   // TODO: Serve static files on production
   serve = () => {
-    throw new Error('It doesn\'t do anything now')
+    throw new Error("It doesn't do anything now")
   }
 
   matchPath(pathname) {
@@ -97,10 +102,7 @@ class Beimo {
       }
 
       if (this.app && this.app.getLoadPropsParams) {
-        params = this.app.getLoadPropsParams(
-          params,
-          context,
-        )
+        params = this.app.getLoadPropsParams(params, context)
       }
 
       const promiseCandidate = component.getInitialProps(params)
@@ -175,10 +177,10 @@ class Beimo {
           error && typeof error.toJSON === 'function'
             ? error.toJSON()
             : error && {
-              name: error.name,
-              message: error.message,
-              stack: __DEV__ ? error.stack : undefined,
-            },
+                name: error.name,
+                message: error.message,
+                stack: __DEV__ ? error.stack : undefined,
+              },
       },
     }
 
@@ -196,18 +198,11 @@ class Beimo {
       ? [getStyles(true)]
       : [getStyles(false), { url: `${this.assetPath}style.css` }]
 
-    const html = `<!doctype html>${
-      ReactDOM.renderToStaticMarkup(
-        <Document
-          appState={appState}
-          head={Helmet.renderStatic()}
-          scripts={scripts}
-          styles={styles}
-        >
-          {body}
-        </Document>,
-      )
-    }`
+    const html = `<!doctype html>${ReactDOM.renderToStaticMarkup(
+      <Document appState={appState} head={Helmet.renderStatic()} scripts={scripts} styles={styles}>
+        {body}
+      </Document>,
+    )}`
 
     if (response.redirect) {
       // Express.js

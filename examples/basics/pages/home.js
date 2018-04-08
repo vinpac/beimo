@@ -5,9 +5,8 @@ import Link from '../../../dist/modules/router/link'
 
 const HomePage = ({ items, renderForm }) => (
   <div className={s.page}>
-    {console.log(renderForm)}
     <img src={image} alt="" />
-    <Link href="/about">asdqweqweqweqweasddasd</Link>
+    <Link href="/about">asdasdasdasdasdasdqweqwe</Link>
     <h1>{items.join(', ')} a<button onClick={() => console.log('asdasdasdasdqweqw')}>Hey</button>
     </h1>
   </div>

@@ -113,7 +113,7 @@ export function loadAsync(filepath) {
       }
 
       const map = yaml.safeLoad(source)
-      resolve(parseRoutesMap(map, '', '', false))
+      resolve(parseRoutesMap(map, '', '', true))
     })
   })
 }

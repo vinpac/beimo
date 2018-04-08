@@ -13,6 +13,7 @@ export class PageNotFoundError extends Error {
       name: this.name,
       message: this.message,
       status: this.status,
+      stack: __DEV__ ? this.stack : '',
     }
   }
 }

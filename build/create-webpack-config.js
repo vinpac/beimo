@@ -61,9 +61,12 @@ export default (params, { pages }, pagesWatcher) => {
       path: distDir,
       pathinfo: isVerbose,
       filename: '[name].js',
-      chunkFilename: isDev ? '[name].chunk.js' : '[name].[chunkhash:8].chunk.js',
-      devtoolModuleFilenameTemplate: info => path.join(baseDir, info.absoluteResourcePath),
+      chunkFilename: '[name]-[chunkhash].js',
+      strictModuleExceptionHandling: true,
+      devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     },
+
+    performance: { hints: false },
 
     resolve: { alias: { '__@@BEIMO_SOURCE__': sourceDir } },
 
@@ -202,7 +205,7 @@ export default (params, { pages }, pagesWatcher) => {
 
     // Choose a developer tool to enhance debugging
     // https://webpack.js.org/configuration/devtool/#devtool
-    devtool: isDev ? 'cheap-module-eval-source-map' : 'source-map',
+    devtool: isDev ? 'source-map' : 'source-map',
   }
 
   const clientConfig = {
@@ -293,13 +296,7 @@ export default (params, { pages }, pagesWatcher) => {
       // https://webpack.js.org/plugins/commons-chunk-plugin/
       new webpack.optimize.CommonsChunkPlugin({
         name: 'vendor',
-        minChunks: module => {
-          if (isDev) {
-            return false
-          }
-
-          return /node_modules/.test(module.resource)
-        },
+        filename: 'vendor.js',
       }),
 
       new PagesPlugin(pages, pagesWatcher),

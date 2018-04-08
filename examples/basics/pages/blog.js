@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 const Blog = ({ className }) => (
-  <h1>BLOG asdasdasdasd qweqwe qweqwe asdasd
+  <h1>BLOG asdawqeqweqweqwesdasdasd qweqwe qweqwe asdasd
   </h1>
 )
 

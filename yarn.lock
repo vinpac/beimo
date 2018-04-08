@@ -933,6 +933,10 @@ async-each@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/async-each/-/async-each-1.0.1.tgz#19d386a1d9edc6e7c1c85d388aedbcc56d33602d"
 
+async@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
+
 async@^2.1.2, async@^2.4.1:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/async/-/async-2.6.0.tgz#61a29abb6fcc026fea77e56d1c6ec53a795951f4"
@@ -3178,6 +3182,10 @@ http-parser-js@>=0.4.0:
   version "0.4.10"
   resolved "https://registry.yarnpkg.com/http-parser-js/-/http-parser-js-0.4.10.tgz#92c9c1374c35085f75db359ec56cc257cbb93fa4"
 
+http-shutdown@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/http-shutdown/-/http-shutdown-1.2.0.tgz#df2d8067a8856e99d11e9dceb21609591e1df514"
+
 http-signature@~1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/http-signature/-/http-signature-1.1.1.tgz#df72e267066cd0ac67fb76adf8e134a8fbcf91bf"
@@ -4351,6 +4359,12 @@ onetime@^2.0.0:
   resolved "https://registry.yarnpkg.com/onetime/-/onetime-2.0.1.tgz#067428230fd67443b2794b22bba528b6867962d4"
   dependencies:
     mimic-fn "^1.0.0"
+
+only-if-changed-webpack-plugin@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/only-if-changed-webpack-plugin/-/only-if-changed-webpack-plugin-0.0.1.tgz#89d1683792aec32a20cebb2083ade38345985034"
+  dependencies:
+    async "^1.5.2"
 
 opn@5.2.0:
   version "5.2.0"
