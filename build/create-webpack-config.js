@@ -220,7 +220,10 @@ export default (params, { pages }, pagesWatcher) => {
 
     entry: {
       ...clientEntries,
-      client: path.resolve(__dirname, '..', 'defaults', 'client.js'),
+      client: [
+        '@babel/polyfill',
+        path.resolve(__dirname, '..', 'defaults', 'client.js')
+      ],
     },
 
     module: {

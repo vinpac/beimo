@@ -37,6 +37,7 @@ hotClient.useCustomOverlay({
 
 hotClient.setOptionsAndConnect({
   name: 'client',
+  path: 'http://localhost:3001/__webpack_hmr',
   reload: true,
 })
 

@@ -22,7 +22,6 @@ export function render() {
 }
 
 export async function hydrate(element) {
-  console.log(window.APP_STATE)
   await Router.requirePage(window.APP_STATE.route.page)
   if (document.getElementById('__BEIMO_PAGE__/_app')) {
     try {

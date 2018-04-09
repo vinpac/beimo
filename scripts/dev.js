@@ -1,5 +1,6 @@
 import path from 'path'
 import chalk from 'chalk'
+import express from 'express'
 import webpack from 'webpack'
 import chokidar from 'chokidar'
 import { fork } from 'child_process'
@@ -18,20 +19,6 @@ import clean from './clean'
 
 // Add shutdown to http servers
 httpShutdown.extend()
-
-function shutdownServer(server, callback) {
-  if (server.shutdown) {
-    server.shutdown(callback)
-    return
-  }
-
-  if (server.close) {
-    server.close(callback)
-    return
-  }
-
-  console.log('COULD NOT SHUTDOWN')
-}
 
 function createCompilationPromise(compilers) {
   return new Promise((resolve, reject) => {
@@ -142,11 +129,11 @@ export default async params => {
 
   // Update config to development
   // Configure client-side hot module replacement
-  // clientConfig.entry.client = [
-  //   path.resolve(__dirname, '..', '..', 'client', 'webpack-hot-dev-client'),
-  // ]
-  //   .concat(clientConfig.entry.client)
-  //   .sort((a, b) => b.includes('polyfill') - a.includes('polyfill'))
+  clientConfig.entry.client = [
+    'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
+  ]
+    .concat(clientConfig.entry.client)
+    .sort((a, b) => b.includes('polyfill') - a.includes('polyfill'))
   clientConfig.output.filename = clientConfig.output.filename.replace('chunkhash', 'hash')
   clientConfig.output.chunkFilename = clientConfig.output.chunkFilename.replace('chunkhash', 'hash')
   clientConfig.module.rules = [
@@ -159,7 +146,7 @@ export default async params => {
     },
   ]
   clientConfig.plugins.push(
-    // new webpack.HotModuleReplacementPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.NamedModulesPlugin(),
   )
@@ -207,9 +194,17 @@ export default async params => {
       stats: false,
       logLevel: 'silent',
     }),
-    webpackHotMiddleware(clientCompiler, { log: false }),
   ]
   const [, devMiddleware] = middlewares
+  const hotServer = express()
+  hotServer.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Credentials', true)
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    next()
+  })
+  hotServer.use(devMiddleware)
+  hotServer.use(webpackHotMiddleware(clientCompiler, { log: false }))
+  hotServer.listen(3001, () => console.info('Hot server listening at http://localhost:3001'))
 
   await compilationPromise
   shouldUpdatePages = true
@@ -244,7 +239,9 @@ export default async params => {
             resolve({ type: 'text', headers, body })
           }
         },
-        setHeader: (...args) => headers.push(args),
+        setHeader: (...args) => {
+          headers.push(args)
+        },
       }
       let i = -1
       const next = () => {
@@ -263,8 +260,8 @@ export default async params => {
 
   // Configure server process
   const sp = {
-    resolve: (type, payload) => appServer.send({ type, payload }),
-    reject: (type, payload) => appServer.send({ type, payload, error: true }),
+    resolve: (type, payload, meta) => appServer.send({ type, payload, meta }),
+    reject: (type, payload, meta) => appServer.send({ type, payload, meta, error: true }),
   }
   runServer = () => {
     if (appServer) {
@@ -274,8 +271,8 @@ export default async params => {
 
     appServer = fork(path.resolve(params.distDir, 'server.js'))
     appServer.on('message', action => {
-      const resolve = payload => sp.resolve(action.type, payload)
-      const reject = payload => sp.resolve(action.type, payload)
+      const resolve = payload => sp.resolve(action.type, payload, action.meta)
+      const reject = payload => sp.resolve(action.type, payload, action.meta)
 
       switch (action.type) {
         case 'start':
@@ -283,7 +280,9 @@ export default async params => {
           break
         case 'handle':
           handleRequest(action.payload)
-            .then(resolve)
+            .then(response => {
+              resolve(response)
+            })
             .catch(reject)
           break
         case 'ensure-page':

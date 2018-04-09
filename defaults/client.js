@@ -1,3 +1,3 @@
-// import { hydrate } from '../client'
+import { hydrate } from '../client'
 
-console.log('qweqwe')
+hydrate(document.getElementById('root'))

@@ -153,6 +153,18 @@ class Beimo {
       route.props || {},
     )
 
+    if (response.redirect) {
+      // Express.js
+      if (res.redirect) {
+        res.redirect(response.redirect)
+      } else {
+        res.statusCode = response.status || 302
+        res.writeHead(res.statusCode, { Location: response.redirect })
+        res.end()
+      }
+      return
+    }
+
     // Define response status
     response.status = error ? response.status || error.status || 500 : 200
 
@@ -177,10 +189,10 @@ class Beimo {
           error && typeof error.toJSON === 'function'
             ? error.toJSON()
             : error && {
-                name: error.name,
-                message: error.message,
-                stack: __DEV__ ? error.stack : undefined,
-              },
+              name: error.name,
+              message: error.message,
+              stack: __DEV__ ? error.stack : undefined,
+            },
       },
     }
 
@@ -203,18 +215,6 @@ class Beimo {
         {body}
       </Document>,
     )}`
-
-    if (response.redirect) {
-      // Express.js
-      if (res.redirect) {
-        res.redirect(response.redirect)
-      } else {
-        res.statusCode = response.status || 302
-        res.writeHead(res.statusCode, { Location: response.redirect })
-        res.end()
-      }
-      return
-    }
 
     res.statusCode = response.status || 200
     res.setHeader('Cache-Control', 'no-store, must-revalidate')

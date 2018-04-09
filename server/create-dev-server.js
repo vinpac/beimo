@@ -2,8 +2,8 @@ import parseRegExp from '../build/utils/parse-regexp'
 
 const queue = {}
 
-function send(type, payload) {
-  process.send({ type, payload })
+function send(type, payload, meta) {
+  process.send({ type, payload, meta })
 }
 
 function clearDirCache(dir) {
@@ -16,28 +16,30 @@ function clearDirCache(dir) {
   })
 }
 
+let sentRequestId = 0
 function sendAsync(type, payload) {
+  sentRequestId += 1
+
   if (!queue[type]) {
-    queue[type] = []
+    queue[type] = {}
   }
 
   return new Promise(resolve => {
-    queue[type].push(resolve)
-    send(type, payload)
+    queue[type][sentRequestId] = resolve
+    send(type, payload, { id: sentRequestId })
   })
 }
 
 process.on('message', action => {
   if (queue[action.type]) {
-    queue[action.type].filter(fn => {
-      if (action.error) {
-        fn(new Error(action.payload))
-        return false
-      }
+    const fn = queue[action.type][action.meta.id]
 
-      fn(action.payload)
-      return false
-    })
+    if (action.error) {
+      fn(new Error(action.payload))
+      return
+    }
+
+    fn(action.payload)
   }
 })
 

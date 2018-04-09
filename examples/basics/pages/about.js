@@ -2,8 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 const AboutPage = ({ className }) => (
-  <div>
-    <h1>About </h1>
+  <div >
+    <h1>Aboutasdasqeqw</h1>
   </div>
 )
 
