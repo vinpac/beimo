@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import serialize from 'serialize-javascript'
 
 /* eslint-disable react/no-danger */
-const Document = ({ scripts, head, styles, appState, children }) => (
+const Document = ({ scripts, head, appState, children }) => (
   <html className="no-js" lang="en">
     <head>
       {scripts.map(script => <link key={script.src} rel="preload" href={script.src} as="script" />)}
@@ -15,23 +15,19 @@ const Document = ({ scripts, head, styles, appState, children }) => (
       {head.style.toComponent()}
       {head.script.toComponent()}
       {head.link.toComponent()}
-      {styles.map(style => (
-        style.url
-          ? <link rel="stylesheet" key={style.url} href={style.url} />
-          : <style key={style.id} data-style-loaded="true">{style.body}</style>
-      ))}
     </head>
     <body>
       <div id="root" dangerouslySetInnerHTML={{ __html: children }} />
-      <script dangerouslySetInnerHTML={{
-        __html: `
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
           window.__BEIMO_REGISTERED_PAGES = [];
           window.__BEIMO_REGISTER_PAGE = function(route, load) {
             window.__BEIMO_REGISTERED_PAGES.push([route, load]);
           }
           window.APP_STATE=${serialize(appState)};
         `,
-      }}
+        }}
       />
       {scripts.map(script => <script type="text/javascript" key={script.src} {...script} />)}
     </body>
@@ -40,9 +36,7 @@ const Document = ({ scripts, head, styles, appState, children }) => (
 
 Document.displayName = 'Document'
 Document.propTypes = {
-  scripts: PropTypes.arrayOf(
-    PropTypes.shape({ src: PropTypes.string.isRequired }),
-  ),
+  scripts: PropTypes.arrayOf(PropTypes.shape({ src: PropTypes.string.isRequired })),
   children: PropTypes.string.isRequired,
   head: PropTypes.shape({
     htmlAttributes: PropTypes.object.isRequired,
@@ -53,18 +47,10 @@ Document.propTypes = {
     link: PropTypes.object.isRequired,
   }).isRequired,
   appState: PropTypes.shape({ pageProps: PropTypes.object }).isRequired,
-  styles: PropTypes.arrayOf(
-    PropTypes.shape({
-      filepath: PropTypes.string,
-      content: PropTypes.string,
-      url: PropTypes.string,
-    }),
-  ),
 }
 
 Document.defaultProps = {
   scripts: [],
-  styles: [],
 }
 
 export default Document

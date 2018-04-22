@@ -1,17 +1,35 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import beimo from '../../..'
 
-const App = ({ children }) => (
-  <div className="app123">
-    {children}
-  </div>
-)
+class App extends React.Component {
+  state = { loading: false }
+  componentDidMount() {
+    beimo.hooks.state.tap(this.handleBeimoStateChange)
+  }
 
-App.displayName = 'App'
-App.getSharedState = sharedState => {
-  return { ...sharedState, initialReduxState: 'qweqwe' }
+  componentWillUnmount() {
+    beimo.hooks.state.untap(this.handleBeimoStateChange)
+  }
+
+  handleBeimoStateChange = beimoState => {
+    const loading = beimoState !== '@@beimo/rendered'
+    if (loading !== this.state.loading) {
+      this.setState({ loading })
+    }
+  }
+
+  render() {
+    const { children } = this.props
+    const { loading } = this.state
+
+    return (
+      <div className="app">
+        {loading && 'Carregando'}
+        {children}
+      </div>
+    )
+  }
 }
-App.getContext = () => {
-  return {}
-}
+
 export default App

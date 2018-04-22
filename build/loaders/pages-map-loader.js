@@ -1,7 +1,6 @@
 const yaml = require('js-yaml')
 const loaderUtils = require('loader-utils')
-const parseRoutesMap = require('../parse-routes-map').default
-
+const createRouterMap = require('../create-router-map').default
 
 module.exports = function pagesMapLoader(content) {
   if (this.cacheable) {
@@ -9,26 +8,28 @@ module.exports = function pagesMapLoader(content) {
   }
 
   const { isClient } = loaderUtils.getOptions(this)
+  const routerMap = createRouterMap(yaml.safeLoad(content))
 
   try {
     return `
-      var pages = [];
-      var routes = ${JSON.stringify(parseRoutesMap(yaml.safeLoad(content), '', '', true))}.map(
-        function(route) {
-          if (!pages.includes(route.page)) {
-            pages.push(route.page)
-          }
-
-          const lastSlashIndex = route.matcher.re.lastIndexOf('/');
-          route.matcher.re = new RegExp(
-            route.matcher.re.substr(1, lastSlashIndex - 1),
-            route.matcher.re.substr(lastSlashIndex + 1)
-          );
-          return route;
-        }
-      );
-
-      module.exports = { pages: pages, routes: routes };
+      module.exports = {
+        routes: [
+          ${routerMap.routes
+            .map(
+              route => `{
+          id: "${route.id}",
+          page: "${route.page}",
+          matcher: {
+            re: ${String(route.matcher.re)},
+            keys: ${JSON.stringify(route.matcher.keys)},
+          },
+          props: ${JSON.stringify(route.matcher.props)}
+        }`,
+            )
+            .join(',\n')}
+        ],
+        pages: ${JSON.stringify(routerMap.pages)},
+      }
 
       ${isClient &&
         `

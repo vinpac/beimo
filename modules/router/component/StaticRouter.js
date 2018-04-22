@@ -22,4 +22,4 @@ class StaticRouter extends React.Component {
   }
 }
 
-export default { StaticRouter }
+export default StaticRouter

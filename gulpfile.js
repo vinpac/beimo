@@ -1,7 +1,10 @@
+const path = require('path')
 const gulp = require('gulp')
 const babel = require('gulp-babel')
 const copy = require('gulp-copy')
-const babelConfig = require('./.babelrc')
+const fs = require('fs')
+
+const babelConfig = JSON.parse(fs.readFileSync(path.resolve('.babelrc'), 'utf8'))
 
 const sourceDirs = [
   'build/**/*.js',

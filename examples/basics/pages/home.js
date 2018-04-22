@@ -1,20 +1,24 @@
 import React from 'react'
-import s from './home.css'
-import image from './image.jpg'
+import PropTypes from 'prop-types'
+// import Toolbar from '../components/Toolbar'
 import Link from '../../../dist/modules/router/link'
-import abacate from '../lib'
+import Route from '../../../dist/modules/router/route'
 
-const HomePage = ({ items, renderForm }) => (
-  <div className={s.page}>
-    <Link href="/about">qweqqweqweqwewqqweweqweqwe</Link>
-    <h1>{items.join(', ')} a<button onClick={() => console.log('asdasdasdasdqweqw')}>Hey</button>
-    </h1>
+const home = ({ className }) => (
+  <div>
+    <Link href="/project/post-1" prefetch>
+      Tesasdasdasdasdweqeqqweqwqweqwqweqwqweqwqwe
+    </Link>
+    <Route path="/project/post-1">asdas</Route>
   </div>
 )
 
-HomePage.displayName = 'HomePage'
-HomePage.getInitialProps = ({ send }) => {
-  return { items: [1,2,3,5, 6,, 7, 8, 4] }
+home.displayName = 'home'
+home.propTypes = {
+  className: PropTypes.string,
+}
+home.defaultProps = {
+  className: undefined,
 }
 
-export default abacate(HomePage)
+export default home

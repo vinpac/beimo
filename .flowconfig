@@ -1,0 +1,5 @@
+[libs]
+types/
+
+[options]
+suppress_comment= \\(.\\|\n\\)*\\@flow-supress-next-line

@@ -1,24 +1,28 @@
 import path from 'path'
 import chalk from 'chalk'
-import express from 'express'
 import webpack from 'webpack'
 import chokidar from 'chokidar'
-import { fork } from 'child_process'
-import httpShutdown from 'http-shutdown'
 import webpackDevMiddleware from 'webpack-dev-middleware'
 import webpackHotMiddleware from 'webpack-hot-middleware'
-import OnlyIfChangedPlugin from 'only-if-changed-webpack-plugin'
 import errorOverlayMiddleware from 'react-dev-utils/errorOverlayMiddleware'
 import OnDemandEntryHandler from '../build/on-demand-entry-handler'
 import createWebpackConfig from '../build/create-webpack-config'
 import createPageEntries from '../build/create-entries'
-import { loadAsync, extractPagesFromRoutes } from '../build/parse-routes-map'
 import clearConsole from '../build/utils/clear-console'
+import loadRouterMapAsync from '../build/utils/load-router-map-async'
 import { PageNotFoundError } from '../modules/router'
+import { configure } from '../server/create-dev-server'
 import clean from './clean'
 
-// Add shutdown to http servers
-httpShutdown.extend()
+function clearDirCache(dir) {
+  // eslint-disable-next-line no-undef
+  Object.keys(require.cache).forEach(modulePath => {
+    if (modulePath.startsWith(dir)) {
+      // eslint-disable-next-line no-undef
+      delete require.cache[modulePath]
+    }
+  })
+}
 
 function createCompilationPromise(compilers) {
   return new Promise((resolve, reject) => {
@@ -75,26 +79,11 @@ export default async params => {
   // First clean the dist folder
   await clean(params)
   const { sourceDir, distDir, publicPath } = params
-
+  const RE_ASSET_PAGE = new RegExp(`^${publicPath}pages/(.+)\\.js`)
   const pagesDir = path.resolve(sourceDir, 'pages')
   const config = { watchOptions: {} }
-  const RE_ASSET_PAGE = new RegExp(`^${publicPath}pages/(.+)\\.js`)
-  let hasEverBuiltServer = false
   let shouldUpdatePages = false
-  const router = {}
-  let appServer
-  let runServer
-  let pagesModuleRe
-  const updatePagesModuleRe = () => {
-    pagesModuleRe = new RegExp(
-      `${path.join('pages', `${[...router.pages, '_app', '_error', '_document'].join('|')}.js`)}$`,
-    )
-  }
-
-  // Pages
-  router.routes = await loadAsync(path.resolve(pagesDir, 'index.yml'))
-  router.pages = extractPagesFromRoutes(router.routes)
-  updatePagesModuleRe()
+  let routerMap = await loadRouterMapAsync(path.resolve(pagesDir, 'index.yml'))
 
   // Build all pages
   Object.assign(params, createPageEntries(params, []))
@@ -105,10 +94,8 @@ export default async params => {
   pagesWatcher.on('change', () => {
     setTimeout(async () => {
       try {
-        router.routes = await loadAsync(path.resolve(pagesDir, 'index.yml'))
-        router.pages = extractPagesFromRoutes(router.routes)
-        routesWatchers.forEach(fn => fn(router.routes, router.pages))
-        updatePagesModuleRe()
+        routerMap = await loadRouterMapAsync(path.resolve(pagesDir, 'index.yml'))
+        routesWatchers.forEach(fn => fn(routerMap.routes, routerMap.pages))
         if (shouldUpdatePages) {
           console.info('> Pages map changed')
         }
@@ -125,13 +112,11 @@ export default async params => {
   }
 
   // Define compilers
-  const { clientConfig, serverConfig } = createWebpackConfig(params, router, pagesWatcher)
+  const { clientConfig, serverConfig } = createWebpackConfig(params, routerMap, pagesWatcher)
 
   // Update config to development
   // Configure client-side hot module replacement
-  clientConfig.entry.client = [
-    'webpack-hot-middleware/client?path=http://localhost:3001/__webpack_hmr',
-  ]
+  clientConfig.entry.client = [path.resolve(__dirname, '..', 'client', 'webpack-hot-dev-client')]
     .concat(clientConfig.entry.client)
     .sort((a, b) => b.includes('polyfill') - a.includes('polyfill'))
   clientConfig.output.filename = clientConfig.output.filename.replace('chunkhash', 'hash')
@@ -172,16 +157,9 @@ export default async params => {
   const clientCompiler = multiCompiler.compilers.find(compiler => compiler.name === 'client')
   const serverCompiler = multiCompiler.compilers.find(compiler => compiler.name === 'server')
   const compilationPromise = createCompilationPromise(multiCompiler.compilers)
-  const serverWatcher = serverCompiler.watch(config.watchOptions, (error, stats) => {
-    if (!hasEverBuiltServer) {
-      hasEverBuiltServer = true
-      return
-    }
-
-    const keys = Object.keys(serverWatcher.compiler.watchFileSystem.watcher.mtimes)
-
-    if (keys.some(modulePath => !pagesModuleRe.test(modulePath))) {
-      runServer()
+  const serverWatcher = serverCompiler.watch(config.watchOptions, error => {
+    if (error) {
+      console.error(error)
     }
   })
 
@@ -194,17 +172,9 @@ export default async params => {
       stats: false,
       logLevel: 'silent',
     }),
+    webpackHotMiddleware(clientCompiler, { log: false }),
   ]
   const [, devMiddleware] = middlewares
-  const hotServer = express()
-  hotServer.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Credentials', true)
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    next()
-  })
-  hotServer.use(devMiddleware)
-  hotServer.use(webpackHotMiddleware(clientCompiler, { log: false }))
-  hotServer.listen(3001, () => console.info('Hot server listening at http://localhost:3001'))
 
   await compilationPromise
   shouldUpdatePages = true
@@ -216,93 +186,60 @@ export default async params => {
     [devMiddleware, serverWatcher],
   )
 
-  const handleRequest = req => {
-    return new Promise(async (resolve, reject) => {
+  configure(instance => {
+    Object.assign(instance, routerMap)
+
+    // Override handle to run middlewares before runing
+    const defaultHandle = instance.handle
+    instance.handle = async (req, res, error) => {
+      if (error) {
+        return defaultHandle(req, res, error)
+      }
+
+      // Ensure page if requesting page asset
       const assetRequestMatch = RE_ASSET_PAGE.exec(req.path)
       if (assetRequestMatch) {
         try {
           await onDemandEntryHandler.ensurePage(assetRequestMatch[1])
-        } catch (error) {
+        } catch (ensureError) {
           if (!(error instanceof PageNotFoundError)) {
-            throw error
+            throw ensureError
           }
         }
       }
 
-      const headers = []
-      const res = {
-        json: payload => resolve({ type: 'json', headers, body: JSON.stringify(payload) }),
-        send: body => {
-          if (body instanceof Buffer) {
-            resolve({ type: 'buffer', headers, body })
-          } else {
-            resolve({ type: 'text', headers, body })
-          }
-        },
-        setHeader: (...args) => {
-          headers.push(args)
-        },
-      }
+      // Run middlewares
+      let miss
       let i = -1
-      const next = () => {
+      const runNextMiddleware = () => {
         i += 1
-        if (!middlewares[i]) {
-          resolve(null)
-          return
+
+        // Check if reached the end
+        if (i >= middlewares.length) {
+          miss = true
+          return null
         }
 
-        middlewares[i](req, res, next)
+        return middlewares[i](req, res, runNextMiddleware)
       }
 
-      next()
-    })
-  }
+      runNextMiddleware()
+      if (miss) {
+        return defaultHandle(req, res)
+      }
 
-  // Configure server process
-  const sp = {
-    resolve: (type, payload, meta) => appServer.send({ type, payload, meta }),
-    reject: (type, payload, meta) => appServer.send({ type, payload, meta, error: true }),
-  }
-  runServer = () => {
-    if (appServer) {
-      appServer.kill()
-      console.info('> Reload server')
+      return null
     }
 
-    appServer = fork(path.resolve(params.distDir, 'server.js'))
-    appServer.on('message', action => {
-      const resolve = payload => sp.resolve(action.type, payload, action.meta)
-      const reject = payload => sp.resolve(action.type, payload, action.meta)
+    // Override ensurePage to build pages on demand
+    const defaultEnsurePage = instance.ensurePage
+    instance.ensurePage = page => {
+      defaultEnsurePage(page)
+      clearDirCache(distDir)
 
-      switch (action.type) {
-        case 'start':
-          resolve({ ...router, distDir })
-          break
-        case 'handle':
-          handleRequest(action.payload)
-            .then(response => {
-              resolve(response)
-            })
-            .catch(reject)
-          break
-        case 'ensure-page':
-          onDemandEntryHandler
-            .ensurePage(action.payload)
-            .then(resolve)
-            .catch(reject)
-          break
-        default:
-          reject()
-          break
-      }
-    })
-  }
-
-  runServer()
-
-  process.on('exit', () => {
-    if (appServer) {
-      appServer.kill()
+      return onDemandEntryHandler.ensurePage(page)
     }
   })
+
+  require(path.resolve(distDir, 'server.js'))
 }

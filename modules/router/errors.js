@@ -17,3 +17,24 @@ export class PageNotFoundError extends Error {
     }
   }
 }
+
+export class Redirect extends Error {
+  constructor(to, action = 'push') {
+    super(`${action} to '${to}'`)
+
+    this.name = 'Redirect'
+    this.to = to
+    this.status = 302
+    this.action = action
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      to: this.to,
+      message: this.message,
+      status: this.status,
+      stack: __DEV__ ? this.stack : '',
+    }
+  }
+}

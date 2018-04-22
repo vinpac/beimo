@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { createMatcher, matchPath } from '..'
+import { createMatcher, matchPath } from '../core'
 
 const Route = (
   { path, fallback, children, component: Component, render, ...props },
@@ -32,17 +32,12 @@ Route.propTypes = {
   children: PropTypes.node,
   fallback: PropTypes.node,
 }
-
 Route.defaultProps = {
   children: undefined,
   component: undefined,
   render: undefined,
   fallback: null,
 }
-Route.defaultProps = {
-  children: undefined,
-}
-
 Route.contextTypes = {
   router: PropTypes.shape({ location: PropTypes.object.isRequired }).isRequired,
 }

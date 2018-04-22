@@ -1,3 +1,7 @@
 .page {
-  background: #333
+  background: $primary-color;
+}
+
+.component {
+  background: #111;
 }

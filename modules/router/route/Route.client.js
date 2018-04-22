@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Router from '..'
-import { createMatcher, matchPath } from '../utils'
+import beimo from '../../../..' // eslint-disable-line
+import { createMatcher, matchPath } from '../core'
 
 class Route extends React.Component {
   static propTypes = {
@@ -23,17 +23,17 @@ class Route extends React.Component {
     super(props)
 
     this.matcher = createMatcher(props.path, props)
-    this.state = { match: matchPath(Router.location.path, this.matcher) }
+    this.state = { match: matchPath(beimo.location.path, this.matcher) }
   }
 
   componentWillMount() {
-    this.unlisten = Router.history.listen(this.handleRouterChange)
+    this.unlisten = beimo.history.listen(this.handleRouterChange)
   }
 
   componentWillReceiveProps({ path: nextPath, ...nextProps }) {
     if (this.props.path !== nextPath) {
       this.matcher = createMatcher(nextPath, nextProps)
-      this.setState({ match: matchPath(Router.location.path, this.matcher) })
+      this.setState({ match: matchPath(beimo.location.path, this.matcher) })
     }
   }
 
@@ -51,7 +51,7 @@ class Route extends React.Component {
 
   render() {
     const { children, fallback, component: Component, render } = this.props
-    const { location } = Router
+    const { location } = beimo
     const { match } = this.state
 
     if (Component) {

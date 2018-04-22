@@ -198,6 +198,36 @@ export default (params, { pages }, pagesWatcher) => {
       client: ['@babel/polyfill', path.resolve(__dirname, '..', 'defaults', 'client.js')],
     },
 
+    module: {
+      ...baseConfig.module,
+      rules: [
+        ...baseConfig.module.rules,
+        // Rules for styles
+        {
+          test: RE_STYLE,
+          rules: [
+            {
+              loader: 'modular-style-loader',
+              options: { add: false, onChange: isDev, exportCSS: true, hmr: isDev },
+            },
+            {
+              loader: 'modular-css-loader',
+              options: {
+                sourceMap: true,
+                // CSS Nano http://cssnano.co/options/
+                minimize: !isDev,
+              },
+            },
+            // Apply PostCSS plugins including autoprefixer
+            {
+              loader: 'postcss-loader',
+              options: postCSSConfig,
+            },
+          ],
+        },
+      ],
+    },
+
     plugins: [
       ...baseConfig.plugins,
       ...(isRelease
@@ -320,56 +350,80 @@ export default (params, { pages }, pagesWatcher) => {
 
     module: {
       ...baseConfig.module,
-      rules: overrideRules(baseConfig.module.rules, rule => {
-        // Override babel-preset-env configuration for Node.js
-
-        if (rule.loader && rule.loader.endsWith('pages-map-loader')) {
-          return {
-            ...rule,
-            options: { isClient: false },
-          }
-        }
-
-        if (rule.loader === 'babel-loader') {
-          return {
-            ...rule,
-            options: {
-              ...rule.options,
-              presets: rule.options.presets.map(
-                preset =>
-                  preset[0] !== '@babel/preset-env'
-                    ? preset
-                    : [
-                        '@babel/preset-env',
-                        {
-                          targets: { node: 'current' },
-                          modules: false,
-                          useBuiltIns: false,
-                          debug: false,
-                        },
-                      ],
-              ),
+      rules: [
+        {
+          test: RE_STYLE,
+          rules: [
+            {
+              loader: 'modular-style-loader',
+              options: { exportCSS: true, server: true },
             },
-          }
-        }
-
-        // Override paths to static assets
-        if (
-          rule.loader === 'file-loader' ||
-          rule.loader === 'url-loader' ||
-          rule.loader === 'svg-url-loader'
-        ) {
-          return {
-            ...rule,
-            options: {
-              ...rule.options,
-              emitFile: false,
+            {
+              loader: 'modular-css-loader',
+              options: {
+                sourceMap: isDev,
+                // CSS Nano http://cssnano.co/options/
+                minimize: false,
+              },
             },
-          }
-        }
+            // Apply PostCSS plugins including autoprefixer
+            {
+              loader: 'postcss-loader',
+              options: postCSSConfig,
+            },
+          ],
+        },
+        ...overrideRules(baseConfig.module.rules, rule => {
+          // Override babel-preset-env configuration for Node.js
 
-        return rule
-      }),
+          if (rule.loader && rule.loader.endsWith('pages-map-loader')) {
+            return {
+              ...rule,
+              options: { isClient: false },
+            }
+          }
+
+          if (rule.loader === 'babel-loader') {
+            return {
+              ...rule,
+              options: {
+                ...rule.options,
+                presets: rule.options.presets.map(
+                  preset =>
+                    preset[0] !== '@babel/preset-env'
+                      ? preset
+                      : [
+                          '@babel/preset-env',
+                          {
+                            targets: { node: 'current' },
+                            modules: false,
+                            useBuiltIns: false,
+                            debug: false,
+                          },
+                        ],
+                ),
+              },
+            }
+          }
+
+          // Override paths to static assets
+          if (
+            rule.loader === 'file-loader' ||
+            rule.loader === 'url-loader' ||
+            rule.loader === 'svg-url-loader'
+          ) {
+            return {
+              ...rule,
+              options: {
+                ...rule.options,
+                emitFile: false,
+              },
+            }
+          }
+
+          return rule
+        }),
+      ],
     },
 
     plugins: [

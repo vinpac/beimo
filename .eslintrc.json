@@ -30,23 +30,17 @@
 
     "arrow-parens": ["error", "as-needed", { "requireForBlockBody": false }],
 
-    // Not supporting nested package.json yet
-    // https://github.com/benmosher/eslint-plugin-import/issues/458
     "import/no-extraneous-dependencies": "off",
 
     "no-param-reassign": ["error", { "props": false }],
 
-    // Allow js files to use jsx syntax, too
+    "indent": 0,
     "react/jsx-filename-extension": "off",
 
-    // https://github.com/kriasoft/react-starter-kit/pull/961
-    // You can reopen this if you still want this rule
     "react/prefer-stateless-function": "off",
     "import/no-dynamic-require": 0,
     "global-require": 0,
 
-    // Recommend not to leave any console.log in your code
-    // Use console.error, console.warn and console.info instead
     "no-console": [
       "error",
       {

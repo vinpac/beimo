@@ -1,3 +1,3 @@
-import { hydrate } from '../client'
+import beimo from '../client'
 
-hydrate(document.getElementById('root'))
+beimo.hydrate(document.getElementById('root'))

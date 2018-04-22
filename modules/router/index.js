@@ -1,3 +1,2 @@
-export { PageNotFoundError } from './errors'
-export { default } from './instance'
-export const PAGE_SCRIPT_ID_PREFIX = '__BEIMO_PAGE__/'
+export { PageNotFoundError, Redirect } from './errors'
+export { default } from './component'

@@ -4,13 +4,13 @@ import { getMessage } from './utils'
 
 const app = express()
 
-app.use(express.static(beimo.staticPath))
+app.use(express.static(beimo.staticDir))
 app.get('/abacate', (req, res) => res.json({ abacate: getMessage() }))
 app.get('*', async (req, res) => {
   await beimo.handle(req, res)
 })
 
-beimo.start(() =>
+beimo.prepare().then(() =>
   app.listen(3000, () => {
     console.info('Listening at http://localhost:3000')
   }),
