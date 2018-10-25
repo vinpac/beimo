@@ -144,34 +144,56 @@ export default params => {
                   ['@babel/preset-react', { development: isDev }],
                 ],
                 plugins: [
-                  ['module-resolver', {
-                    alias: {
-                      'beimo/head': 'react-helmet',
-                      'beimo/link': path.resolve(__dirname, '..', 'src', 'modules', 'Link'),
-                      'beimo/nav-link': path.resolve(__dirname, '..', 'src', 'modules', 'NavLink'),
-                      'beimo/route': path.resolve(__dirname, '..', 'src', 'modules', 'Route'),
-                      'beimo/router': path.resolve(__dirname, '..', 'src', 'modules', 'Router'),
-                      'beimo/redirect': path.resolve(__dirname, '..', 'src', 'modules', 'Redirect'),
-                      'beimo/page': path.resolve(__dirname, '..', 'src', 'modules', 'Router', 'page'),
-                      beimo: path.resolve(__dirname, '..', 'src', 'entry', 'app'),
+                  [
+                    'module-resolver',
+                    {
+                      alias: {
+                        'beimo/head': 'react-helmet',
+                        'beimo/link': path.resolve(__dirname, '..', 'src', 'modules', 'Link'),
+                        'beimo/nav-link': path.resolve(
+                          __dirname,
+                          '..',
+                          'src',
+                          'modules',
+                          'NavLink',
+                        ),
+                        'beimo/route': path.resolve(__dirname, '..', 'src', 'modules', 'Route'),
+                        'beimo/router': path.resolve(__dirname, '..', 'src', 'modules', 'Router'),
+                        'beimo/redirect': path.resolve(
+                          __dirname,
+                          '..',
+                          'src',
+                          'modules',
+                          'Redirect',
+                        ),
+                        'beimo/page': path.resolve(
+                          __dirname,
+                          '..',
+                          'src',
+                          'modules',
+                          'Router',
+                          'page',
+                        ),
+                        beimo: path.resolve(__dirname, '..', 'src', 'entry', 'app'),
+                      },
                     },
-                  }],
-                  ...(isDev ? [] : [
-                    // Replaces the React.createElement function with one that is more optimized
-                    // for production
-                    // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-inline-elements
-                    '@babel/plugin-transform-react-inline-elements',
-                    // Remove unnecessary React propTypes from the production build
-                    // https://github.com/oliviertassinari/babel-plugin-transform-react-remove-prop-types
-                    'transform-react-remove-prop-types',
-                  ]),
+                  ],
+                  ...(isDev
+                    ? []
+                    : [
+                        // Replaces the React.createElement function with one that is more optimized
+                        // for production
+                        // https://github.com/babel/babel/tree/master/packages/babel-plugin-transform-react-inline-elements
+                        '@babel/plugin-transform-react-inline-elements',
+                        // Remove unnecessary React propTypes from the production build
+                        // https://github.com/oliviertassinari/babel-plugin-transform-react-remove-prop-types
+                        'transform-react-remove-prop-types',
+                      ]),
                 ],
               },
             },
             {
-              include: [
-                path.resolve(__dirname, '..', 'src', 'entry'),
-              ],
+              include: [path.resolve(__dirname, '..', 'src', 'entry')],
               use: StringReplacePlugin.replace({
                 replacements: appModulesMap.map(module => ({
                   pattern: new RegExp(
@@ -184,22 +206,15 @@ export default params => {
                       modulePath = path.join(__dirname, '..', 'src', 'entry', 'null')
                     }
 
-                    return `'${path.relative(
-                      path.resolve(this.resource, '..'),
-                      modulePath,
-                    )}'`
+                    return `'${path.relative(path.resolve(this.resource, '..'), modulePath)}'`
                   },
                 })),
               }),
             },
             {
-              include: [
-                sourcePath,
-                path.resolve(__dirname, '..', 'src', 'entry', 'pages'),
-              ],
+              include: [sourcePath, path.resolve(__dirname, '..', 'src', 'entry', 'pages')],
               loader: path.resolve(__dirname, '..', 'src', 'lib', 'PagesLoader'),
               options: { pagesPath: path.join(sourcePath, 'pages'), isDev },
-
             },
             { loader: 'thread-loader' },
           ],
@@ -315,12 +330,14 @@ export default params => {
         {
           test: reStyle,
           rules: [
-            ...(isDev ? [
-              {
-                loader: 'modular-style-loader',
-                options: { add: true, server: true },
-              },
-            ] : []),
+            ...(isDev
+              ? [
+                  {
+                    loader: 'modular-style-loader',
+                    options: { add: true, server: true },
+                  },
+                ]
+              : []),
             {
               loader: isRelease ? 'modular-css-loader/locals' : 'modular-css-loader',
               options: {
@@ -344,19 +361,20 @@ export default params => {
               ...rule,
               options: {
                 ...rule.options,
-                presets: rule.options.presets.map(preset => (
-                  preset[0] !== '@babel/preset-env'
-                    ? preset
-                    : [
-                      '@babel/preset-env',
-                      {
-                        targets: { node: pkg.engines.node },
-                        modules: false,
-                        useBuiltIns: false,
-                        debug: false,
-                      },
-                    ]
-                )),
+                presets: rule.options.presets.map(
+                  preset =>
+                    preset[0] !== '@babel/preset-env'
+                      ? preset
+                      : [
+                          '@babel/preset-env',
+                          {
+                            targets: { node: pkg.engines.node },
+                            modules: false,
+                            useBuiltIns: false,
+                            debug: false,
+                          },
+                        ],
+                ),
               },
             }
           }
@@ -436,31 +454,33 @@ export default params => {
         // Rules for styles
         {
           test: reStyle,
-          ...isDev ? {
-            // Development configuration
-            rules: [
-              {
-                loader: 'modular-style-loader',
-                options: { add: true, hmr: true },
-              },
-              {
-                loader: 'modular-css-loader',
-                options: {
-                  sourceMap: true,
-                  // CSS Nano http://cssnano.co/options/
-                  minimize: false,
-                },
-              },
-              // Apply PostCSS plugins including autoprefixer
-              {
-                loader: 'postcss-loader',
-                options: postCSSConfig,
-              },
-            ],
-          } : {
-            // Release configuration
-            loader: extractTextPlugin.extract(extractOptions),
-          },
+          ...(isDev
+            ? {
+                // Development configuration
+                rules: [
+                  {
+                    loader: 'modular-style-loader',
+                    options: { add: true, hmr: true },
+                  },
+                  {
+                    loader: 'modular-css-loader',
+                    options: {
+                      sourceMap: true,
+                      // CSS Nano http://cssnano.co/options/
+                      minimize: false,
+                    },
+                  },
+                  // Apply PostCSS plugins including autoprefixer
+                  {
+                    loader: 'postcss-loader',
+                    options: postCSSConfig,
+                  },
+                ],
+              }
+            : {
+                // Release configuration
+                loader: extractTextPlugin.extract(extractOptions),
+              }),
         },
       ],
     },
@@ -484,56 +504,56 @@ export default params => {
       // https://webpack.js.org/plugins/commons-chunk-plugin/
       new webpack.optimize.CommonsChunkPlugin({
         name: 'vendor',
-        filename: 'vendor.js',
-        minChunks: isRelease ? (
-          module => {
-            if (isDev) {
-              return false
-            }
+        filename: '[chunkhash:8].js',
+        minChunks: isRelease
+          ? module => {
+              if (isDev) {
+                return false
+              }
 
-            return /node_modules/.test(module.resource)
-          }
-        ) : undefined,
+              return /node_modules/.test(module.resource)
+            }
+          : undefined,
       }),
 
       // If release
       ...(!isDev
         ? [
-          // Required plugin to extract css
-          extractTextPlugin,
-          // Decrease script evaluation time
-          // https://github.com/webpack/webpack/blob/master/examples/scope-hoisting/README.md
-          new webpack.optimize.ModuleConcatenationPlugin(),
+            // Required plugin to extract css
+            extractTextPlugin,
+            // Decrease script evaluation time
+            // https://github.com/webpack/webpack/blob/master/examples/scope-hoisting/README.md
+            new webpack.optimize.ModuleConcatenationPlugin(),
 
-          // Minimize all JavaScript output of chunks
-          // https://github.com/mishoo/UglifyJS2#compressor-options
-          new UglifyJSPlugin({
-            uglifyOptions: {
-              ecma: 5,
-              compress: {
-                warnings: isVerbose,
-                // Disabled because of an issue with Uglify breaking seemingly valid code:
-                // https://github.com/facebookincubator/create-react-app/issues/2376
-                // Pending further investigation:
-                // https://github.com/mishoo/UglifyJS2/issues/2011
-                comparisons: false,
+            // Minimize all JavaScript output of chunks
+            // https://github.com/mishoo/UglifyJS2#compressor-options
+            new UglifyJSPlugin({
+              uglifyOptions: {
+                ecma: 5,
+                compress: {
+                  warnings: isVerbose,
+                  // Disabled because of an issue with Uglify breaking seemingly valid code:
+                  // https://github.com/facebookincubator/create-react-app/issues/2376
+                  // Pending further investigation:
+                  // https://github.com/mishoo/UglifyJS2/issues/2011
+                  comparisons: false,
+                },
+                mangle: { safari10: true },
+                output: {
+                  comments: false,
+                  // Turned on because emoji and regex is not minified properly using default
+                  // https://github.com/facebookincubator/create-react-app/issues/2488
+                  ascii_only: true,
+                },
               },
-              mangle: { safari10: true },
-              output: {
-                comments: false,
-                // Turned on because emoji and regex is not minified properly using default
-                // https://github.com/facebookincubator/create-react-app/issues/2488
-                ascii_only: true,
-              },
-            },
-            // Use multi-process parallel running to improve the build speed
-            // Default number of concurrent runs: os.cpus().length - 1
-            parallel: true,
-            // Enable file caching
-            cache: true,
-            sourceMap: true,
-          }),
-        ]
+              // Use multi-process parallel running to improve the build speed
+              // Default number of concurrent runs: os.cpus().length - 1
+              parallel: true,
+              // Enable file caching
+              cache: true,
+              sourceMap: true,
+            }),
+          ]
         : []),
     ],
 
@@ -549,10 +569,14 @@ export default params => {
   }
 
   if (parseWebpackConfig) {
-    return parseWebpackConfig({
-      client: clientConfig,
-      server: serverConfig,
-    }, params, { extractTextPlugin, extractOptions, postCSSConfig, reStyle, reScript, reImage })
+    return parseWebpackConfig(
+      {
+        client: clientConfig,
+        server: serverConfig,
+      },
+      params,
+      { extractTextPlugin, extractOptions, postCSSConfig, reStyle, reScript, reImage },
+    )
   }
 
   return {

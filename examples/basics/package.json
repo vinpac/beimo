@@ -1,7 +1,8 @@
 {
   "name": "basics",
   "scripts": {
-    "start": "beimo"
+    "start": "beimo",
+    "build": "beimo build"
   },
   "devDependencies": {
     "beimo": "^0.0.1-beta.1"
